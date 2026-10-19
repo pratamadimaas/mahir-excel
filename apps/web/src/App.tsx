@@ -16,7 +16,7 @@ import { SprintPage } from './features/sprint/SprintPage';
 import { ProgressPage } from './features/progress/ProgressPage';
 import { CertificateVerifyPage, SharedProgressPage } from './features/progress/Sharing';
 import { ShortcutsPage } from './features/shortcuts/ShortcutsPage';
-import { AboutPage, NotFoundPage, PrivacyPage } from './features/StaticPages';
+import { AboutPage, NotFoundPage, PrivacyPage, TermsPage } from './features/StaticPages';
 import { WorksheetDetailPage, WorksheetsPage } from './features/worksheets/WorksheetPages';
 
 // Area admin jarang dipakai: dimuat terpisah agar bundel pengunjung tetap kecil.
@@ -81,6 +81,7 @@ export function AppRoutes() {
         <Route path="profil" element={<ProfilePage />} />
         <Route path="tentang" element={<AboutPage />} />
         <Route path="privasi" element={<PrivacyPage />} />
+        <Route path="syarat" element={<TermsPage />} />
         <Route path="admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="pengguna" element={<AdminUsers />} />

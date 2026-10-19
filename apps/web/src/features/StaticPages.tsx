@@ -124,6 +124,61 @@ export function AboutPage() {
   );
 }
 
+export function TermsPage() {
+  useDocumentTitle('Syarat dan ketentuan');
+  return (
+    <div className="xl-page xl-page-narrow xl-prose py-4">
+      <header className="xl-page-head">
+        <h1>Syarat dan ketentuan</h1>
+        <p className="xl-muted">Dengan membuat akun atau memakai Mahir Excel, kamu setuju dengan hal-hal berikut.</p>
+      </header>
+
+      <h2>Layanan</h2>
+      <p>
+        Mahir Excel adalah platform belajar Microsoft Excel berbahasa Indonesia. Pelajaran, latihan, shortcut, tes penempatan, dan
+        sebagian worksheet gratis setelah kamu membuat akun. Premium menambah fitur seperti yang tertulis di halaman{' '}
+        <Link to="/premium">Premium</Link>.
+      </p>
+
+      <h2>Akunmu</h2>
+      <ul>
+        <li>Gunakan email yang benar dan jaga kata sandimu. Kamu bertanggung jawab atas aktivitas di akunmu.</li>
+        <li>Satu orang satu akun. Jangan membagikan akun Premium kepada orang lain.</li>
+        <li>Kamu bisa menghapus akunmu kapan saja di halaman Profil. Penghapusan bersifat permanen.</li>
+      </ul>
+
+      <h2>Premium</h2>
+      <ul>
+        <li>Pembayaran dan aktivasi dilakukan manual oleh pengelola, di luar aplikasi. Premium aktif setelah pembayaran dicek.</li>
+        <li>Masa aktif dan harga tertera di halaman Premium. Setelah masa aktif berakhir, akunmu kembali ke paket gratis dan progresmu tetap ada.</li>
+        <li>Soal pembayaran atau pengembalian dana, hubungi pengelola lewat tautan kontak. Tidak ada pembayaran otomatis di dalam aplikasi.</li>
+      </ul>
+
+      <h2>Aturan pemakaian</h2>
+      <ul>
+        <li>Jangan menyalahgunakan layanan: meretas, membebani server dengan sengaja, atau mengakses akun orang lain.</li>
+        <li>Jangan menyalin atau menjual ulang materi, worksheet, dan kunci jawaban tanpa izin pengelola.</li>
+        <li>Nama yang kamu pakai di papan peringkat Sprint tampil untuk umum. Nama yang melanggar kesopanan dapat disembunyikan pengelola.</li>
+        <li>Pengelola dapat menonaktifkan akun yang melanggar aturan ini.</li>
+      </ul>
+
+      <h2>Batasan</h2>
+      <ul>
+        <li>Materi dibuat sebaik mungkin, tetapi bisa saja ada kekeliruan. Perilaku Excel juga dapat berbeda antar versi.</li>
+        <li>Sertifikat adalah penanda penyelesaian belajar di Mahir Excel, bukan sertifikasi resmi Microsoft.</li>
+        <li>Layanan diberikan apa adanya. Kami berusaha menjaganya tetap berjalan, tetapi tidak bisa menjamin tanpa gangguan.</li>
+        <li>Mahir Excel tidak berafiliasi dengan Microsoft. Microsoft dan Excel adalah merek dagang Microsoft Corporation.</li>
+      </ul>
+
+      <h2>Perubahan</h2>
+      <p>
+        Syarat ini dapat diperbarui. Perubahan penting diumumkan di situs ini. Bagaimana datamu disimpan dijelaskan di halaman{' '}
+        <Link to="/privasi">Privasi dan data</Link>.
+      </p>
+    </div>
+  );
+}
+
 export function PrivacyPage() {
   useDocumentTitle('Privasi dan data');
   return (

@@ -58,6 +58,9 @@ export function Footer() {
               <li>
                 <Link to="/privasi">{t('footer.privacy')}</Link>
               </li>
+              <li>
+                <Link to="/syarat">{t('footer.terms')}</Link>
+              </li>
               {CONTACT && (
                 <li>
                   <a href={CONTACT} rel="noopener noreferrer">

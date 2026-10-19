@@ -254,7 +254,8 @@ export function RegisterPage() {
         </button>
       </form>
       <p className="mt-4 xl-small xl-muted">
-        {t('register.privacyPre')} <Link to="/privasi">{t('register.privacyLink')}</Link>.
+        {t('register.privacyPre')} <Link to="/privasi">{t('register.privacyLink')}</Link>. {t('register.termsPre')}{' '}
+        <Link to="/syarat">{t('register.termsLink')}</Link>.
       </p>
       <p className="mb-1">
         {t('register.haveAccount')} <Link to="/masuk">{t('login.title')}</Link>

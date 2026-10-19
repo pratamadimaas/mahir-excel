@@ -53,6 +53,7 @@ export const id = {
   'footer.info': 'Info',
   'footer.about': 'Tentang',
   'footer.privacy': 'Privasi dan data',
+  'footer.terms': 'Syarat dan ketentuan',
   'footer.contact': 'Kontak',
   'footer.auth': 'Masuk / daftar',
 
@@ -115,6 +116,8 @@ export const id = {
   'register.submit': 'Daftar',
   'register.privacyPre': 'Kami hanya menyimpan email, nama tampilan, kata sandi (terenkripsi), dan progres belajarmu. Lihat',
   'register.privacyLink': 'Privasi dan data',
+  'register.termsPre': 'Dengan mendaftar, kamu setuju dengan',
+  'register.termsLink': 'syarat dan ketentuan',
   'register.haveAccount': 'Sudah punya akun?',
   'register.codeInstead': 'Tidak mau repot kata sandi?',
   'register.codeLink': 'Masuk dengan kode lewat email',
@@ -194,6 +197,7 @@ export const en: Messages = {
   'footer.info': 'Info',
   'footer.about': 'About',
   'footer.privacy': 'Privacy and data',
+  'footer.terms': 'Terms and conditions',
   'footer.contact': 'Contact',
   'footer.auth': 'Log in / sign up',
 
@@ -256,6 +260,8 @@ export const en: Messages = {
   'register.submit': 'Sign up',
   'register.privacyPre': 'We only store your email, display name, password (encrypted), and learning progress. See',
   'register.privacyLink': 'Privacy and data',
+  'register.termsPre': 'By signing up, you agree to the',
+  'register.termsLink': 'terms and conditions',
   'register.haveAccount': 'Already have an account?',
   'register.codeInstead': 'Prefer no password?',
   'register.codeLink': 'Log in with a code by email',
