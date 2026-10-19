@@ -8,6 +8,9 @@ COPY packages/shared/package.json packages/shared/
 COPY packages/spreadsheet-engine/package.json packages/spreadsheet-engine/
 RUN npm ci
 COPY . .
+# Tautan kontak di footer ikut tertanam saat build web (dibaca Vite dari lingkungan build).
+ARG VITE_CONTACT_URL=""
+ENV VITE_CONTACT_URL=$VITE_CONTACT_URL
 RUN npm run build && npm prune --omit=dev
 
 FROM node:22-alpine

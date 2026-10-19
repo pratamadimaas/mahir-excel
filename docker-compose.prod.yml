@@ -18,7 +18,10 @@ services:
       retries: 10
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_CONTACT_URL: ${VITE_CONTACT_URL:-}
     restart: unless-stopped
     depends_on:
       mysql:

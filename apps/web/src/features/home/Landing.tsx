@@ -561,7 +561,7 @@ function Maker() {
         </Link>
         {CONTACT && (
           <a className="btn btn-primary" href={CONTACT} target="_blank" rel="noopener noreferrer">
-            Hubungi pembuatnya
+            Hubungi Codewithdims
           </a>
         )}
       </div>
