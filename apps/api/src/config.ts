@@ -53,6 +53,10 @@ const envSchema = z.object({
   SPRINT_SECONDS: z.coerce.number().int().min(5).max(180).default(60),
   PREMIUM_PRICE_LABEL: z.string().default('Rp 29.000 untuk 12 bulan'),
   PREMIUM_CONTACT_URL: z.string().optional(),
+  PREMIUM_PRICE_IDR: z.coerce.number().int().min(1500).max(10_000_000).default(29000),
+  PREMIUM_MONTHS: z.coerce.number().int().min(1).max(60).default(12),
+  XENDIT_SECRET_KEY: z.string().optional(),
+  XENDIT_CALLBACK_TOKEN: z.string().optional(),
 });
 
 export type MailMode = 'smtp' | 'console' | 'memory' | 'disabled';
@@ -73,7 +77,9 @@ export interface Config {
   googleClientId?: string;
   /** Lama satu ronde Sprint dalam detik (bawaan 60). */
   sprintSeconds: number;
-  premium: { priceLabel: string; contactUrl?: string };
+  premium: { priceLabel: string; contactUrl?: string; priceIdr: number; months: number };
+  /** Pembayaran QRIS lewat Xendit; aktif bila kunci rahasia dan token callback sama-sama diisi. */
+  payments: { secretKey?: string; callbackToken?: string; callbackUrl: string };
   mail: { mode: MailMode; from: string; smtp?: { host: string; port: number; secure: boolean; user?: string; pass?: string } };
 }
 
@@ -107,7 +113,17 @@ export function loadConfig(overrides: Record<string, string | undefined> = {}): 
     migrationsDir: path.join(repoRoot, 'database/migrations'),
     googleClientId: e.GOOGLE_CLIENT_ID?.trim() || undefined,
     sprintSeconds: e.SPRINT_SECONDS,
-    premium: { priceLabel: e.PREMIUM_PRICE_LABEL, contactUrl: e.PREMIUM_CONTACT_URL?.trim() || undefined },
+    premium: {
+      priceLabel: e.PREMIUM_PRICE_LABEL,
+      contactUrl: e.PREMIUM_CONTACT_URL?.trim() || undefined,
+      priceIdr: e.PREMIUM_PRICE_IDR,
+      months: e.PREMIUM_MONTHS,
+    },
+    payments: {
+      secretKey: e.XENDIT_SECRET_KEY?.trim() || undefined,
+      callbackToken: e.XENDIT_CALLBACK_TOKEN?.trim() || undefined,
+      callbackUrl: `${(e.WEB_ORIGIN.split(',')[0] ?? '').trim().replace(/\/$/, '')}/api/payments/xendit/callback`,
+    },
     mail: {
       mode: mailMode,
       from: e.MAIL_FROM,

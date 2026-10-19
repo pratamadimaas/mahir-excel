@@ -35,6 +35,8 @@ const CSRF_EXEMPT = new Set([
   '/api/auth/email/request',
   '/api/auth/email/verify',
   '/api/auth/google',
+  // Callback server-ke-server dari Xendit: tidak membawa cookie, keasliannya dicek lewat x-callback-token.
+  '/api/payments/xendit/callback',
   '/api/track',
   '/api/placement',
 ]);

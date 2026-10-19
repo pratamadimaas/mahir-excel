@@ -444,7 +444,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
           </ul>
           {price && <p className="xl-l-price">{price}</p>}
           <Link to="/premium" className="btn btn-outline-primary">
-            Lihat cara aktivasi
+            Lihat Premium
           </Link>
         </div>
       </div>

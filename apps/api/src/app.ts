@@ -10,11 +10,13 @@ import { repoRoot } from './config';
 import { rows, type Db } from './db/pool';
 import { createGoogleVerifier, type GoogleVerifier } from './lib/google';
 import { createMailer, type Mailer } from './lib/mailer';
+import { createXendit, type PaymentGateway } from './lib/xendit';
 import { createAuth, type Auth } from './middleware/auth';
 import { createErrorHandler, errorBody, notFoundHandler } from './middleware/errors';
 import { adminRoutes } from './routes/admin';
 import { authRoutes } from './routes/auth';
 import { emailAuthRoutes } from './routes/emailAuth';
+import { paymentRoutes } from './routes/payments';
 import { placementRoutes } from './routes/placement';
 import { socialRoutes } from './routes/social';
 import { sprintRoutes } from './routes/sprint';
@@ -28,6 +30,7 @@ export interface Ctx {
   auth: Auth;
   mailer: Mailer;
   google: GoogleVerifier;
+  payments: PaymentGateway;
 }
 
 export function createApp(
@@ -35,10 +38,11 @@ export function createApp(
   config: Config,
   mailer: Mailer = createMailer(config),
   google: GoogleVerifier = createGoogleVerifier(config.googleClientId),
+  payments: PaymentGateway = createXendit(config),
 ): Express {
   const app = express();
   const auth = createAuth(db, config);
-  const ctx: Ctx = { db, config, auth, mailer, google };
+  const ctx: Ctx = { db, config, auth, mailer, google, payments };
 
   app.disable('x-powered-by');
   if (config.env === 'production') app.set('trust proxy', 1);
@@ -98,6 +102,7 @@ export function createApp(
   app.use('/api', sprintRoutes(ctx));
   app.use('/api/progress', progressRoutes(ctx));
   app.use('/api', socialRoutes(ctx));
+  app.use('/api', paymentRoutes(ctx));
   app.use('/api/admin', adminRoutes(ctx));
   app.use('/api', contentRoutes(ctx));
   app.use('/api', notFoundHandler);

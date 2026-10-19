@@ -18,7 +18,7 @@ Mahir Excel adalah platform belajar Microsoft Excel berbahasa Indonesia yang gra
 - **Beranda pengunjung yang panjang** (`apps/web/src/features/home/Landing.tsx`): lab kesalahan interaktif (4 kasus nyata yang bisa diperbaiki), latihan mencoba rumus tanpa akun, kurikulum dengan angka asli dari `/api/public/overview`, contoh umpan balik, daftar alat, batasan, perbandingan Gratis dan Premium, dan FAQ. Semua contoh dijalankan oleh mesin rumus dan dicek tes (`landing.test.tsx`), jadi klaimnya tidak bisa basi diam-diam.
 - **Sprint 60 detik** (`/sprint`, tanpa akun): adu cepat menjawab soal Excel yang dibuat server tanpa batas (hasil rumus, nama galat, shortcut Windows), kunci jawaban dihitung oleh mesin rumus sungguhan. Skor +10 dengan bonus rentetan, salah -5. Papan peringkat publik (hari ini, 7 hari, sepanjang masa) dengan satu baris per nama dan moderasi admin (`/admin/sprint`). Anti-curang dasar: soal dan waktu dikendalikan server, jeda minimum 400 ms per jawaban, satu jawaban per soal, batas laju. Lama ronde diatur `SPRINT_SECONDS`.
 - **Login dengan Google** (opsional, perlu `GOOGLE_CLIENT_ID`): akun dibuat otomatis, email Google harus terverifikasi, admin tetap wajib kata sandi. Token diverifikasi di server (tanda tangan RS256, audience, issuer, masa berlaku).
-- **Premium** (aktivasi manual oleh admin, tanpa payment gateway): sertifikat PDF dan kunci jawaban worksheet. Sisanya gratis. Atur `PREMIUM_PRICE_LABEL` dan `PREMIUM_CONTACT_URL`.
+- **Premium** (QRIS lewat Xendit, atau aktivasi manual oleh admin): solusi langsung di latihan, 7 worksheet lanjutan, kunci jawaban, dan sertifikat PDF. Sisanya gratis. Atur `PREMIUM_PRICE_LABEL`, `PREMIUM_PRICE_IDR`, `PREMIUM_MONTHS`, `XENDIT_SECRET_KEY`, `XENDIT_CALLBACK_TOKEN`, dan `PREMIUM_CONTACT_URL`. Lihat docs/DEPLOY.md.
 - **Bagikan hasil tes penempatan** ke WhatsApp atau salin teks (hanya skor dan level, tanpa nama).
 - **Dua bahasa**: antarmuka Indonesia dan English (cangkang, beranda, dan masuk/daftar); isi pelajaran hanya Bahasa Indonesia.
 - **53 shortcut** (Windows/Mac) dengan pencarian, filter, favorit lokal, dan mode kuis.
@@ -129,7 +129,7 @@ Perangkat lunaknya gratis, tetapi **infrastruktur (hosting, database terkelola, 
 
 ## Variabel lingkungan
 
-Lihat `.env.example`. Ringkas: `GOOGLE_CLIENT_ID`, `PREMIUM_PRICE_LABEL`, `PREMIUM_CONTACT_URL`, `MAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` (email), `API_PORT`, `WEB_ORIGIN` (boleh dipisah koma), `DB_*`, `JWT_SECRET`, `COOKIE_SECURE`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `WORKSHEET_DIR`, `SERVE_WEB`, `VITE_CONTACT_URL` (tautan kontak di footer; disembunyikan bila kosong), `VITE_API_URL` (opsional).
+Lihat `.env.example`. Ringkas: `GOOGLE_CLIENT_ID`, `PREMIUM_PRICE_LABEL`, `PREMIUM_PRICE_IDR`, `PREMIUM_MONTHS`, `XENDIT_SECRET_KEY`, `XENDIT_CALLBACK_TOKEN`, `PREMIUM_CONTACT_URL`, `MAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` (email), `API_PORT`, `WEB_ORIGIN` (boleh dipisah koma), `DB_*`, `JWT_SECRET`, `COOKIE_SECURE`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `WORKSHEET_DIR`, `SERVE_WEB`, `VITE_CONTACT_URL` (tautan kontak di footer; disembunyikan bila kosong), `VITE_API_URL` (opsional).
 
 ## Email (login kode dan lupa kata sandi)
 

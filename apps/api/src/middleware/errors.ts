@@ -11,7 +11,8 @@ export type ErrorCode =
   | 'RATE_LIMITED'
   | 'INTERNAL_ERROR'
   | 'SERVICE_UNAVAILABLE'
-  | 'PREMIUM_REQUIRED';
+  | 'PREMIUM_REQUIRED'
+  | 'PAYMENT_PROVIDER_ERROR';
 
 export class AppError extends Error {
   constructor(

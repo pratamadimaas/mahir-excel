@@ -11,7 +11,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export interface AuthConfig {
   emailEnabled: boolean;
   googleClientId: string | null;
-  premium: { priceLabel: string; contactUrl: string | null };
+  premium: { priceLabel: string; contactUrl: string | null; paymentEnabled?: boolean; priceIdr?: number; months?: number };
 }
 
 const DEFAULT_CONFIG: AuthConfig = { emailEnabled: false, googleClientId: null, premium: { priceLabel: '', contactUrl: null } };

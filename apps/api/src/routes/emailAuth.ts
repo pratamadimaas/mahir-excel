@@ -38,7 +38,7 @@ const BAD_CODE = 'Kode salah atau sudah kedaluwarsa. Minta kode baru bila perlu.
  * maksimal 5 percobaan, sekali pakai, jeda 60 detik per email, pembatasan laju per IP,
  * dan respons permintaan selalu sama (tidak membocorkan apakah email terdaftar).
  */
-export function emailAuthRoutes({ db, config, auth, mailer, google }: Ctx): Router {
+export function emailAuthRoutes({ db, config, auth, mailer, google, payments }: Ctx): Router {
   const r = Router();
 
   const limiter = (limit: number) =>
@@ -74,7 +74,13 @@ export function emailAuthRoutes({ db, config, auth, mailer, google }: Ctx): Rout
       data: {
         emailEnabled: mailer.enabled,
         googleClientId: google.clientId,
-        premium: { priceLabel: config.premium.priceLabel, contactUrl: config.premium.contactUrl ?? null },
+        premium: {
+          priceLabel: config.premium.priceLabel,
+          contactUrl: config.premium.contactUrl ?? null,
+          paymentEnabled: payments.enabled,
+          priceIdr: config.premium.priceIdr,
+          months: config.premium.months,
+        },
       },
     });
   });

@@ -4,6 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { placementQuestions } from '@excellab/shared';
 import { EMPTY_PROGRESS, MODULES, STUDENT, mockApi, renderApp } from './testutil';
 
+// jsdom tidak punya canvas, jadi gambar QR diganti gambar kecil; yang diuji adalah alurnya, bukan pustaka QR.
+vi.mock('qrcode', () => ({ toDataURL: async () => 'data:image/png;base64,iVBORw0KGgo=' }));
+
 const ANON = { 'GET /auth/me': { user: null, csrfToken: null } };
 const CONFIG = {
   emailEnabled: false,
@@ -122,6 +125,64 @@ describe('halaman Premium', () => {
     expect(await screen.findByText('Premium aktif')).toBeInTheDocument();
     expect(screen.getByText(/19 Oktober 2027/)).toBeInTheDocument();
     expect(screen.queryByText('Cara mengaktifkan')).not.toBeInTheDocument();
+  });
+
+  describe('bayar dengan QRIS', () => {
+    const PAY_CONFIG = { ...CONFIG, premium: { ...CONFIG.premium, paymentEnabled: true, priceIdr: 29000, months: 12 } };
+    const pending = { id: 5, status: 'pending', amount: 29000, months: 12, qrString: '000201QRIS-UJI', expiresAt: '2027-01-01T03:00:00.000Z' };
+
+    it('pengguna gratis melihat tombol bayar, bukan cara manual, dan QR muncul setelah diklik', async () => {
+      mockApi({ ...free, 'GET /auth/config': PAY_CONFIG, 'POST /payments/premium-order': () => ({ status: 201, body: { data: pending } }) });
+      renderApp('/premium');
+      expect(screen.queryByText('Cara mengaktifkan')).not.toBeInTheDocument();
+      await userEvent.click(await screen.findByRole('button', { name: /Bayar Rp\s?29\.000 dengan QRIS/ }));
+      expect(await screen.findByAltText('Kode QRIS untuk membayar Premium')).toBeInTheDocument();
+      expect(screen.getByText(/Menunggu pembayaran/)).toBeInTheDocument();
+      expect(screen.getByText(/Pembayaran QRIS diproses oleh Xendit/)).toBeInTheDocument();
+    });
+
+    it('setelah server melaporkan paid, tampil konfirmasi dan status akun dimuat ulang', async () => {
+      let polls = 0;
+      let paid = false;
+      const fetchMock = mockApi({
+        ...free,
+        'GET /auth/config': PAY_CONFIG,
+        'GET /auth/me': () => ({
+          body: { data: { user: paid ? { ...STUDENT, premium: true, premiumUntil: '2027-10-19T03:00:00.000Z' } : STUDENT, csrfToken: 'tok' } },
+        }),
+        'POST /payments/premium-order': () => ({ status: 201, body: { data: pending } }),
+        'GET /payments/orders/5': () => {
+          polls++;
+          paid = true;
+          return { body: { data: { ...pending, status: 'paid', qrString: null } } };
+        },
+      });
+      renderApp('/premium');
+      await userEvent.click(await screen.findByRole('button', { name: /Bayar Rp\s?29\.000 dengan QRIS/ }));
+      expect(await screen.findByText('Pembayaran diterima.', {}, { timeout: 8000 })).toBeInTheDocument();
+      expect(polls).toBeGreaterThanOrEqual(1);
+      await waitFor(() => expect(fetchMock.mock.calls.filter((c) => String(c[0]).endsWith('/auth/me')).length).toBeGreaterThanOrEqual(2));
+    }, 15000);
+
+    it('pesanan kedaluwarsa menawarkan membuat kode baru', async () => {
+      mockApi({
+        ...free,
+        'GET /auth/config': PAY_CONFIG,
+        'POST /payments/premium-order': () => ({ status: 201, body: { data: pending } }),
+        'GET /payments/orders/5': () => ({ body: { data: { ...pending, status: 'expired', qrString: null } } }),
+      });
+      renderApp('/premium');
+      await userEvent.click(await screen.findByRole('button', { name: /Bayar Rp\s?29\.000 dengan QRIS/ }));
+      expect(await screen.findByText(/sudah kedaluwarsa/, {}, { timeout: 8000 })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Bayar Rp\s?29\.000 dengan QRIS/ })).toBeInTheDocument();
+    }, 15000);
+
+    it('pembayaran nonaktif: tetap cara manual', async () => {
+      mockApi(free);
+      renderApp('/premium');
+      expect(await screen.findByText('Cara mengaktifkan')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /dengan QRIS/ })).not.toBeInTheDocument();
+    });
   });
 
   it('kunci jawaban worksheet mengarah ke Premium untuk pengguna gratis', async () => {

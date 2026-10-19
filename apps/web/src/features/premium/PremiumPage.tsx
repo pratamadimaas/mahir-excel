@@ -4,6 +4,7 @@ import { useAuth } from '../../app/AuthContext';
 import { Loading, Status } from '../../components/feedback/Feedback';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuthConfig } from '../auth/EmailAuth';
+import { QrisCheckout } from './QrisCheckout';
 
 const dateFmt = new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' });
 
@@ -54,6 +55,7 @@ export function PremiumPage() {
   }
   const { priceLabel, contactUrl } = cfg.premium;
   const active = !!user?.premium && user.role !== 'admin';
+  const payOnline = !!cfg.premium.paymentEnabled && !!cfg.premium.priceIdr && user?.role !== 'admin';
 
   return (
     <div className="xl-page xl-page-narrow">
@@ -124,6 +126,19 @@ export function PremiumPage() {
             Daftar gratis
           </Link>
         </Status>
+      ) : payOnline ? (
+        <>
+          <QrisCheckout amount={cfg.premium.priceIdr!} months={cfg.premium.months ?? 12} renew={active} />
+          {!active && contactUrl && (
+            <p className="xl-small xl-muted mt-2">
+              Kesulitan membayar?{' '}
+              <a href={contactHref(contactUrl, user.email)} target="_blank" rel="noopener noreferrer">
+                Hubungi pengelola
+              </a>
+              .
+            </p>
+          )}
+        </>
       ) : (
         !active && (
           <section aria-labelledby="cara" className="xl-panel xl-panel-body">
@@ -149,8 +164,9 @@ export function PremiumPage() {
       )}
 
       <p className="xl-small xl-muted mt-4">
-        Pembayaran dan aktivasi dilakukan manual oleh pengelola. Belum ada pembayaran otomatis di dalam aplikasi, dan Mahir Excel tidak
-        menyimpan data kartu atau rekeningmu.
+        {payOnline
+          ? 'Pembayaran QRIS diproses oleh Xendit. Mahir Excel tidak menyimpan data kartu, rekening, atau e-wallet-mu.'
+          : 'Pembayaran dan aktivasi dilakukan manual oleh pengelola. Belum ada pembayaran otomatis di dalam aplikasi, dan Mahir Excel tidak menyimpan data kartu atau rekeningmu.'}
       </p>
     </div>
   );

@@ -149,7 +149,10 @@ export function TermsPage() {
 
       <h2>Premium</h2>
       <ul>
-        <li>Pembayaran dan aktivasi dilakukan manual oleh pengelola, di luar aplikasi. Premium aktif setelah pembayaran dicek.</li>
+        <li>
+          Pembayaran bisa lewat QRIS di halaman Premium (diproses oleh Xendit) atau manual lewat pengelola. Premium aktif setelah
+          pembayaran berhasil.
+        </li>
         <li>Masa aktif dan harga tertera di halaman Premium. Setelah masa aktif berakhir, akunmu kembali ke paket gratis dan progresmu tetap ada.</li>
         <li>Soal pembayaran atau pengembalian dana, hubungi pengelola lewat tautan kontak. Tidak ada pembayaran otomatis di dalam aplikasi.</li>
       </ul>
@@ -223,8 +226,9 @@ export function PrivacyPage() {
       </p>
       <p>Kalau kamu masuk dengan Google, kami menerima nama dan alamat email dari Google dan tidak pernah menerima kata sandi Google-mu.</p>
       <p>
-        Status Premium (kapan masa aktifnya berakhir) disimpan di akunmu. Pembayaran dilakukan di luar aplikasi; kami tidak menyimpan data
-        kartu atau rekeningmu di Mahir Excel.
+        Status Premium (kapan masa aktifnya berakhir) disimpan di akunmu. Kalau kamu membayar lewat QRIS, pembayarannya diproses oleh
+        Xendit. Kami hanya menyimpan nomor pesanan, jumlah, status, dan waktu pembayaran. Kami tidak menyimpan data kartu, rekening, atau
+        e-wallet-mu.
       </p>
       <h2>Sprint dan papan peringkat</h2>
       <p>

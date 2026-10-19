@@ -57,6 +57,19 @@ Simpan salinan di luar VPS. Volume `mysql-data` berisi seluruh data pengguna.
 - Masuk sebagai admin dan buka `/admin`.
 - Email: tanpa SMTP, login kode dan lupa kata sandi otomatis nonaktif. Isi `SMTP_*` bila ingin mengaktifkannya.
 
+## Pembayaran Premium lewat QRIS (Xendit)
+
+Tanpa langkah ini, Premium tetap bisa diaktifkan manual oleh admin di /admin/pengguna.
+
+1. Buat akun Xendit dan aktifkan metode **QR Codes (QRIS)**. Untuk uji coba, pakai mode Test dan kunci berawalan `xnd_development_`.
+2. Di dashboard Xendit buat **API key** dengan izin *Money-in Write*, dan salin **Callback verification token** (Settings > Callbacks).
+3. Isi di `.env.production`: `XENDIT_SECRET_KEY`, `XENDIT_CALLBACK_TOKEN`, serta `PREMIUM_PRICE_IDR` dan `PREMIUM_MONTHS` (samakan dengan `PREMIUM_PRICE_LABEL`). Lalu `docker compose -f docker-compose.prod.yml --env-file .env.production up -d`.
+4. Alamat callback dikirim otomatis per kode QR: `https://DOMAIN-kamu/api/payments/xendit/callback`. Pastikan domain bisa dijangkau dari internet lewat HTTPS.
+5. Uji di mode Test: buka /premium sambil login, klik bayar, lalu simulasikan pembayaran dengan `POST https://api.xendit.co/qr_codes/:external_id/payments/simulate` (external_id = kode pesanan di tabel `premium_orders.reference`). Premium aktif otomatis dan halaman /premium berubah sendiri.
+6. Sebelum menerima uang sungguhan, ganti ke kunci live dan lakukan satu pembayaran kecil dari rekening sendiri.
+
+Integrasi memakai API QR Codes v1 Xendit (`POST /qr_codes`, callback `qr.payment`). Callback ditolak bila `x-callback-token` tidak cocok; jumlah pembayaran harus sama dengan pesanan. Pembayaran yang telat (setelah kode QR kedaluwarsa di tampilan) tetap diaktifkan.
+
 ## Belum diuji
 
 Berkas Docker/Compose/Caddy di sini belum dijalankan dari lingkungan pengembangan ini, jadi periksa log (`docker compose ... logs -f app`) pada deploy pertama.

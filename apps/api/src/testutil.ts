@@ -5,6 +5,7 @@ import request from 'supertest';
 import { createApp } from './app';
 import { createMailer, type Mailer } from './lib/mailer';
 import type { GoogleProfile, GoogleVerifier } from './lib/google';
+import type { PaymentGateway, QrOrderInput, QrOrderResult } from './lib/xendit';
 import { loadConfig, type Config } from './config';
 import { createPool, run, type Db } from './db/pool';
 import { resetDatabase } from './db/reset';
@@ -12,6 +13,7 @@ import { generateWorksheets } from './worksheets/generate';
 
 export const ADMIN_EMAIL = 'admin-test@excellab.local';
 export const ADMIN_PASSWORD = 'admin-test-password-1234';
+export const CALLBACK_TOKEN = 'token-callback-uji-123';
 
 export function testConfig(extra: Record<string, string> = {}): Config {
   return loadConfig({
@@ -24,6 +26,8 @@ export function testConfig(extra: Record<string, string> = {}): Config {
     ADMIN_EMAIL,
     ADMIN_PASSWORD,
     WORKSHEET_DIR: path.join(os.tmpdir(), 'excellab-test-worksheets'),
+    XENDIT_SECRET_KEY: 'xnd_development_test',
+    XENDIT_CALLBACK_TOKEN: CALLBACK_TOKEN,
     ...extra,
   });
 }
@@ -34,6 +38,7 @@ export interface TestEnv {
   app: ReturnType<typeof createApp>;
   mailer: Mailer;
   google: FakeGoogle;
+  payments: FakePayments;
   close: () => Promise<void>;
 }
 
@@ -46,7 +51,8 @@ export async function setupTestEnv(): Promise<TestEnv> {
   await generateWorksheets(config.worksheetDir);
   const mailer = createMailer(config);
   const google = createFakeGoogle();
-  return { db, config, mailer, google, app: createApp(db, config, mailer, google), close: () => db.end() };
+  const payments = createFakePayments();
+  return { db, config, mailer, google, payments, app: createApp(db, config, mailer, google, payments), close: () => db.end() };
 }
 
 export interface Session {
@@ -88,6 +94,29 @@ export function createFakeGoogle(clientId: string | null = 'test-client.apps.goo
       return p;
     },
   };
+}
+
+/** Gateway pembayaran palsu: mencatat permintaan QR dan bisa dipaksa gagal. */
+export interface FakePayments extends PaymentGateway {
+  created: QrOrderInput[];
+  failNext: boolean;
+}
+
+export function createFakePayments(): FakePayments {
+  const fake: FakePayments = {
+    enabled: true,
+    created: [],
+    failNext: false,
+    async createQr(input: QrOrderInput): Promise<QrOrderResult> {
+      if (fake.failNext) {
+        fake.failNext = false;
+        throw new Error('gagal uji');
+      }
+      fake.created.push(input);
+      return { qrId: `qr_uji_${fake.created.length}`, qrString: `00020101021226QRIS-UJI-${input.reference}` };
+    },
+  };
+  return fake;
 }
 
 /** Mengaktifkan Premium langsung lewat SQL (pembayaran di luar aplikasi; admin biasanya memakai endpoint). */
