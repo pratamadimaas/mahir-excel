@@ -1,0 +1,720 @@
+/*
+ * Beranda pengunjung. Bahasa visual: lembar kerja Excel yang diberi warna.
+ * Satu aksen hijau Excel, nada hijau turunannya (sage, forest) untuk lapisan latar, dan kuning stabilo
+ * yang hanya dipakai sebagai penanda (seperti menyorot sel). Tidak ada gradasi mesh atau cahaya neon.
+ */
+:root {
+  --l-sage: #eef5ef;
+  --l-sage-2: #dcebe0;
+  --l-forest: #0f3a29;
+  --l-forest-2: #164a35;
+  --l-mint: #bfe3cd;
+  --l-butter: #fbf0c8;
+  --l-mark: #f7d94c;
+  --l-display: 'Geist Variable', Aptos, Inter, 'Segoe UI', system-ui, sans-serif;
+}
+
+.xl-l h1,
+.xl-l h2,
+.xl-l h3,
+.xl-hero-pro .xl-hero-title,
+.xl-l-closing h2 {
+  font-family: var(--l-display);
+}
+
+/* ---------- Hero hijau penuh (pengunjung) ---------- */
+.xl-hero-pro {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 100% 36px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 120px 100%,
+    #1b6b43;
+  border-bottom: 0;
+  color: #fff;
+  padding: 44px 0 56px;
+}
+.xl-hero-pro::before {
+  display: none;
+}
+@media (min-width: 900px) {
+  .xl-hero-pro {
+    padding: 72px 0 84px;
+  }
+}
+.xl-hero-pro .xl-eyebrow {
+  color: var(--l-mint);
+}
+.xl-hero-pro .xl-hero-title {
+  color: #fff;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+.xl-hero-pro .xl-hero-lead {
+  color: #d4ebdc;
+}
+.xl-hero-pro .btn-primary {
+  --bs-btn-bg: #fff;
+  --bs-btn-border-color: #fff;
+  --bs-btn-color: var(--xl-green-dark);
+  --bs-btn-hover-bg: var(--l-sage);
+  --bs-btn-hover-border-color: var(--l-sage);
+  --bs-btn-hover-color: var(--l-forest);
+  --bs-btn-active-bg: var(--l-sage-2);
+  --bs-btn-active-border-color: var(--l-sage-2);
+  --bs-btn-active-color: var(--l-forest);
+  font-weight: 650;
+}
+.xl-hero-pro .btn-outline-secondary {
+  --bs-btn-color: #fff;
+  --bs-btn-border-color: rgba(255, 255, 255, 0.65);
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.14);
+  --bs-btn-hover-border-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.22);
+  --bs-btn-active-border-color: #fff;
+  --bs-btn-active-color: #fff;
+}
+.xl-hero-pro a:focus-visible,
+.xl-hero-pro .btn:focus-visible {
+  outline: 3px solid var(--l-mark);
+  outline-offset: 2px;
+}
+
+/* ---------- Pita latar ---------- */
+.xl-l-band-white {
+  background: #fff;
+}
+.xl-l-band-sage {
+  background: var(--l-sage);
+}
+.xl-l-band-butter {
+  background: var(--l-butter);
+}
+.xl-l-band-deep {
+  background: var(--l-forest);
+  color: #eaf5ee;
+}
+.xl-l-section {
+  padding: 60px 0;
+}
+@media (min-width: 900px) {
+  .xl-l-section {
+    padding: 84px 0;
+  }
+}
+.xl-l-section h2,
+.xl-l-closing h2 {
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  margin-bottom: 14px;
+  max-width: 20ch;
+}
+.xl-l-section h3 {
+  letter-spacing: -0.015em;
+  font-weight: 650;
+}
+.xl-l-lead {
+  color: var(--xl-text-muted);
+  font-size: 1.0625rem;
+  max-width: 60ch;
+  margin-bottom: 28px;
+}
+.xl-l-narrow {
+  max-width: 760px;
+}
+.xl-l-mono {
+  font-family: var(--xl-mono);
+}
+/* Penanda ala stabilo: menyorot kata kunci seperti menyorot sel. */
+.xl-l-mark {
+  background: linear-gradient(transparent 58%, var(--l-mark) 58%, var(--l-mark) 92%, transparent 92%);
+  color: inherit;
+  padding: 0 0.08em;
+}
+.xl-l-band-deep .xl-l-mark {
+  background: linear-gradient(transparent 58%, rgba(247, 217, 76, 0.85) 58%, rgba(247, 217, 76, 0.85) 92%, transparent 92%);
+  color: #fff;
+}
+
+/* ---------- Angka ---------- */
+.xl-l-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 16px;
+  margin: 0;
+  padding: 36px 0;
+}
+.xl-l-stats div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+.xl-l-stats dd {
+  margin: 0;
+  font-family: var(--l-display);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--xl-green-dark);
+  font-variant-numeric: tabular-nums;
+}
+.xl-l-stats dt {
+  color: var(--xl-text-muted);
+  font-weight: 600;
+  margin-top: 6px;
+}
+@media (min-width: 760px) {
+  .xl-l-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 44px 0;
+  }
+}
+
+/* ---------- Lab kesalahan ---------- */
+.xl-l-lab {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+.xl-l-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.xl-l-tabs button {
+  border: 1px solid var(--xl-border);
+  background: #fff;
+  color: var(--xl-text);
+  border-radius: var(--xl-radius);
+  padding: 11px 14px;
+  font-weight: 600;
+  text-align: left;
+  transition:
+    background var(--xl-transition),
+    border-color var(--xl-transition),
+    color var(--xl-transition);
+}
+.xl-l-tabs button:hover {
+  background: var(--l-sage);
+}
+.xl-l-tabs button[aria-selected='true'] {
+  background: var(--xl-green-dark);
+  border-color: var(--xl-green-dark);
+  color: #fff;
+}
+.xl-l-tabs button:focus-visible {
+  outline: 3px solid var(--xl-green);
+  outline-offset: 2px;
+}
+.xl-l-labpanel {
+  min-width: 0;
+  background: var(--l-sage);
+  border-radius: var(--xl-radius-lg);
+  padding: 22px;
+}
+.xl-l-explain {
+  margin: 16px 0;
+  max-width: 64ch;
+}
+@media (min-width: 900px) {
+  .xl-l-lab {
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 36px;
+  }
+  .xl-l-tabs {
+    flex-direction: column;
+  }
+  .xl-l-labpanel {
+    padding: 28px;
+  }
+}
+
+/* ---------- Coba rumus ---------- */
+.xl-l-try {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+.xl-l-try-sheet {
+  background: #fff;
+  border-radius: var(--xl-radius-lg);
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(15, 58, 41, 0.12);
+}
+@media (min-width: 900px) {
+  .xl-l-try {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 56px;
+  }
+}
+.xl-l-result {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--xl-radius);
+  margin: 0;
+}
+.xl-l-result.ok {
+  background: #fff;
+  border-left: 4px solid var(--xl-success);
+  color: #0e4a2a;
+}
+.xl-l-result.bad {
+  background: var(--xl-error-bg);
+  border-left: 4px solid var(--xl-error);
+  color: #7a1c30;
+}
+.xl-l-result .xl-icon {
+  flex: none;
+  margin-top: 3px;
+}
+
+/* ---------- Umpan balik ---------- */
+.xl-l-steps {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: grid;
+  gap: 24px;
+}
+.xl-l-formula {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 5px 11px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  background: var(--l-sage);
+  color: var(--xl-text);
+  font-size: 0.9375rem;
+}
+.xl-l-feedback {
+  padding: 14px 16px;
+  border-radius: var(--xl-radius);
+  border-left: 4px solid;
+}
+.xl-l-feedback.bad {
+  background: var(--xl-error-bg);
+  border-color: var(--xl-error);
+  color: #5c1626;
+}
+.xl-l-feedback.ok {
+  background: var(--xl-green-light);
+  border-color: var(--xl-success);
+  color: #0e4a2a;
+}
+
+/* ---------- Kurikulum (pita gelap) ---------- */
+.xl-l-split {
+  display: grid;
+  gap: 32px;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .xl-l-split {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 64px;
+  }
+  .xl-l-sticky {
+    position: sticky;
+    top: calc(var(--xl-header-h) + 24px);
+  }
+}
+.xl-l-band-deep h2 {
+  color: #fff;
+}
+.xl-l-band-deep .xl-l-lead {
+  color: var(--l-mint);
+}
+.xl-l-band-deep a {
+  color: #fff;
+  text-decoration-color: var(--l-mark);
+  text-underline-offset: 3px;
+}
+.xl-l-band-deep .xl-path {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--xl-radius-lg);
+}
+.xl-l-band-deep .xl-path li {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  padding: 18px 20px;
+}
+.xl-l-band-deep .xl-path-no {
+  background: var(--xl-green);
+  border-color: var(--xl-green);
+  color: #fff;
+}
+.xl-l-band-deep .xl-path strong {
+  color: #fff;
+  font-size: 1.0625rem;
+}
+.xl-l-band-deep .xl-muted {
+  color: #b7d3c3 !important;
+}
+.xl-l-count {
+  color: var(--l-mark);
+  font-weight: 650;
+}
+
+/* ---------- Bento ---------- */
+.xl-l-bento {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+.xl-l-cell {
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-lg);
+  padding: 24px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.xl-l-cell p {
+  color: #46524b;
+  margin-bottom: 10px;
+}
+.xl-l-cell-a {
+  background:
+    linear-gradient(rgba(33, 115, 70, 0.14) 1px, transparent 1px) 0 0 / 100% 28px,
+    linear-gradient(90deg, rgba(33, 115, 70, 0.14) 1px, transparent 1px) 0 0 / 28px 100%,
+    var(--l-sage-2);
+  border-color: var(--l-sage-2);
+}
+.xl-l-cell-b {
+  background: var(--l-sage);
+  border-color: var(--l-sage-2);
+}
+.xl-l-cell-c {
+  background: var(--l-butter);
+  border-color: #efdf9b;
+}
+.xl-l-cell-d {
+  background: #fff;
+}
+.xl-l-cell-e {
+  background: var(--xl-green-dark);
+  border-color: var(--xl-green-dark);
+  color: #fff;
+}
+.xl-l-cell-e h3 {
+  color: #fff;
+}
+.xl-l-cell-e p {
+  color: #d4ebdc;
+}
+.xl-l-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: auto;
+}
+.xl-l-days {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+}
+.xl-l-days li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px;
+  border: 1px solid #e3d490;
+  border-radius: var(--xl-radius);
+  background: #fff;
+}
+.xl-l-days strong {
+  font-family: var(--l-display);
+  font-size: 1.375rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.xl-l-days span {
+  font-size: 0.75rem;
+  color: var(--xl-text-muted);
+}
+@media (min-width: 900px) {
+  .xl-l-bento {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .xl-l-cell-a {
+    grid-column: span 2;
+  }
+  .xl-l-cell-a h3 {
+    font-size: 1.5rem;
+    max-width: 22ch;
+  }
+}
+
+/* ---------- Batasan ---------- */
+.xl-l-limits {
+  display: grid;
+  gap: 26px;
+  margin: 0;
+}
+.xl-l-limits dt {
+  font-family: var(--l-display);
+  font-weight: 650;
+  font-size: 1.125rem;
+}
+.xl-l-limits dd {
+  margin: 4px 0 0;
+  color: #46524b;
+  max-width: 62ch;
+}
+
+/* ---------- Paket ---------- */
+.xl-l-plans {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+.xl-l-plan {
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-lg);
+  padding: 28px;
+  background: #fff;
+}
+.xl-l-plan-pro {
+  border-color: var(--l-forest);
+  background: var(--l-forest);
+  color: #eaf5ee;
+}
+.xl-l-plan-pro h3 {
+  color: #fff;
+}
+.xl-l-plan-pro .btn-outline-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-border-color: rgba(255, 255, 255, 0.7);
+  --bs-btn-hover-bg: #fff;
+  --bs-btn-hover-color: var(--l-forest);
+  --bs-btn-hover-border-color: #fff;
+  --bs-btn-active-bg: #fff;
+  --bs-btn-active-color: var(--l-forest);
+}
+.xl-l-plan ul {
+  padding-left: 1.1rem;
+  margin-bottom: 20px;
+}
+.xl-l-plan li {
+  margin-bottom: 8px;
+}
+.xl-l-price {
+  font-family: var(--l-display);
+  font-weight: 700;
+  font-size: 1.375rem;
+  letter-spacing: -0.02em;
+}
+.xl-l-plan-pro .xl-l-price {
+  color: var(--l-mark);
+}
+@media (min-width: 760px) {
+  .xl-l-plans {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- FAQ ---------- */
+.xl-l-faq details {
+  border-bottom: 1px solid var(--xl-border);
+  padding: 16px 0;
+}
+.xl-l-faq details:first-child {
+  border-top: 1px solid var(--xl-border);
+}
+.xl-l-faq summary {
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 1.0625rem;
+  list-style-position: inside;
+}
+.xl-l-faq summary:focus-visible {
+  outline: 3px solid var(--xl-green);
+  outline-offset: 3px;
+  border-radius: var(--xl-radius-sm);
+}
+.xl-l-faq details[open] summary {
+  color: var(--xl-green-dark);
+}
+.xl-l-faq p {
+  margin: 10px 0 0;
+  color: #46524b;
+  max-width: 62ch;
+}
+
+/* ---------- Pembuat ---------- */
+.xl-l-maker {
+  max-width: 980px;
+}
+.xl-l-statement {
+  font-family: var(--l-display);
+  font-size: clamp(1.375rem, 1.1rem + 1.2vw, 2rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  max-width: 30ch;
+  margin: 8px 0 32px;
+  color: var(--l-forest);
+}
+.xl-l-facts {
+  display: grid;
+  gap: 24px;
+  margin: 0 0 32px;
+}
+.xl-l-facts dt {
+  font-family: var(--l-display);
+  font-weight: 650;
+  color: var(--xl-green-dark);
+}
+.xl-l-facts dd {
+  margin: 6px 0 0;
+  color: #34413a;
+}
+@media (min-width: 900px) {
+  .xl-l-facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+  }
+}
+
+/* ---------- Penutup ---------- */
+.xl-l-closing {
+  background: #1b6b43;
+  color: #fff;
+  padding: 72px 0 80px;
+}
+.xl-l-closing p {
+  color: #d4ebdc;
+  margin-bottom: 22px;
+  font-size: 1.0625rem;
+}
+.xl-l-closing .btn-light {
+  color: var(--xl-green-dark);
+  font-weight: 650;
+}
+
+/* ---------- Gerak: bagian muncul perlahan saat masuk layar ---------- */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .xl-l-section {
+      animation: xl-l-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+    @keyframes xl-l-in {
+      from {
+        opacity: 0.001;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+}
+
+/* ---------- Perbaikan tata letak ---------- */
+.xl-l-closing h2 {
+  color: #fff;
+}
+/* Pita penutup menempel ke footer, tanpa celah putih. */
+main:has(.xl-l-closing) {
+  padding-bottom: 0 !important;
+}
+.xl-l-closing {
+  margin-top: 0;
+}
+/* Dua bagian berurutan dalam satu pita tidak menumpuk jarak. */
+.xl-l .xl-l-section + .xl-l-section {
+  padding-top: 0;
+}
+
+/* Umpan balik: rumus di kiri, tanggapan di kanan */
+@media (min-width: 760px) {
+  .xl-l-steps li {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+  .xl-l-steps .xl-l-formula {
+    margin: 4px 0 0;
+    justify-self: start;
+  }
+}
+
+/* Kepala di kiri, isi di kanan (Batasan dan FAQ) */
+.xl-l-split2 {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .xl-l-split2 {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 64px;
+  }
+  .xl-l-side {
+    position: sticky;
+    top: calc(var(--xl-header-h) + 24px);
+  }
+}
+.xl-l-side .xl-l-lead {
+  margin-top: 6px;
+}
+
+/* Kolom tunggal di layar sempit: jangan biarkan isi (mis. kolom input) melebarkan kolom grid. */
+.xl-l-try,
+.xl-l-lab,
+.xl-l-split,
+.xl-l-split2,
+.xl-l-bento,
+.xl-l-plans,
+.xl-l-facts {
+  grid-template-columns: minmax(0, 1fr);
+}
+.xl-l-try > *,
+.xl-l-lab > *,
+.xl-l-split > *,
+.xl-l-split2 > * {
+  min-width: 0;
+}
+.xl-l-try .form-control {
+  min-width: 0;
+}
+@media (min-width: 900px) {
+  .xl-l-try {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+  .xl-l-lab {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+  .xl-l-split,
+  .xl-l-split2 {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+  .xl-l-bento {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .xl-l-facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 760px) {
+  .xl-l-plans {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Penutup beranda pengunjung langsung bertemu footer, tanpa celah putih. */
+.xl-main:has(.xl-l-closing) + .xl-footer,
+main:has(.xl-l-closing) + .xl-footer {
+  margin-top: 0;
+}

@@ -1,0 +1,117 @@
+/*
+ * Bilah navigasi: hijau hutan tua yang sama dengan pita gelap di beranda, tautan aktif ditandai garis stabilo kuning.
+ * Hanya mengubah tampilan; struktur dan perilaku ada di Header.tsx.
+ */
+.xl-header {
+  background: var(--l-forest, #0f3a29);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #eaf5ee;
+}
+.xl-header-inner {
+  gap: 10px;
+}
+.xl-header .xl-brand {
+  color: #fff;
+  font-family: var(--l-display, inherit);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-right: 20px;
+}
+.xl-header .xl-brand:hover {
+  color: #fff;
+}
+.xl-header .xl-brand svg {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+/* Tautan utama */
+.xl-header .xl-nav a {
+  color: #bfe3cd;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0 14px;
+  border-bottom: 3px solid transparent;
+}
+.xl-header .xl-nav a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+}
+.xl-header .xl-nav a[aria-current='page'] {
+  color: #fff;
+  border-bottom-color: var(--l-mark, #f7d94c);
+}
+
+/* Tombol ikon, chip, dan ajakan daftar */
+.xl-header .xl-icon-btn {
+  color: #eaf5ee;
+}
+.xl-header .xl-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+.xl-header .xl-chip {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.xl-header .xl-chip:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #bfe3cd;
+  color: #fff;
+}
+.xl-cta {
+  align-items: center;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--xl-radius);
+  background: #fff;
+  color: var(--l-forest, #0f3a29);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--xl-transition),
+    transform 80ms ease;
+}
+.xl-cta:hover {
+  background: var(--l-sage, #eef5ef);
+  color: var(--l-forest, #0f3a29);
+}
+.xl-cta:active {
+  transform: translateY(1px);
+}
+
+/* Fokus terlihat jelas di latar gelap */
+.xl-header a:focus-visible,
+.xl-header button:focus-visible {
+  outline: 3px solid var(--l-mark, #f7d94c);
+  outline-offset: 2px;
+}
+
+/* Menu seluler */
+.xl-header .xl-mobile-menu {
+  background: var(--l-forest, #0f3a29);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.xl-header .xl-mobile-menu a,
+.xl-header .xl-mobile-menu button.xl-link-btn {
+  color: #eaf5ee;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  padding: 12px 4px;
+}
+.xl-header .xl-mobile-menu a[aria-current='page'] {
+  color: #fff;
+  box-shadow: inset 3px 0 0 var(--l-mark, #f7d94c);
+  padding-left: 12px;
+}
+
+/* Teks redup (mis. "Cari") tetap terbaca di latar gelap. */
+.xl-header .xl-muted {
+  color: #a8cdb8 !important;
+}

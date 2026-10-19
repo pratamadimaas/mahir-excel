@@ -1,0 +1,18 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: excellab-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: excellab_root_dev
+      MYSQL_DATABASE: excellab
+      MYSQL_USER: excellab
+      MYSQL_PASSWORD: excellab_dev
+    ports:
+      - '3307:3306'
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    volumes:
+      - excellab-mysql-data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+volumes:
+  excellab-mysql-data:

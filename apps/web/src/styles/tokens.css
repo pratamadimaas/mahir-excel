@@ -1,0 +1,46 @@
+/* Token desain Mahir Excel. Semua warna dan ukuran dipusatkan di sini. */
+:root {
+  --xl-green: #217346;
+  --xl-green-dark: #185c37;
+  --xl-green-light: #e2f0e8;
+  --xl-green-pale: #f3f8f4;
+  --xl-bg: #ffffff;
+  --xl-bg-subtle: #f7f8f7;
+  --xl-text: #242424;
+  --xl-text-muted: #616161;
+  --xl-border: #d9ded9;
+  --xl-grid: #e9ece9;
+  --xl-success: #107c41;
+  --xl-warning: #f0b323;
+  --xl-warning-bg: #fdf3d6;
+  --xl-error: #c4314b;
+  --xl-error-bg: #fbe9ed;
+
+  --xl-font: Aptos, Inter, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --xl-mono: 'Cascadia Mono', ui-monospace, 'SF Mono', Consolas, 'Liberation Mono', monospace;
+
+  --xl-radius-sm: 4px;
+  --xl-radius: 6px;
+  --xl-radius-lg: 10px;
+  --xl-header-h: 60px;
+  --xl-transition: 150ms ease;
+
+  /* Bootstrap 5.3 */
+  --bs-primary: var(--xl-green);
+  --bs-primary-rgb: 33, 115, 70;
+  --bs-link-color: var(--xl-green-dark);
+  --bs-link-color-rgb: 24, 92, 55;
+  --bs-link-hover-color: var(--xl-green);
+  --bs-link-hover-color-rgb: 33, 115, 70;
+  --bs-body-font-family: var(--xl-font);
+  --bs-body-color: var(--xl-text);
+  --bs-body-color-rgb: 36, 36, 36;
+  --bs-body-bg: var(--xl-bg);
+  --bs-border-color: var(--xl-border);
+  --bs-border-radius: var(--xl-radius);
+  --bs-border-radius-sm: var(--xl-radius-sm);
+  --bs-border-radius-lg: var(--xl-radius-lg);
+  --bs-secondary-color: var(--xl-text-muted);
+  --bs-code-color: var(--xl-green-dark);
+  --bs-focus-ring-color: rgba(33, 115, 70, 0.35);
+}

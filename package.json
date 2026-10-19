@@ -1,0 +1,43 @@
+{
+  "name": "excellab",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Mahir Excel - platform belajar Excel gratis berbahasa Indonesia",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c green,cyan \"npm run dev -w @excellab/api\" \"npm run dev -w @excellab/web\"",
+    "build": "npm run build -w @excellab/api && npm run build -w @excellab/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "db:up": "docker compose up -d mysql",
+    "db:migrate": "npm run db:migrate -w @excellab/api",
+    "db:seed": "npm run db:seed -w @excellab/api",
+    "db:reset": "npm run db:reset -w @excellab/api",
+    "worksheets:generate": "npm run worksheets:generate -w @excellab/api",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "concurrently": "^10.0.6",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^5.0.5"
+  }
+}

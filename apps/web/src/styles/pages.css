@@ -1,0 +1,806 @@
+/* Gaya khusus halaman. Putih dominan, hijau Excel hanya untuk aksen. */
+
+/* ---------- Beranda ---------- */
+.xl-hero {
+  padding: 36px 0 28px;
+  border-bottom: 1px solid var(--xl-border);
+  background:
+    linear-gradient(var(--xl-grid) 1px, transparent 1px) 0 0 / 100% 36px,
+    linear-gradient(90deg, var(--xl-grid) 1px, transparent 1px) 0 0 / 120px 100%,
+    var(--xl-bg);
+  background-blend-mode: normal;
+  position: relative;
+}
+.xl-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0.92) 55%, rgba(255, 255, 255, 0.55) 100%);
+  pointer-events: none;
+}
+.xl-hero > .xl-page {
+  position: relative;
+}
+.xl-hero-grid {
+  display: grid;
+  gap: 28px;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .xl-hero-grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 40px;
+  }
+  .xl-hero {
+    padding: 52px 0 40px;
+  }
+}
+.xl-hero-title {
+  font-size: clamp(1.875rem, 1.3rem + 2.4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  margin-bottom: 14px;
+  max-width: 16ch;
+}
+.xl-hero-lead {
+  font-size: 1.0625rem;
+  color: var(--xl-text-muted);
+  max-width: 52ch;
+  margin-bottom: 22px;
+}
+.xl-hero-mini {
+  max-width: 400px;
+}
+
+.xl-hero-visual {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1.15 / 1;
+  min-height: 240px;
+  max-height: 440px;
+}
+.xl-hero-layer {
+  position: absolute;
+  inset: 0;
+  transition: opacity 400ms ease;
+}
+.xl-hero-canvas canvas {
+  pointer-events: auto;
+}
+.xl-hero-formula {
+  position: absolute;
+  left: 4%;
+  bottom: 6%;
+  display: inline-flex;
+  align-items: stretch;
+  background: #fff;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  font-size: 0.8125rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+  overflow: hidden;
+  max-width: 92%;
+}
+.xl-hero-formula .fx {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-family: var(--xl-mono);
+  font-style: italic;
+  color: #fff;
+  background: var(--xl-green);
+  font-weight: 700;
+}
+.xl-hero-formula code {
+  background: none;
+  border: 0;
+  padding: 6px 10px;
+  color: var(--xl-text);
+  font-size: 0.8125rem;
+}
+.xl-hero-formula .res {
+  padding: 6px 10px;
+  border-left: 1px solid var(--xl-border);
+  background: var(--xl-green-pale);
+  color: var(--xl-green-dark);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fallback CSS 3D statis */
+.xl-hero-fallback {
+  position: absolute;
+  inset: 0;
+  perspective: 1100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.xl-fb-sheet {
+  position: absolute;
+  width: 62%;
+  aspect-ratio: 1.3 / 1;
+  border: 1px solid #c9d1c9;
+  border-radius: 2px;
+  transform-style: preserve-3d;
+  background:
+    linear-gradient(var(--xl-grid) 1px, transparent 1px) 0 0 / 100% 11.11%,
+    linear-gradient(90deg, var(--xl-grid) 1px, transparent 1px) 0 0 / 12.5% 100%,
+    #fff;
+  transform: rotateX(54deg) rotateZ(-30deg);
+}
+.xl-fb-back {
+  background-color: #e3e8e3;
+  transform: rotateX(54deg) rotateZ(-30deg) translate3d(70px, 48px, -60px);
+  opacity: 0.9;
+}
+.xl-fb-mid {
+  background-color: #f1f6f2;
+  transform: rotateX(54deg) rotateZ(-30deg) translate3d(34px, 24px, -30px);
+}
+.xl-fb-front {
+  box-shadow: 14px 18px 30px rgba(0, 0, 0, 0.08);
+}
+.xl-fb-range {
+  position: absolute;
+  left: 25%;
+  top: 22.2%;
+  width: 25%;
+  height: 44.4%;
+  background: rgba(33, 115, 70, 0.16);
+  border: 2px solid var(--xl-green);
+}
+.xl-fb-cursor {
+  position: absolute;
+  left: 25%;
+  top: 22.2%;
+  width: 12.5%;
+  height: 11.1%;
+  border: 2px solid var(--xl-green-dark);
+  background: #fff;
+  opacity: 0.9;
+}
+@media (max-width: 899px) {
+  .xl-hero-visual {
+    aspect-ratio: 1.5 / 1;
+    min-height: 200px;
+  }
+  .xl-fb-sheet {
+    width: 70%;
+  }
+  .xl-fb-back {
+    transform: rotateX(54deg) rotateZ(-30deg) translate3d(44px, 30px, -40px);
+  }
+  .xl-fb-mid {
+    transform: rotateX(54deg) rotateZ(-30deg) translate3d(22px, 15px, -20px);
+  }
+}
+
+.xl-home-section {
+  padding: 48px 0 0;
+}
+.xl-continue {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--xl-border);
+  border-left: 3px solid var(--xl-green);
+  border-radius: var(--xl-radius-lg);
+  background: var(--xl-green-pale);
+  margin-bottom: 18px;
+}
+
+.xl-path {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--xl-border);
+  border-radius: 8px;
+}
+.xl-path li {
+  display: flex;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--xl-grid);
+  align-items: flex-start;
+}
+.xl-path li:last-child {
+  border-bottom: 0;
+}
+.xl-path-no {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 650;
+  font-size: 0.8125rem;
+  background: var(--xl-bg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.xl-path-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.xl-path-title {
+  font-weight: 650;
+  color: var(--xl-text);
+  text-decoration: none;
+}
+.xl-path-title:hover {
+  color: var(--xl-green-dark);
+  text-decoration: underline;
+}
+
+.xl-lesson-list,
+.xl-lesson-rows,
+.xl-exercise-rows,
+.xl-exercise-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.xl-lesson-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--xl-grid);
+}
+.xl-lesson-list a {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--xl-text);
+  min-width: 0;
+}
+.xl-lesson-list a:hover .xl-lesson-title {
+  color: var(--xl-green-dark);
+  text-decoration: underline;
+}
+.xl-lesson-title {
+  font-weight: 600;
+}
+
+.xl-file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--xl-border);
+  border-radius: 8px;
+}
+.xl-file-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px 14px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--xl-grid);
+}
+.xl-file-list li:last-child {
+  border-bottom: 0;
+}
+.xl-file-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--xl-green);
+}
+.xl-file-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.xl-file-title {
+  font-weight: 600;
+  color: var(--xl-text);
+  text-decoration: none;
+}
+.xl-file-title:hover {
+  color: var(--xl-green-dark);
+  text-decoration: underline;
+}
+.xl-skills {
+  color: var(--xl-green-dark);
+}
+.xl-file-list .xl-level,
+.xl-file-list .btn,
+.xl-file-list > li > .xl-small {
+  grid-column: 2 / -1;
+  justify-self: start;
+}
+@media (min-width: 900px) {
+  .xl-file-list li {
+    grid-template-columns: auto 1fr auto auto auto;
+  }
+  .xl-file-list .xl-level,
+  .xl-file-list .btn,
+  .xl-file-list > li > .xl-small {
+    grid-column: auto;
+    justify-self: auto;
+  }
+}
+
+.xl-no-account {
+  display: grid;
+  gap: 0;
+}
+.xl-no-account > div {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--xl-grid);
+}
+.xl-no-account > div:last-child {
+  border-bottom: 0;
+}
+.xl-no-account h3 {
+  font-size: 0.9375rem;
+  margin-bottom: 4px;
+}
+@media (min-width: 900px) {
+  .xl-no-account {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .xl-no-account > div {
+    border-bottom: 0;
+    border-right: 1px solid var(--xl-grid);
+  }
+  .xl-no-account > div:last-child {
+    border-right: 0;
+  }
+}
+
+/* ---------- Akademi & pelajaran ---------- */
+.xl-module {
+  margin-bottom: 32px;
+}
+.xl-module-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+  align-items: flex-end;
+}
+.xl-module-progress {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.xl-lesson-rows {
+  border: 1px solid var(--xl-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.xl-lesson-rows li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--xl-grid);
+  transition: background-color var(--xl-transition);
+}
+.xl-lesson-rows li:last-child {
+  border-bottom: 0;
+}
+.xl-lesson-rows li:hover {
+  background: var(--xl-green-pale);
+}
+.xl-lesson-row-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--xl-text);
+  min-width: 0;
+}
+
+.xl-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--xl-text-muted);
+  padding: 16px 0 10px;
+}
+.xl-breadcrumb a {
+  color: var(--xl-text-muted);
+}
+.xl-breadcrumb [aria-current='page'] {
+  color: var(--xl-text);
+  font-weight: 550;
+}
+
+.xl-lesson-layout {
+  display: grid;
+  gap: 28px;
+  padding-top: 8px;
+}
+@media (min-width: 992px) {
+  .xl-lesson-layout {
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 48px;
+  }
+}
+.xl-lesson {
+  max-width: 740px;
+  min-width: 0;
+}
+.xl-lesson section {
+  margin-top: 34px;
+}
+.xl-lesson h2 {
+  margin-bottom: 10px;
+}
+.xl-lesson p {
+  max-width: 68ch;
+}
+.xl-objectives {
+  border: 1px solid var(--xl-border);
+  border-left: 3px solid var(--xl-green);
+  border-radius: var(--xl-radius-lg);
+  padding: 14px 18px;
+  background: var(--xl-green-pale);
+  margin-top: 0 !important;
+}
+.xl-objectives ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.xl-params {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+.xl-params > div {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--xl-grid);
+}
+.xl-params dt,
+.xl-params dd {
+  margin: 0;
+  font-weight: 400;
+}
+@media (max-width: 575px) {
+  .xl-params > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+.xl-mistakes {
+  padding-left: 18px;
+}
+.xl-mistakes li {
+  margin-bottom: 8px;
+}
+.xl-exercise-links li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--xl-grid);
+  flex-wrap: wrap;
+}
+.xl-quiz {
+  border: 0;
+  padding: 0;
+  margin: 0 0 18px;
+}
+.xl-quiz legend {
+  float: none;
+  font-size: 0.9375rem;
+}
+.xl-completion {
+  border-top: 1px solid var(--xl-border);
+  padding-top: 18px;
+}
+.xl-prevnext {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid var(--xl-border);
+}
+.xl-prevnext a {
+  text-decoration: none;
+  font-weight: 600;
+  max-width: 48%;
+}
+.xl-lesson-aside {
+  align-self: start;
+  font-size: 0.875rem;
+}
+@media (min-width: 992px) {
+  .xl-lesson-aside {
+    position: sticky;
+    top: calc(var(--xl-header-h) + 16px);
+    border-left: 1px solid var(--xl-border);
+    padding-left: 18px;
+  }
+}
+.xl-lesson-aside ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.xl-lesson-aside li a {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  color: var(--xl-text-muted);
+  text-decoration: none;
+}
+.xl-lesson-aside li a:hover {
+  color: var(--xl-text);
+}
+.xl-lesson-aside li a[aria-current='page'] {
+  color: var(--xl-green-dark);
+  font-weight: 650;
+}
+.xl-lesson-aside li svg {
+  margin-top: 3px;
+}
+.xl-meta {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.xl-meta dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--xl-text-muted);
+  font-weight: 650;
+}
+.xl-meta dd {
+  margin: 0;
+}
+
+/* ---------- Latihan ---------- */
+.xl-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-bottom: 14px;
+  align-items: flex-start;
+}
+.xl-filters > div {
+  min-width: 170px;
+}
+.xl-filters .xl-filter-grow {
+  flex: 1 1 240px;
+}
+.xl-exercise-rows {
+  border: 1px solid var(--xl-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.xl-exercise-rows li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--xl-grid);
+}
+.xl-exercise-rows li:last-child {
+  border-bottom: 0;
+}
+.xl-exercise-rows li:hover {
+  background: var(--xl-green-pale);
+}
+.xl-exercise-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--xl-text);
+}
+@media (max-width: 575px) {
+  .xl-exercise-rows li {
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- Shortcut ---------- */
+.xl-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--xl-border);
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+.xl-tabs button,
+.xl-tabs a {
+  padding: 9px 16px;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  font-weight: 600;
+  color: var(--xl-text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  margin-bottom: -1px;
+  transition:
+    color var(--xl-transition),
+    border-color var(--xl-transition);
+}
+.xl-tabs button:hover,
+.xl-tabs a:hover {
+  color: var(--xl-text);
+}
+.xl-tabs button[aria-selected='true'],
+.xl-tabs a.active {
+  color: var(--xl-green-dark);
+  border-bottom-color: var(--xl-green);
+}
+.xl-star {
+  background: none;
+  border: 0;
+  color: #9aa39a;
+  padding: 4px;
+  border-radius: var(--xl-radius-sm);
+  line-height: 0;
+}
+.xl-star:hover {
+  color: #b8860b;
+  background: var(--xl-bg-subtle);
+}
+.xl-star.on {
+  color: #b8860b;
+}
+.xl-key-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.xl-plat {
+  width: 32px;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--xl-text-muted);
+}
+.xl-quiz-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.xl-quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 14px;
+  background: var(--xl-bg);
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  transition:
+    border-color var(--xl-transition),
+    background-color var(--xl-transition);
+}
+.xl-quiz-option:hover:not(:disabled) {
+  border-color: var(--xl-green);
+  background: var(--xl-green-pale);
+}
+.xl-quiz-option.correct {
+  border-color: var(--xl-success);
+  background: var(--xl-green-pale);
+  box-shadow: inset 3px 0 0 var(--xl-success);
+}
+.xl-quiz-option.wrong {
+  border-color: var(--xl-error);
+  background: var(--xl-error-bg);
+  box-shadow: inset 3px 0 0 var(--xl-error);
+}
+
+/* ---------- Kemajuan ---------- */
+.xl-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0;
+  border: 1px solid var(--xl-border);
+  border-radius: 8px;
+  margin: 18px 0 28px;
+  overflow: hidden;
+}
+.xl-stats > div {
+  padding: 14px 16px;
+  border-right: 1px solid var(--xl-grid);
+  border-bottom: 1px solid var(--xl-grid);
+  margin: 0;
+}
+.xl-stats dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--xl-text-muted);
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.xl-stats dd {
+  margin: 4px 0 0;
+  font-size: 1.5rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.xl-module-summary {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  max-width: 560px;
+}
+.xl-module-summary li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--xl-grid);
+}
+.xl-module-summary li > span:first-child {
+  flex: 1;
+}
+.xl-review {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.xl-review li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--xl-grid);
+}
+
+.xl-prose h2 {
+  margin-top: 28px;
+  font-size: 1.125rem;
+}
+.xl-prose ul {
+  padding-left: 20px;
+}
+
+/* ---------- Admin: batang kecil dalam tabel ---------- */
+.xl-bar-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+.xl-bar-cell .xl-bar {
+  display: block;
+  height: 8px;
+  background: var(--xl-green);
+  border-radius: 2px;
+  min-width: 2px;
+  max-width: 80px;
+}
+
+.xl-lang-notice {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--xl-border);
+  border-left: 3px solid var(--xl-warning);
+  border-radius: var(--xl-radius);
+  background: var(--xl-warning-bg);
+  font-size: 0.8125rem;
+  color: #5c4400;
+}

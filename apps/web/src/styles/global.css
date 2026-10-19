@@ -1,0 +1,633 @@
+/* Gaya global Mahir Excel: dasar, shell aplikasi, dan komponen umum. */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--xl-text);
+  background: var(--xl-bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--xl-text);
+}
+h1 {
+  font-size: clamp(1.625rem, 1.2rem + 1.6vw, 2.125rem);
+}
+h2 {
+  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+}
+h3 {
+  font-size: 1.0625rem;
+}
+p {
+  margin-bottom: 0.75rem;
+}
+code,
+kbd,
+.xl-mono {
+  font-family: var(--xl-mono);
+}
+code {
+  font-size: 0.875em;
+  background: var(--xl-bg-subtle);
+  padding: 0.1em 0.35em;
+  border-radius: var(--xl-radius-sm);
+  border: 1px solid var(--xl-grid);
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+/* Fokus terlihat di semua kontrol */
+:focus-visible {
+  outline: 2px solid var(--xl-green);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 2000;
+  background: var(--xl-green-dark);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: var(--xl-radius);
+  transition: top var(--xl-transition);
+}
+.skip-link:focus {
+  top: 8px;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Tombol */
+.btn {
+  border-radius: var(--xl-radius);
+  font-weight: 550;
+  font-size: 0.9rem;
+  transition:
+    background-color var(--xl-transition),
+    border-color var(--xl-transition),
+    color var(--xl-transition),
+    transform 80ms ease;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn-primary {
+  --bs-btn-bg: var(--xl-green);
+  --bs-btn-border-color: var(--xl-green);
+  --bs-btn-hover-bg: var(--xl-green-dark);
+  --bs-btn-hover-border-color: var(--xl-green-dark);
+  --bs-btn-active-bg: var(--xl-green-dark);
+  --bs-btn-active-border-color: var(--xl-green-dark);
+  --bs-btn-disabled-bg: var(--xl-green);
+  --bs-btn-disabled-border-color: var(--xl-green);
+  --bs-btn-focus-shadow-rgb: 33, 115, 70;
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--xl-green-dark);
+  --bs-btn-border-color: var(--xl-green);
+  --bs-btn-hover-bg: var(--xl-green-light);
+  --bs-btn-hover-color: var(--xl-green-dark);
+  --bs-btn-hover-border-color: var(--xl-green);
+  --bs-btn-active-bg: var(--xl-green-light);
+  --bs-btn-active-color: var(--xl-green-dark);
+  --bs-btn-active-border-color: var(--xl-green);
+  --bs-btn-disabled-color: var(--xl-green-dark);
+  --bs-btn-disabled-border-color: var(--xl-green);
+}
+.btn-outline-secondary {
+  --bs-btn-color: var(--xl-text);
+  --bs-btn-border-color: var(--xl-border);
+  --bs-btn-hover-bg: var(--xl-bg-subtle);
+  --bs-btn-hover-color: var(--xl-text);
+  --bs-btn-hover-border-color: #b7beb7;
+  --bs-btn-active-bg: var(--xl-grid);
+  --bs-btn-active-color: var(--xl-text);
+  --bs-btn-active-border-color: #b7beb7;
+}
+.btn-link {
+  color: var(--xl-green-dark);
+}
+.btn-sm {
+  font-size: 0.8125rem;
+}
+.btn .xl-icon {
+  margin-right: 0.35rem;
+  vertical-align: -0.15em;
+}
+.xl-icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+.form-control,
+.form-select {
+  border-radius: var(--xl-radius);
+  border-color: var(--xl-border);
+  font-size: 0.9375rem;
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--xl-green);
+  box-shadow: 0 0 0 3px rgba(33, 115, 70, 0.2);
+}
+.form-label {
+  font-weight: 550;
+  font-size: 0.875rem;
+}
+.invalid-feedback {
+  display: block;
+  color: var(--xl-error);
+}
+
+/* Shell */
+.xl-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.xl-main {
+  flex: 1 0 auto;
+}
+.xl-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.xl-page-narrow {
+  max-width: 760px;
+}
+.xl-page-head {
+  padding: 28px 0 18px;
+  border-bottom: 1px solid var(--xl-border);
+  margin-bottom: 24px;
+}
+.xl-page-head p {
+  color: var(--xl-text-muted);
+  margin: 6px 0 0;
+  max-width: 62ch;
+}
+.xl-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--xl-green-dark);
+  margin-bottom: 8px;
+}
+
+.xl-header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid var(--xl-border);
+}
+.xl-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--xl-header-h);
+}
+.xl-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--xl-text);
+  text-decoration: none;
+  margin-right: 12px;
+  letter-spacing: -0.02em;
+}
+.xl-brand:hover {
+  color: var(--xl-text);
+}
+.xl-brand svg {
+  width: 24px;
+  height: 24px;
+}
+.xl-nav {
+  display: none;
+  align-items: stretch;
+  gap: 2px;
+  height: 100%;
+}
+.xl-nav a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  color: var(--xl-text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 550;
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--xl-transition),
+    border-color var(--xl-transition),
+    background-color var(--xl-transition);
+}
+.xl-nav a:hover {
+  color: var(--xl-text);
+  background: var(--xl-bg-subtle);
+}
+.xl-nav a[aria-current='page'] {
+  color: var(--xl-green-dark);
+  border-bottom-color: var(--xl-green);
+}
+.xl-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.xl-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--xl-radius);
+  color: var(--xl-text);
+  font-size: 0.85rem;
+  font-weight: 550;
+  text-decoration: none;
+  transition:
+    background-color var(--xl-transition),
+    border-color var(--xl-transition);
+}
+.xl-icon-btn:hover {
+  background: var(--xl-bg-subtle);
+  border-color: var(--xl-border);
+  color: var(--xl-text);
+}
+.xl-chip {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  font-size: 0.8125rem;
+  color: var(--xl-text);
+  text-decoration: none;
+  background: var(--xl-bg);
+}
+.xl-chip:hover {
+  background: var(--xl-green-pale);
+  border-color: var(--xl-green);
+  color: var(--xl-text);
+}
+.xl-chip strong {
+  font-variant-numeric: tabular-nums;
+}
+.xl-menu-toggle {
+  display: inline-flex;
+}
+.xl-mobile-menu {
+  border-top: 1px solid var(--xl-border);
+  background: var(--xl-bg);
+  padding: 8px 0 14px;
+}
+.xl-mobile-menu a,
+.xl-mobile-menu button.xl-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 4px;
+  color: var(--xl-text);
+  text-decoration: none;
+  font-weight: 550;
+  border: 0;
+  background: none;
+  border-bottom: 1px solid var(--xl-grid);
+  text-align: left;
+  font-size: 0.95rem;
+}
+.xl-mobile-menu a[aria-current='page'] {
+  color: var(--xl-green-dark);
+}
+@media (min-width: 900px) {
+  .xl-nav {
+    display: flex;
+  }
+  .xl-menu-toggle,
+  .xl-mobile-menu {
+    display: none !important;
+  }
+}
+@media (min-width: 1100px) {
+  .xl-chip {
+    display: inline-flex;
+  }
+}
+
+.xl-footer {
+  margin-top: 72px;
+  border-top: 1px solid var(--xl-border);
+  background: var(--xl-bg-subtle);
+  padding: 36px 0 28px;
+  font-size: 0.875rem;
+  color: var(--xl-text-muted);
+}
+.xl-footer h2 {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--xl-text);
+  margin-bottom: 10px;
+}
+.xl-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.xl-footer li {
+  margin-bottom: 6px;
+}
+.xl-footer a {
+  color: var(--xl-text-muted);
+  text-decoration: none;
+}
+.xl-footer a:hover {
+  color: var(--xl-green-dark);
+  text-decoration: underline;
+}
+
+/* Panel dan blok umum */
+.xl-panel {
+  border: 1px solid var(--xl-border);
+  border-radius: 8px;
+  background: var(--xl-bg);
+}
+.xl-panel-head {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--xl-border);
+  background: var(--xl-bg-subtle);
+  border-radius: 8px 8px 0 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.xl-panel-body {
+  padding: 14px;
+}
+.xl-muted {
+  color: var(--xl-text-muted);
+}
+.xl-small {
+  font-size: 0.8125rem;
+}
+
+.xl-code {
+  font-family: var(--xl-mono);
+  font-size: 0.875rem;
+  background: var(--xl-bg-subtle);
+  border: 1px solid var(--xl-border);
+  border-left: 3px solid var(--xl-green);
+  border-radius: var(--xl-radius);
+  padding: 10px 14px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0 0 12px;
+}
+
+.xl-keycaps {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.xl-keycap {
+  display: inline-block;
+  min-width: 24px;
+  padding: 1px 7px;
+  font-family: var(--xl-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--xl-text);
+  background: var(--xl-bg);
+  border: 1px solid #c3cac3;
+  border-bottom-width: 2px;
+  border-radius: var(--xl-radius-sm);
+}
+.xl-key-sep {
+  color: var(--xl-text-muted);
+  font-size: 0.75rem;
+}
+
+.xl-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--xl-text-muted);
+  white-space: nowrap;
+}
+.xl-level i {
+  display: inline-flex;
+  gap: 2px;
+}
+.xl-level i b {
+  width: 6px;
+  height: 10px;
+  border-radius: 1px;
+  background: var(--xl-grid);
+  border: 1px solid #c9cfc9;
+}
+.xl-level i b.on {
+  background: var(--xl-green);
+  border-color: var(--xl-green);
+}
+
+.xl-progress {
+  height: 6px;
+  background: var(--xl-grid);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.xl-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--xl-green);
+  border-radius: 3px;
+  transition: width 400ms ease;
+}
+.xl-progress.lg {
+  height: 10px;
+  border-radius: 5px;
+}
+
+.xl-status {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--xl-radius);
+  border: 1px solid;
+  font-size: 0.9rem;
+}
+.xl-status svg {
+  margin-top: 3px;
+}
+.xl-status.success {
+  background: var(--xl-green-pale);
+  border-color: #a9d3b9;
+  color: #0b4a29;
+}
+.xl-status.error {
+  background: var(--xl-error-bg);
+  border-color: #e9b4c0;
+  color: #7d1830;
+}
+.xl-status.warning {
+  background: var(--xl-warning-bg);
+  border-color: #ecd28a;
+  color: #5c4400;
+}
+.xl-status.info {
+  background: var(--xl-bg-subtle);
+  border-color: var(--xl-border);
+  color: var(--xl-text);
+}
+.xl-status ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.xl-empty {
+  text-align: center;
+  padding: 40px 16px;
+  border: 1px dashed var(--xl-border);
+  border-radius: 8px;
+  color: var(--xl-text-muted);
+  background: var(--xl-bg-subtle);
+}
+.xl-empty h3 {
+  color: var(--xl-text);
+  margin-bottom: 4px;
+}
+
+.xl-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--xl-grid);
+  border-top-color: var(--xl-green);
+  border-radius: 50%;
+  animation: xl-spin 700ms linear infinite;
+  display: inline-block;
+  vertical-align: -3px;
+}
+@keyframes xl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.xl-skeleton {
+  background: linear-gradient(90deg, var(--xl-grid), var(--xl-bg-subtle), var(--xl-grid));
+  background-size: 200% 100%;
+  animation: xl-shimmer 1.4s linear infinite;
+  border-radius: var(--xl-radius-sm);
+}
+@keyframes xl-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Tabel referensi (shortcut, admin) */
+.xl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.xl-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--xl-text-muted);
+  font-weight: 650;
+  background: var(--xl-bg-subtle);
+  border-bottom: 1px solid var(--xl-border);
+  padding: 8px 12px;
+  position: sticky;
+  top: var(--xl-header-h);
+  z-index: 1;
+}
+.xl-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--xl-grid);
+  vertical-align: top;
+}
+.xl-table tbody tr:hover td {
+  background: var(--xl-green-pale);
+}
+.xl-table-wrap {
+  border: 1px solid var(--xl-border);
+  border-radius: 8px;
+  overflow-x: auto;
+  background: var(--xl-bg);
+}
+.xl-table-wrap .xl-table th {
+  top: 0;
+}
+
+dialog.xl-dialog {
+  border: 1px solid var(--xl-border);
+  border-radius: 10px;
+  padding: 0;
+  width: min(92vw, 560px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+  color: var(--xl-text);
+}
+dialog.xl-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+.xl-dialog-body {
+  padding: 18px 20px;
+}
+.xl-dialog-foot {
+  padding: 12px 20px;
+  border-top: 1px solid var(--xl-border);
+  background: var(--xl-bg-subtle);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-radius: 0 0 10px 10px;
+}

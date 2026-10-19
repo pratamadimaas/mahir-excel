@@ -1,0 +1,51 @@
+# Produksi: app + MySQL + Caddy (HTTPS otomatis). Isi berkas .env.production lebih dulu.
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: excellab
+      MYSQL_USER: excellab
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p${DB_ROOT_PASSWORD}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env.production
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: excellab
+      DB_NAME: excellab
+    volumes:
+      - worksheets:/data/worksheets
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+
+volumes:
+  mysql-data:
+  worksheets:
+  caddy-data:
