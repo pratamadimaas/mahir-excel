@@ -312,7 +312,7 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
         </article>
         <article className="xl-l-cell xl-l-cell-d">
           <h3 className="h5">{counts ? `${counts.worksheets} worksheet` : 'Worksheet'} .xlsx</h3>
-          <p>Unduh, lalu kerjakan di Excel sungguhan. Kunci jawabannya untuk anggota Premium.</p>
+          <p>Unduh, lalu kerjakan di Excel sungguhan. 3 worksheet pertama gratis; sisanya dan kunci jawaban untuk anggota Premium.</p>
         </article>
         <article className="xl-l-cell xl-l-cell-e">
           <h3 className="h5">Tes penempatan</h3>
@@ -415,7 +415,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
   const price = cfg?.premium.priceLabel;
   return (
     <section className="xl-l-section" aria-labelledby="l-paket">
-      <h2 id="l-paket">Belajarnya gratis. Premium untuk yang butuh bukti.</h2>
+      <h2 id="l-paket">Belajarnya gratis. Premium untuk latihan lebih banyak dan bukti belajar.</h2>
       <div className="xl-l-plans">
         <div className="xl-l-plan">
           <h3 className="h5">Gratis</h3>
@@ -425,7 +425,9 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
             </li>
             <li>Tes penempatan dan jadwal ulang</li>
             <li>Pustaka shortcut dan mode kuis</li>
-            <li>Worksheet .xlsx untuk dikerjakan</li>
+            <li>Petunjuk bertahap dan pembahasan setelah jawabanmu benar</li>
+            <li>3 worksheet .xlsx pertama</li>
+            <li>Sprint 60 detik dan papan peringkat</li>
             <li>Progres, poin, dan streak tersimpan di akun</li>
           </ul>
           <Link to="/daftar" className="btn btn-primary">
@@ -436,8 +438,9 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
           <h3 className="h5">Premium</h3>
           <ul>
             <li>Semua yang gratis</li>
+            <li>Tombol “Lihat solusi” langsung di setiap latihan</li>
+            <li>7 worksheet lanjutan dan kunci jawaban semua worksheet</li>
             <li>Sertifikat PDF per modul dan untuk seluruh materi, bisa dicek lewat kode</li>
-            <li>Kunci jawaban untuk setiap worksheet</li>
           </ul>
           {price && <p className="xl-l-price">{price}</p>}
           <Link to="/premium" className="btn btn-outline-primary">

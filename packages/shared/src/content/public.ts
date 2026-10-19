@@ -11,3 +11,11 @@ export const PUBLIC_LESSON_SLUGS: readonly string[] = [
 ];
 
 export const isPublicLesson = (slug: string): boolean => PUBLIC_LESSON_SLUGS.includes(slug);
+
+/**
+ * Worksheet yang bisa diunduh akun gratis. Worksheet lain (dan semua kunci jawaban) khusus Premium.
+ * Slug harus ada di worksheets.ts; dicek oleh content.test.ts.
+ */
+export const FREE_WORKSHEET_SLUGS: readonly string[] = ['anggaran-bulanan', 'rekap-penjualan', 'stok-barang'];
+
+export const isFreeWorksheet = (slug: string): boolean => FREE_WORKSHEET_SLUGS.includes(slug);

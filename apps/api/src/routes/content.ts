@@ -6,6 +6,7 @@ import { z } from 'zod';
 import {
   FUNCTION_COUNT,
   PUBLIC_LESSON_SLUGS,
+  isFreeWorksheet,
   dailyIndex,
   isPublicLesson,
   jakartaDate,
@@ -370,7 +371,8 @@ export function contentRoutes({ db, config, auth }: Ctx): Router {
   });
 
   // Menyerah/lihat solusi: tidak memberi poin dan tidak menandai latihan selesai.
-  r.post('/exercises/:slug/reveal', async (req, res) => {
+  // Lihat solusi tanpa menjawab benar: khusus Premium. Petunjuk bertahap tetap gratis.
+  r.post('/exercises/:slug/reveal', auth.requirePremium, async (req, res) => {
     const { def } = await loadExercise(parse(slugParam, req.params.slug), isPreview(req));
     res.json({ data: { explanation: def.explanation, solution: solutionCells(def), pointsAwarded: 0 } });
   });
@@ -434,6 +436,7 @@ export function contentRoutes({ db, config, auth }: Ctx): Router {
       difficulty: v.difficulty,
       skills: v.skills,
       instructions: v.instructions,
+      premiumOnly: !isFreeWorksheet(v.slug),
       fileType: 'xlsx',
       fileSize: f.size,
       available: f.available,
@@ -464,6 +467,9 @@ export function contentRoutes({ db, config, auth }: Ctx): Router {
     if (!w) throw notFound('Worksheet');
     const wantKey = req.query.answer === '1';
     if (wantKey && !req.user?.premium) throw new AppError(402, 'PREMIUM_REQUIRED', 'Kunci jawaban worksheet khusus anggota Premium.');
+    if (!isFreeWorksheet(w.slug) && !req.user?.premium) {
+      throw new AppError(402, 'PREMIUM_REQUIRED', 'Worksheet ini khusus anggota Premium.');
+    }
     const name = wantKey ? w.key_file_name : w.file_name;
     const info = fileInfo(name);
     if (!name || !info.available) throw new AppError(404, 'NOT_FOUND', 'File worksheet belum tersedia di server.');

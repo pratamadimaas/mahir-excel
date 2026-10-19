@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router';
-import { Download, FileSpreadsheet, KeyRound } from 'lucide-react';
+import { Download, FileSpreadsheet, KeyRound, Lock } from 'lucide-react';
 import { EmptyState, ErrorState, Loading, Status } from '../../components/feedback/Feedback';
 import { useAuth } from '../../app/AuthContext';
 import { Level } from '../../components/learning/Bits';
@@ -10,6 +10,7 @@ import { formatBytes, type WorksheetView } from '../../services/types';
 
 export function WorksheetsPage() {
   useDocumentTitle('Worksheet');
+  const { user } = useAuth();
   const ws = useAsync((s) => api.get<WorksheetView[]>('/worksheets', s), []);
   return (
     <div className="xl-page">
@@ -17,8 +18,8 @@ export function WorksheetsPage() {
         <p className="xl-eyebrow">Sumber belajar</p>
         <h1>Worksheet siap unduh</h1>
         <p>
-          File Excel (.xlsx) untuk berlatih di aplikasi Excel-mu sendiri. Setiap worksheet punya sheet Petunjuk dan Latihan; kunci jawaban
-          ada di file terpisah.
+          File Excel (.xlsx) untuk berlatih di aplikasi Excel-mu sendiri. Setiap worksheet punya sheet Petunjuk dan Latihan; 3 worksheet
+          pertama gratis; worksheet lainnya dan semua kunci jawaban untuk anggota Premium.
         </p>
       </header>
       {ws.loading && <Loading label="Memuat worksheet…" lines={5} />}
@@ -38,7 +39,12 @@ export function WorksheetsPage() {
               </div>
               <Level difficulty={w.difficulty} />
               <span className="xl-muted xl-small text-nowrap d-none d-md-inline">.xlsx · {formatBytes(w.fileSize)}</span>
-              {w.available ? (
+              {w.available && w.premiumOnly && !user?.premium ? (
+                <Link className="btn btn-outline-secondary btn-sm" to="/premium">
+                  <Lock className="xl-icon" aria-hidden="true" />
+                  Premium
+                </Link>
+              ) : w.available ? (
                 <a className="btn btn-primary btn-sm" href={`/api/worksheets/${w.slug}/download`} download>
                   <Download className="xl-icon" aria-hidden="true" />
                   Unduh
@@ -170,7 +176,12 @@ export function WorksheetDetailPage() {
               <dd>{w.skills.join(', ')}</dd>
             </div>
           </dl>
-          {w.available ? (
+          {w.available && w.premiumOnly && !user?.premium ? (
+            <Link className="btn btn-primary w-100 mb-2" to="/premium">
+              <Lock className="xl-icon" aria-hidden="true" />
+              Worksheet ini khusus Premium
+            </Link>
+          ) : w.available ? (
             <a className="btn btn-primary w-100 mb-2" href={`/api/worksheets/${w.slug}/download`} download>
               <Download className="xl-icon" aria-hidden="true" />
               Unduh worksheet

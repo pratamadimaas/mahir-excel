@@ -237,6 +237,15 @@ describe('pelajaran contoh publik dan level penempatan', () => {
     expect(isPublicLesson('index-match')).toBe(false);
   });
 
+  it('worksheet gratis ada di daftar worksheet dan jumlahnya 3', async () => {
+    const { FREE_WORKSHEET_SLUGS, worksheets, isFreeWorksheet } = await import('./index');
+    const slugs = new Set(worksheets.map((w) => w.slug));
+    for (const s of FREE_WORKSHEET_SLUGS) expect(slugs.has(s), s).toBe(true);
+    expect(FREE_WORKSHEET_SLUGS).toHaveLength(3);
+    expect(isFreeWorksheet('anggaran-bulanan')).toBe(true);
+    expect(isFreeWorksheet('latihan-lookup')).toBe(false);
+  });
+
   it('level: semua benar = Mahir; salah di modul awal = Pemula; di tengah = Menengah', async () => {
     const { placementLevel } = await import('./index');
     expect(placementLevel({ startModule: null })).toBe('Mahir');

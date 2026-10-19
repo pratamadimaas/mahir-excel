@@ -18,7 +18,7 @@ export const lessons = [...lessonsPart1, ...lessonsPart2, ...lessonsPart3, ...le
 export const exercises = [...baseExercises, ...moreExercises];
 export { placementQuestions, evaluatePlacement } from './content/placement';
 export type { PlacementQuestion, PlacementResult } from './content/placement';
-export { PUBLIC_LESSON_SLUGS, isPublicLesson } from './content/public';
+export { PUBLIC_LESSON_SLUGS, isPublicLesson, FREE_WORKSHEET_SLUGS, isFreeWorksheet } from './content/public';
 export { placementLevel } from './content/placement';
 export type { PlacementLevel } from './content/placement';
 

@@ -20,8 +20,12 @@ const COMPARISON: { label: string; note?: string; free: boolean }[] = [
   { label: 'Pustaka shortcut dan mode kuis', free: true },
   { label: 'Sprint 60 detik dan papan peringkat', free: true },
   { label: 'Progres, poin, dan streak tersimpan', free: true },
-  { label: 'Worksheet .xlsx untuk dikerjakan', free: true },
-  { label: 'Kunci jawaban worksheet', note: 'File .xlsx untuk mencocokkan hasil kerjamu', free: false },
+  { label: 'Petunjuk bertahap di setiap latihan', free: true },
+  { label: 'Solusi dan pembahasan setelah jawabanmu benar', free: true },
+  { label: '3 worksheet pertama (.xlsx)', free: true },
+  { label: 'Solusi langsung tanpa harus menjawab benar', note: 'Tombol “Lihat solusi” di setiap latihan', free: false },
+  { label: '7 worksheet lanjutan (.xlsx)', note: 'Lookup, SUMIF/COUNTIF, merapikan data, laporan mini, dan lainnya', free: false },
+  { label: 'Kunci jawaban semua worksheet', note: 'File .xlsx untuk mencocokkan hasil kerjamu', free: false },
   { label: 'Sertifikat PDF per modul', note: 'Muncul setelah semua pelajaran modul selesai', free: false },
   { label: 'Sertifikat seluruh materi', note: 'Bisa dicek keasliannya lewat kode', free: false },
 ];
@@ -56,7 +60,10 @@ export function PremiumPage() {
       <header className="xl-page-head">
         <p className="xl-eyebrow">Premium</p>
         <h1>Gratis atau Premium, apa bedanya?</h1>
-        <p>Semua materi belajar gratis. Premium hanya menambah sertifikat dan kunci jawaban worksheet.</p>
+        <p>
+          Semua pelajaran dan latihan gratis. Premium menambah jalan pintas dan bahan latihan: solusi langsung, worksheet lanjutan beserta
+          kunci jawabannya, dan sertifikat.
+        </p>
       </header>
 
       {active && (

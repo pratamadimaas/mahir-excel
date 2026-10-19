@@ -63,6 +63,8 @@ export interface WorksheetView {
   difficulty: Difficulty;
   skills: string[];
   instructions: string[];
+  /** Hanya bisa diunduh anggota Premium. */
+  premiumOnly: boolean;
   fileType: string;
   fileSize: number | null;
   available: boolean;

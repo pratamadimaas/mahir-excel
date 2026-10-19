@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { ArrowDownToLine, ArrowRight, ArrowRightToLine, Eye, Lightbulb, RotateCcw, Send } from 'lucide-react';
 import { FUNCTION_NAMES, addrToRef, expandRef, isFormula, parseCellRef, shiftFormula } from '@excellab/spreadsheet-engine';
+import { useAuth } from '../../app/AuthContext';
 import { useProgress } from '../../app/ProgressContext';
 import { api, errorMessage } from '../../services/api';
 import { DIFFICULTY_LABELS, TOPIC_LABELS, type PublicExercise, type RevealResult, type SubmitResult } from '../../services/types';
@@ -22,6 +23,8 @@ const SUPPORTED = [...FUNCTION_NAMES].sort();
 
 export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
   const { recordSubmission, progress } = useProgress();
+  const { user } = useAuth();
+  const canReveal = !!user?.premium;
   const editable = useMemo(() => expandAll(exercise.editable), [exercise.editable]);
   const targets = useMemo(() => new Set(exercise.targetCells), [exercise.targetCells]);
   const [cells, setCells] = useState<Record<string, string>>(exercise.cells);
@@ -398,7 +401,7 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
         </div>
 
         <ConfirmDialog
-          open={confirmReveal}
+          open={confirmReveal && canReveal}
           title="Lihat solusi sekarang?"
           confirmLabel="Ya, tampilkan"
           onConfirm={reveal}
@@ -409,6 +412,15 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
             per latihan.
           </p>
         </ConfirmDialog>
+        {confirmReveal && !canReveal && (
+          <Status tone="info">
+            <strong>Solusi langsung khusus Premium.</strong> Yang gratis: buka petunjuk satu per satu, dan solusi lengkap muncul otomatis begitu
+            jawabanmu benar. <Link to="/premium">Lihat Premium</Link>{' '}
+            <button type="button" className="btn btn-link btn-sm p-0" onClick={() => setConfirmReveal(false)}>
+              Tutup
+            </button>
+          </Status>
+        )}
       </div>
     </div>
   );
