@@ -6,3 +6,4 @@ apps/api/storage
 .vite
 test-results
 playwright-report
+branding/
