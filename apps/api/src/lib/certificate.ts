@@ -1,4 +1,5 @@
 import PDFDocument from 'pdfkit';
+import QRCode from 'qrcode';
 
 export interface CertificateInput {
   name: string;
@@ -27,8 +28,8 @@ const MUTED = '#616161';
 export const latinSafe = (s: string): string => s.replace(/[^ -~¡-ÿ]/g, '?');
 
 /**
- * Sertifikat penyelesaian Mahir Excel (A4 lanskap). Ini tanda penyelesaian belajar di platform ini,
- * bukan sertifikasi resmi Microsoft dan tidak terakreditasi; keterangan itu dicetak pada dokumen.
+ * Sertifikat penyelesaian Mahir Excel (A4 lanskap). Ini bukan sertifikasi resmi Microsoft; di dokumen
+ * cukup dicetak bahwa Mahir Excel platform independen dan tidak berafiliasi dengan Microsoft.
  */
 export function buildCertificate(input: CertificateInput): PDFKit.PDFDocument {
   const doc = new PDFDocument({
@@ -90,27 +91,35 @@ export function buildCertificate(input: CertificateInput): PDFKit.PDFDocument {
     .font('Helvetica')
     .fontSize(14)
     .text(`${latinSafe(input.intro ?? 'yang telah menyelesaikan')} ${latinSafe(input.scopeTitle)}`, 60, 280, { align: 'center', width: W - 120 });
-  doc
-    .fillColor(MUTED)
-    .fontSize(12)
-    .text(latinSafe(input.detail ?? `${input.lessons} pelajaran diselesaikan di platform belajar Excel gratis Mahir Excel`), 60, 305, {
-      align: 'center',
-      width: W - 120,
-    });
+  const detail = input.detail ?? `${input.lessons} pelajaran diselesaikan di platform belajar Excel gratis Mahir Excel`;
+  if (detail) {
+    doc.fillColor(MUTED).fontSize(12).text(latinSafe(detail), 60, 305, { align: 'center', width: W - 120 });
+  }
 
-  doc.fillColor(TEXT).fontSize(12).text(`Diterbitkan pada ${date}`, 0, 355, { align: 'center' });
-  doc.fillColor(MUTED).fontSize(10).text(`Kode verifikasi: ${input.code}`, 0, 380, { align: 'center' });
-  doc.fillColor(MUTED).fontSize(10).text(`Periksa keaslian di ${input.verifyUrl}`, 0, 395, { align: 'center' });
+  // Kiri: kode QR vektor untuk memeriksa keaslian, beserta kodenya.
+  const qr = QRCode.create(input.verifyUrl, { errorCorrectionLevel: 'M' });
+  const n = qr.modules.size;
+  const qrSize = 84;
+  const cell = qrSize / n;
+  const qx = 150;
+  const qy = 372;
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (qr.modules.get(r, c)) doc.rect(qx + c * cell, qy + r * cell, cell + 0.2, cell + 0.2).fill(DARK);
+    }
+  }
+  doc.fillColor(TEXT).font('Helvetica-Bold').fontSize(11).text('Pindai untuk memeriksa keaslian', qx + qrSize + 16, qy + 22, { width: 190 });
+  doc.fillColor(MUTED).font('Helvetica').fontSize(9).text('Kode verifikasi', qx + qrSize + 16, qy + 40, { width: 190 });
+  doc.fillColor(TEXT).font('Courier').fontSize(12).text(input.code, qx + qrSize + 16, qy + 53, { width: 190 });
 
-  doc
-    .fillColor(MUTED)
-    .fontSize(8.5)
-    .text(
-      'Sertifikat ini adalah tanda penyelesaian belajar di Mahir Excel. Bukan sertifikasi resmi Microsoft, tidak terakreditasi, dan tidak menyatakan tingkat kemahiran yang diakui pihak ketiga. Mahir Excel tidak berafiliasi dengan Microsoft.',
-      90,
-      H - 90,
-      { align: 'center', width: W - 180 },
-    );
+  // Kanan: penerbit dan tanggal terbit (tanpa nama pribadi).
+  const bx = W - 150 - 225;
+  doc.fillColor(GREEN).font('Times-BoldItalic').fontSize(28).text('Mahir Excel', bx, qy + 6, { width: 225, align: 'center' });
+  doc.moveTo(bx, qy + 46).lineTo(bx + 225, qy + 46).lineWidth(0.8).stroke('#8b958d');
+  doc.fillColor(TEXT).font('Helvetica-Bold').fontSize(11).text('Diterbitkan oleh Mahir Excel', bx, qy + 54, { width: 225, align: 'center' });
+  doc.fillColor(MUTED).font('Helvetica').fontSize(10).text(date, bx, qy + 69, { width: 225, align: 'center' });
+
+  doc.fillColor(MUTED).font('Helvetica').fontSize(9).text(latinSafe(input.verifyUrl.replace(/^https?:\/\//, '')), 0, H - 78, { align: 'center' });
   doc.end();
   return doc;
 }

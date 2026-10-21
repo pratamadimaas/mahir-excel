@@ -122,14 +122,14 @@ export function programRoutes({ db, config, auth }: Ctx): Router {
     const base = config.webOrigins[0] ?? '';
     const doc = buildCertificate({
       name: user.displayName,
-      scopeTitle: 'Program Perintis Mahir Excel',
+      scopeTitle: 'Microsoft Excel',
       lessons: 0,
       issuedAt: new Date(claim.claimedAt),
       code: claim.code,
       verifyUrl: `${base}/sertifikat/${claim.code}`,
-      heading: 'SERTIFIKAT PERINTIS',
-      intro: `sebagai salah satu dari ${quota} pengguna pertama yang menyelesaikan`,
-      detail: `Perintis ke-${claim.slot}. Menyelesaikan tes penempatan, Sprint 60 detik, dan ${minExercises} latihan di Mahir Excel.`,
+      heading: 'SERTIFIKAT KEAHLIAN',
+      intro: 'telah menunjukkan penguasaan dasar',
+      detail: '',
       seal: { top: 'PERINTIS', value: `#${claim.slot}` },
     });
     res.setHeader('Content-Type', 'application/pdf');
