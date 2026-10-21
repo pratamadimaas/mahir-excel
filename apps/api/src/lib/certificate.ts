@@ -8,6 +8,12 @@ export interface CertificateInput {
   issuedAt: Date;
   code: string;
   verifyUrl: string;
+  /** Judul besar; bawaan "SERTIFIKAT PENYELESAIAN". */
+  heading?: string;
+  /** Kalimat sebelum cakupan; bawaan "yang telah menyelesaikan". */
+  intro?: string;
+  /** Baris keterangan di bawah cakupan; bawaan menyebut jumlah pelajaran. */
+  detail?: string;
 }
 
 const GREEN = '#217346';
@@ -59,7 +65,7 @@ export function buildCertificate(input: CertificateInput): PDFKit.PDFDocument {
     .stroke();
 
   doc.fillColor(DARK).font('Helvetica-Bold').fontSize(14).text('Mahir Excel', 0, 100, { align: 'center' });
-  doc.fillColor(GREEN).font('Helvetica-Bold').fontSize(30).text('SERTIFIKAT PENYELESAIAN', 0, 130, { align: 'center' });
+  doc.fillColor(GREEN).font('Helvetica-Bold').fontSize(30).text(latinSafe(input.heading ?? 'SERTIFIKAT PENYELESAIAN'), 0, 130, { align: 'center' });
 
   doc.fillColor(MUTED).font('Helvetica').fontSize(13).text('Diberikan kepada', 0, 190, { align: 'center' });
   doc
@@ -72,11 +78,11 @@ export function buildCertificate(input: CertificateInput): PDFKit.PDFDocument {
     .fillColor(TEXT)
     .font('Helvetica')
     .fontSize(14)
-    .text(`yang telah menyelesaikan ${latinSafe(input.scopeTitle)}`, 60, 280, { align: 'center', width: W - 120 });
+    .text(`${latinSafe(input.intro ?? 'yang telah menyelesaikan')} ${latinSafe(input.scopeTitle)}`, 60, 280, { align: 'center', width: W - 120 });
   doc
     .fillColor(MUTED)
     .fontSize(12)
-    .text(`${input.lessons} pelajaran diselesaikan di platform belajar Excel gratis Mahir Excel`, 60, 305, {
+    .text(latinSafe(input.detail ?? `${input.lessons} pelajaran diselesaikan di platform belajar Excel gratis Mahir Excel`), 60, 305, {
       align: 'center',
       width: W - 120,
     });

@@ -121,3 +121,24 @@ export function formatBytes(n: number | null): string {
   if (n < 1024) return `${n} B`;
   return `${(n / 1024).toFixed(n < 10240 ? 1 : 0).replace('.', ',')} KB`;
 }
+
+export interface ProgramRequirement {
+  key: 'placement' | 'sprint' | 'exercises';
+  label: string;
+  done: boolean;
+  progress?: { have: number; need: number };
+  to: string;
+}
+
+/** Status Program Perintis. Bagian pengguna (requirements, eligible, claim) hanya ada saat sudah masuk akun. */
+export interface ProgramStatus {
+  enabled: boolean;
+  open: boolean;
+  quota: number;
+  taken: number;
+  remaining: number;
+  minExercises: number;
+  requirements?: ProgramRequirement[];
+  eligible?: boolean;
+  claim?: { slot: number; code: string; claimedAt: string } | null;
+}

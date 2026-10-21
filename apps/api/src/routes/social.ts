@@ -15,6 +15,7 @@ const iso = (v: string): string => new Date(`${v.replace(' ', 'T')}Z`).toISOStri
 
 /** Jadwal ulang, bagikan progres, dan sertifikat. */
 export function socialRoutes({ db, config, auth }: Ctx): Router {
+  const programQuota = config.program.quota;
   const r = Router();
 
   // ---- ulang terjadwal ----
@@ -173,7 +174,12 @@ export function socialRoutes({ db, config, auth }: Ctx): Router {
     );
     if (!c) throw notFound('Sertifikat');
     let title = 'seluruh materi Mahir Excel';
-    if (c.scope !== 'semua') {
+    if (c.scope === 'perintis') {
+      const claim = await row<{ slot: number }>(db, 'SELECT pc.slot FROM program_claims pc JOIN certificates c ON c.user_id = pc.user_id WHERE c.code = ?', [code]);
+      title = claim
+        ? `Program Perintis Mahir Excel: pengguna ke-${claim.slot} dari ${programQuota} pengguna pertama`
+        : 'Program Perintis Mahir Excel';
+    } else if (c.scope !== 'semua') {
       const m = await row<{ title: string; sort_order: number }>(db, 'SELECT title, sort_order FROM modules WHERE slug = ?', [c.scope]);
       title = m ? `modul ${m.sort_order}: ${m.title}` : c.scope;
     }

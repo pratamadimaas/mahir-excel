@@ -129,7 +129,7 @@ Perangkat lunaknya gratis, tetapi **infrastruktur (hosting, database terkelola, 
 
 ## Variabel lingkungan
 
-Lihat `.env.example`. Ringkas: `GOOGLE_CLIENT_ID`, `PREMIUM_PRICE_LABEL`, `PREMIUM_PRICE_IDR`, `PREMIUM_MONTHS`, `XENDIT_SECRET_KEY`, `XENDIT_CALLBACK_TOKEN`, `PREMIUM_CONTACT_URL`, `MAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` (email), `API_PORT`, `WEB_ORIGIN` (boleh dipisah koma), `DB_*`, `JWT_SECRET`, `COOKIE_SECURE`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `WORKSHEET_DIR`, `SERVE_WEB`, `VITE_CONTACT_URL` (tautan kontak di footer; disembunyikan bila kosong), `VITE_API_URL` (opsional).
+Lihat `.env.example`. Ringkas: `GOOGLE_CLIENT_ID`, `PREMIUM_PRICE_LABEL`, `PREMIUM_PRICE_IDR`, `PREMIUM_MONTHS`, `XENDIT_SECRET_KEY`, `XENDIT_CALLBACK_TOKEN`, `PREMIUM_CONTACT_URL`, `PROGRAM_ENABLED`, `PROGRAM_QUOTA`, `PROGRAM_MIN_EXERCISES`, `MAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` (email), `API_PORT`, `WEB_ORIGIN` (boleh dipisah koma), `DB_*`, `JWT_SECRET`, `COOKIE_SECURE`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `WORKSHEET_DIR`, `SERVE_WEB`, `VITE_CONTACT_URL` (tautan kontak di footer; disembunyikan bila kosong), `VITE_API_URL` (opsional).
 
 ## Email (login kode dan lupa kata sandi)
 

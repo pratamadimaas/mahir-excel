@@ -12,6 +12,7 @@ import { HomePage } from './features/home/HomePage';
 import { ChallengePage, ExerciseCatalogPage, PlaygroundPage } from './features/playground/PlaygroundPages';
 import { PlacementPage } from './features/learning/PlacementPage';
 import { PremiumPage } from './features/premium/PremiumPage';
+import { ProgramPage } from './features/program/ProgramPage';
 import { SprintPage } from './features/sprint/SprintPage';
 import { ProgressPage } from './features/progress/ProgressPage';
 import { CertificateVerifyPage, SharedProgressPage } from './features/progress/Sharing';
@@ -72,6 +73,7 @@ export function AppRoutes() {
         <Route path="belajar/:slug" element={<LessonPage />} />
         <Route path="tes-penempatan" element={<PlacementPage />} />
         <Route path="premium" element={<PremiumPage />} />
+        <Route path="program" element={<ProgramPage />} />
         <Route path="sprint" element={<SprintPage />} />
         <Route path="bagikan/:token" element={<SharedProgressPage />} />
         <Route path="sertifikat/:code" element={<CertificateVerifyPage />} />

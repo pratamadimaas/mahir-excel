@@ -7,6 +7,7 @@ import { MiniSheet } from '../../components/spreadsheet/MiniSheet';
 import { useAsync } from '../../hooks/useAsync';
 import { api } from '../../services/api';
 import { useAuthConfig } from '../auth/EmailAuth';
+import { ProgramBanner } from '../program/ProgramPage';
 import { Leaderboard } from '../sprint/Leaderboard';
 import { ERROR_CASES, FEEDBACK_STEPS, TRY_EXPECTED, TRY_TABLE, faqs, type ErrorCase, type Row } from './landingData';
 
@@ -576,6 +577,7 @@ export function Landing() {
   return (
     <>
       <Band tone="sage">
+        <ProgramBanner />
         <StatStrip counts={data?.counts ?? null} />
       </Band>
       <Band tone="white">

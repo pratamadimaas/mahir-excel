@@ -39,11 +39,13 @@ export function Header() {
         { to: '/shortcut', label: t('nav.shortcuts') },
         { to: '/worksheet', label: t('nav.worksheets') },
         { to: '/sprint', label: t('nav.sprint') },
+        { to: '/program', label: t('nav.program') },
         ...(user.premium ? [] : [{ to: '/premium', label: t('nav.premium') }]),
       ]
     : [
         { to: '/tes-penempatan', label: t('nav.placement') },
         { to: '/sprint', label: t('nav.sprint') },
+        { to: '/program', label: t('nav.program') },
       ];
 
   useEffect(() => setOpen(false), [loc.pathname]);

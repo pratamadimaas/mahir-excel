@@ -15,6 +15,7 @@ import { api } from '../../services/api';
 import { flattenLessons, useModules } from '../../services/catalog';
 import { formatBytes, type PublicExercise, type ShortcutView, type WorksheetView } from '../../services/types';
 import { HeroVisual } from '../../scenes/hero/HeroVisual';
+import { ProgramBanner } from '../program/ProgramPage';
 import { Landing, SprintTeaser } from './Landing';
 
 const HERO_TABLE = [
@@ -253,6 +254,8 @@ export function HomePage() {
 
       {user ? (
         <div className="xl-page">
+          <ProgramBanner />
+
           <Section id="jalur" title={t('home.path.title')} lead={t('home.path.lead')}>
             <ReviewDueBanner />
             <PathSection />

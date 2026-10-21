@@ -70,6 +70,14 @@ Tanpa langkah ini, Premium tetap bisa diaktifkan manual oleh admin di /admin/pen
 
 Integrasi memakai API QR Codes v1 Xendit (`POST /qr_codes`, callback `qr.payment`). Callback ditolak bila `x-callback-token` tidak cocok; jumlah pembayaran harus sama dengan pesanan. Pembayaran yang telat (setelah kode QR kedaluwarsa di tampilan) tetap diaktifkan.
 
+## Program Perintis (sertifikat gratis)
+
+Halaman `/program` memberi sertifikat gratis kepada `PROGRAM_QUOTA` pengguna pertama (bawaan 100) yang menyelesaikan tes penempatan, satu ronde Sprint, dan `PROGRAM_MIN_EXERCISES` latihan (bawaan 5), semuanya saat masuk akun. Nomor Perintis diberikan berurutan saat klaim ditekan, dan basis data menjamin kuota tidak terlampaui. Matikan dengan `PROGRAM_ENABLED=false`; yang sudah klaim tetap punya sertifikatnya. Melihat siapa saja yang sudah klaim:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.production exec mysql sh -c 'mysql -u root -p"$MYSQL_ROOT_PASSWORD" excellab -e "SELECT pc.slot, u.email, u.display_name, pc.claimed_at FROM program_claims pc JOIN users u ON u.id = pc.user_id ORDER BY pc.slot"'
+```
+
 ## Belum diuji
 
 Berkas Docker/Compose/Caddy di sini belum dijalankan dari lingkungan pengembangan ini, jadi periksa log (`docker compose ... logs -f app`) pada deploy pertama.

@@ -167,7 +167,7 @@ describe('bagikan progres dan sertifikat (akun)', () => {
       'GET /progress/share': { token: null },
     });
     renderApp('/kemajuan');
-    const cert = await screen.findByRole('link', { name: /Sertifikat/ });
+    const cert = await screen.findByRole('link', { name: /^Sertifikat$/ });
     expect(cert).toHaveAttribute('href', '/api/progress/certificate?scope=rumus-dasar');
     expect(cert).toHaveAttribute('download');
   });

@@ -18,6 +18,7 @@ import { authRoutes } from './routes/auth';
 import { emailAuthRoutes } from './routes/emailAuth';
 import { paymentRoutes } from './routes/payments';
 import { placementRoutes } from './routes/placement';
+import { programRoutes } from './routes/program';
 import { socialRoutes } from './routes/social';
 import { sprintRoutes } from './routes/sprint';
 import { trackRoutes } from './routes/track';
@@ -103,6 +104,7 @@ export function createApp(
   app.use('/api/progress', progressRoutes(ctx));
   app.use('/api', socialRoutes(ctx));
   app.use('/api', paymentRoutes(ctx));
+  app.use('/api', programRoutes(ctx));
   app.use('/api/admin', adminRoutes(ctx));
   app.use('/api', contentRoutes(ctx));
   app.use('/api', notFoundHandler);

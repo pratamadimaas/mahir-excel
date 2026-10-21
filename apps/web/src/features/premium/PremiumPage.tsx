@@ -106,6 +106,10 @@ export function PremiumPage() {
         </table>
       </div>
       <p className="xl-small xl-muted">
+        Ingin sertifikat tanpa Premium? Ada <Link to="/program">Program Perintis</Link>: sertifikat gratis untuk pengguna pertama yang menyelesaikan
+        tes penempatan, Sprint, dan beberapa latihan.
+      </p>
+      <p className="xl-small xl-muted">
         Akun gratis cukup daftar dengan email atau Google. Tanpa akun, kamu tetap bisa membuka beranda, tes penempatan, dan 5 pelajaran
         contoh.
       </p>

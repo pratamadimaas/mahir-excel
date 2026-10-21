@@ -57,6 +57,9 @@ const envSchema = z.object({
   PREMIUM_MONTHS: z.coerce.number().int().min(1).max(60).default(12),
   XENDIT_SECRET_KEY: z.string().optional(),
   XENDIT_CALLBACK_TOKEN: z.string().optional(),
+  PROGRAM_ENABLED: bool.default(true),
+  PROGRAM_QUOTA: z.coerce.number().int().min(1).max(5000).default(100),
+  PROGRAM_MIN_EXERCISES: z.coerce.number().int().min(1).max(54).default(5),
 });
 
 export type MailMode = 'smtp' | 'console' | 'memory' | 'disabled';
@@ -80,6 +83,8 @@ export interface Config {
   premium: { priceLabel: string; contactUrl?: string; priceIdr: number; months: number };
   /** Pembayaran QRIS lewat Xendit; aktif bila kunci rahasia dan token callback sama-sama diisi. */
   payments: { secretKey?: string; callbackToken?: string; callbackUrl: string };
+  /** Program Perintis: sertifikat gratis untuk pengguna pertama yang memenuhi syarat. */
+  program: { enabled: boolean; quota: number; minExercises: number };
   mail: { mode: MailMode; from: string; smtp?: { host: string; port: number; secure: boolean; user?: string; pass?: string } };
 }
 
@@ -124,6 +129,7 @@ export function loadConfig(overrides: Record<string, string | undefined> = {}): 
       callbackToken: e.XENDIT_CALLBACK_TOKEN?.trim() || undefined,
       callbackUrl: `${(e.WEB_ORIGIN.split(',')[0] ?? '').trim().replace(/\/$/, '')}/api/payments/xendit/callback`,
     },
+    program: { enabled: e.PROGRAM_ENABLED, quota: e.PROGRAM_QUOTA, minExercises: e.PROGRAM_MIN_EXERCISES },
     mail: {
       mode: mailMode,
       from: e.MAIL_FROM,

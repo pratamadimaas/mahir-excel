@@ -173,6 +173,13 @@ export function TermsPage() {
         <li>Mahir Excel tidak berafiliasi dengan Microsoft. Microsoft dan Excel adalah merek dagang Microsoft Corporation.</li>
       </ul>
 
+      <h2>Program Perintis</h2>
+      <ul>
+        <li>Sertifikat gratis untuk jumlah pengguna pertama yang tertera di halaman <Link to="/program">Program Perintis</Link>, setelah syaratnya terpenuhi dan klaim ditekan.</li>
+        <li>Satu akun mendapat satu sertifikat. Kuota dan syarat bisa diubah atau program ditutup oleh pengelola, tanpa memengaruhi sertifikat yang sudah diklaim.</li>
+        <li>Pengelola dapat membatalkan klaim yang terbukti memakai akun ganda atau cara curang.</li>
+      </ul>
+
       <h2>Perubahan</h2>
       <p>
         Syarat ini dapat diperbarui. Perubahan penting diumumkan di situs ini. Bagaimana datamu disimpan dijelaskan di halaman{' '}
