@@ -14,6 +14,8 @@ export interface CertificateInput {
   intro?: string;
   /** Baris keterangan di bawah cakupan; bawaan menyebut jumlah pelajaran. */
   detail?: string;
+  /** Lencana bulat di pojok kanan atas, mis. { top: "PERINTIS", value: "#7" }. */
+  seal?: { top: string; value: string };
 }
 
 const GREEN = '#217346';
@@ -63,6 +65,15 @@ export function buildCertificate(input: CertificateInput): PDFKit.PDFDocument {
     .moveTo(W / 2, 62)
     .lineTo(W / 2, 90)
     .stroke();
+
+  if (input.seal) {
+    const cx = W - 110;
+    const cy = 112;
+    doc.circle(cx, cy, 50).fill(GREEN);
+    doc.circle(cx, cy, 44).lineWidth(1).stroke('#d9f35b');
+    doc.fillColor('#d9f35b').font('Helvetica-Bold').fontSize(8).text(latinSafe(input.seal.top), cx - 44, cy - 28, { width: 88, align: 'center', characterSpacing: 1 });
+    doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(30).text(latinSafe(input.seal.value), cx - 44, cy - 14, { width: 88, align: 'center' });
+  }
 
   doc.fillColor(DARK).font('Helvetica-Bold').fontSize(14).text('Mahir Excel', 0, 100, { align: 'center' });
   doc.fillColor(GREEN).font('Helvetica-Bold').fontSize(30).text(latinSafe(input.heading ?? 'SERTIFIKAT PENYELESAIAN'), 0, 130, { align: 'center' });

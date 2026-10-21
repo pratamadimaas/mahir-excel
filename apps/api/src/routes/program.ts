@@ -122,14 +122,15 @@ export function programRoutes({ db, config, auth }: Ctx): Router {
     const base = config.webOrigins[0] ?? '';
     const doc = buildCertificate({
       name: user.displayName,
-      scopeTitle: `Program Perintis Mahir Excel (Perintis ke-${claim.slot})`,
+      scopeTitle: 'Program Perintis Mahir Excel',
       lessons: 0,
       issuedAt: new Date(claim.claimedAt),
       code: claim.code,
       verifyUrl: `${base}/sertifikat/${claim.code}`,
       heading: 'SERTIFIKAT PERINTIS',
       intro: `sebagai salah satu dari ${quota} pengguna pertama yang menyelesaikan`,
-      detail: `tes penempatan, Sprint 60 detik, dan ${minExercises} latihan di platform belajar Excel gratis Mahir Excel`,
+      detail: `Perintis ke-${claim.slot}. Menyelesaikan tes penempatan, Sprint 60 detik, dan ${minExercises} latihan di Mahir Excel.`,
+      seal: { top: 'PERINTIS', value: `#${claim.slot}` },
     });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="sertifikat-perintis-mahir-excel.pdf"');
