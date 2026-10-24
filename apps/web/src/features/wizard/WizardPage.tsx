@@ -91,7 +91,7 @@ export function WizardPage() {
               <button key={g.id} type="button" className="xl-wizard-goal" aria-pressed={g.id === goalId} onClick={() => choose(g)}>
                 <strong className="d-block">{g.title}</strong>
                 <span className="xl-small xl-muted">{g.hint}</span>
-                {!g.free && !premium && <span className="xl-chip premium ms-1">Premium</span>}
+                {!g.free && !premium && <span className="xl-tag premium ms-1">Premium</span>}
               </button>
             ))}
           </div>

@@ -111,7 +111,7 @@ export function Header() {
             )}
             {langButton}
             {user && nextLesson && (
-              <Link to={`/belajar/${nextLesson.slug}`} className="btn btn-primary btn-sm d-none d-md-inline-flex">
+              <Link to={`/belajar/${nextLesson.slug}`} className="btn btn-primary btn-sm d-none d-xxl-inline-flex text-nowrap">
                 {t('nav.continue')}
               </Link>
             )}

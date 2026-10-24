@@ -16,7 +16,8 @@
   font-size: 1.1875rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  margin-right: 20px;
+  margin-right: 12px;
+  white-space: nowrap;
 }
 .xl-header .xl-brand:hover {
   color: #fff;
@@ -32,8 +33,9 @@
 .xl-header .xl-nav a {
   color: #bfe3cd;
   font-weight: 600;
-  font-size: 0.9375rem;
-  padding: 0 14px;
+  font-size: 0.875rem;
+  padding: 0 10px;
+  white-space: nowrap;
   border-bottom: 3px solid transparent;
 }
 .xl-header .xl-nav a:hover {

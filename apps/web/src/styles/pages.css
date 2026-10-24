@@ -882,7 +882,7 @@
   align-items: center;
   flex-wrap: wrap;
 }
-.xl-chip {
+.xl-tag {
   display: inline-block;
   padding: 1px 8px;
   border-radius: 999px;
@@ -891,7 +891,7 @@
   font-size: 0.75rem;
   font-weight: 600;
 }
-.xl-chip.premium {
+.xl-tag.premium {
   background: var(--xl-warning-bg);
   color: #5c4400;
 }

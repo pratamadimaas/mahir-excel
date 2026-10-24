@@ -106,7 +106,7 @@ export function TemplatePage() {
                   <h3>{t.title}</h3>
                 </div>
                 <div>
-                  <span className={`xl-chip${t.free ? '' : ' premium'}`}>{t.free ? 'Gratis' : 'Premium'}</span>
+                  <span className={`xl-tag${t.free ? '' : ' premium'}`}>{t.free ? 'Gratis' : 'Premium'}</span>
                 </div>
                 <p className="mb-0">{t.description}</p>
                 <p className="xl-small xl-muted mb-0">{t.forWho}</p>
