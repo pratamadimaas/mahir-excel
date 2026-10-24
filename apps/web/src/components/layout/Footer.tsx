@@ -16,7 +16,7 @@ export function Footer() {
             <p className="xl-small mb-0">{t('footer.disclaimer')}</p>
           </div>
           <div className="col-6 col-md-2">
-            <h2>{t('footer.learn')}</h2>
+            <h3>{t('footer.learn')}</h3>
             <ul>
               <li>
                 <Link to="/belajar">{t('footer.academy')}</Link>
@@ -39,7 +39,7 @@ export function Footer() {
             </ul>
           </div>
           <div className="col-6 col-md-2">
-            <h2>{t('footer.resources')}</h2>
+            <h3>{t('footer.resources')}</h3>
             <ul>
               <li>
                 <Link to="/shortcut">{t('footer.shortcuts')}</Link>
@@ -50,7 +50,7 @@ export function Footer() {
             </ul>
           </div>
           <div className="col-12 col-md-3">
-            <h2>{t('footer.info')}</h2>
+            <h3>{t('footer.info')}</h3>
             <ul>
               <li>
                 <Link to="/tentang">{t('footer.about')}</Link>

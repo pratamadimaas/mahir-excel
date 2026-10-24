@@ -25,6 +25,7 @@ import { trackRoutes } from './routes/track';
 import { contentRoutes } from './routes/content';
 import { templateRoutes } from './routes/templates';
 import { cheatsheetRoutes } from './routes/cheatsheets';
+import { applySeo, seoFor } from './lib/seo';
 import { progressRoutes } from './routes/progress';
 
 export interface Ctx {
@@ -116,8 +117,14 @@ export function createApp(
   // Opsional: melayani hasil build web dari server yang sama (SERVE_WEB=true).
   const webDist = path.join(repoRoot, 'apps/web/dist');
   if (process.env.SERVE_WEB === 'true' && fs.existsSync(webDist)) {
-    app.use(express.static(webDist));
-    app.get(/^(?!\/api\/).*/, (_req, res) => res.sendFile(path.join(webDist, 'index.html')));
+    app.use(express.static(webDist, { index: false }));
+    // index.html diberi judul, canonical, noindex, dan status 404 sesuai alamatnya (lihat lib/seo.ts).
+    const indexHtml = fs.readFileSync(path.join(webDist, 'index.html'), 'utf8');
+    const origin = config.webOrigins[0] ?? 'https://mahirexcel.online';
+    app.get(/^(?!\/api\/).*/, (req, res) => {
+      const seo = seoFor(req.path);
+      res.status(seo.status).type('html').send(applySeo(indexHtml, seo, origin));
+    });
   }
 
   app.use(createErrorHandler(config.env !== 'test'));

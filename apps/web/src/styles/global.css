@@ -360,7 +360,7 @@ a {
   font-size: 0.875rem;
   color: var(--xl-text-muted);
 }
-.xl-footer h2 {
+.xl-footer h3 {
   font-size: 0.8125rem;
   text-transform: uppercase;
   letter-spacing: 0.07em;
