@@ -45,8 +45,7 @@ export function AboutPage() {
 
       <h2>Kenapa dibuat</h2>
       <p>
-        Belajar Excel dalam Bahasa Indonesia seharusnya bisa dijangkau siapa saja. Mahir Excel dibuat untuk membantu lebih banyak orang
-        menguasai Excel lewat latihan langsung, bukan hanya membaca. Belajarnya sengaja dibuat gratis. Fitur Premium ada supaya proyek ini
+        Mahir Excel dibuat supaya orang Indonesia bisa belajar Excel lewat latihan langsung, bukan hanya membaca. Belajarnya sengaja dibuat gratis. Fitur Premium ada supaya proyek ini
         bisa terus dirawat.
       </p>
 

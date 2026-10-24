@@ -52,7 +52,7 @@ function ErrorLab() {
         <mark className="xl-l-mark">Hasilnya aneh?</mark> Biasanya salah satu dari empat ini.
       </h3>
       <p className="xl-l-lead">
-        Pilih satu kasus, cari sel yang bermasalah, lalu tekan Perbaiki. Tabelnya hidup, jadi hasilnya benar-benar dihitung ulang.
+        Pilih satu kasus, cari sel yang bermasalah, lalu tekan Perbaiki. Hasilnya dihitung ulang oleh mesin rumus.
       </p>
       <div className="xl-l-lab">
         <div role="tablist" aria-label="Kasus kesalahan" aria-orientation="vertical" className="xl-l-tabs" onKeyDown={onKey}>
@@ -232,7 +232,7 @@ function Demo({ exercises }: { exercises: number | null }) {
   return (
     <section className="xl-l-section" aria-labelledby="l-demo">
       <h2 id="l-demo">Coba sebelum daftar.</h2>
-      <p className="xl-l-lead">Tiga contoh yang jalan di browsermu tanpa akun. Tabelnya hidup, jadi hasilnya benar-benar dihitung ulang.</p>
+      <p className="xl-l-lead">Tiga contoh yang jalan di browsermu tanpa akun.</p>
       <div role="tablist" aria-label="Pilih contoh" className="xl-l-demo-tabs" onKeyDown={onKey}>
         {DEMO_TABS.map((t) => (
           <button
@@ -512,7 +512,7 @@ function Limits({ functions }: { functions: number | null }) {
     <section className="xl-l-section xl-l-split2" aria-labelledby="l-batas">
       <div className="xl-l-side">
         <h2 id="l-batas">Yang sebaiknya kamu tahu dulu.</h2>
-        <p className="xl-l-lead mb-0">Lebih baik kamu tahu batasnya sebelum mulai, daripada kecewa di tengah jalan.</p>
+        <p className="xl-l-lead mb-0">Empat hal yang belum ada atau sengaja tidak ditiru di sini.</p>
       </div>
       <dl className="xl-l-limits">
         <div>
@@ -686,13 +686,13 @@ function Maker() {
     <section className="xl-l-section xl-l-maker" aria-labelledby="l-pembuat">
       <h2 id="l-pembuat">Dibuat oleh siapa dan kenapa</h2>
       <p className="xl-l-statement">
-        Belajar Excel dalam Bahasa Indonesia seharusnya bisa dijangkau siapa saja, tanpa harus membayar dulu.
+        Belajar Excel dalam Bahasa Indonesia, tanpa harus membayar dulu.
       </p>
       <dl className="xl-l-facts">
         <div>
           <dt>Kenapa ada</dt>
           <dd>
-            Mahir Excel dibuat untuk membantu lebih banyak orang Indonesia menguasai Excel lewat latihan langsung. Belajarnya sengaja dibuat
+            Mahir Excel dibuat supaya orang Indonesia bisa belajar Excel lewat latihan langsung, bukan hanya membaca. Belajarnya sengaja dibuat
             gratis. Premium ada supaya proyek ini bisa terus dirawat.
           </dd>
         </div>
