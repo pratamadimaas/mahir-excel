@@ -207,7 +207,9 @@ export function PrivacyPage() {
       </p>
       <h2>Statistik kunjungan</h2>
       <p>
-        Kami menghitung berapa kali halaman dibuka dan berapa orang berkunjung per hari, hanya sebagai angka. Tidak ada cookie pelacak,
+        Kami menghitung berapa kali halaman dibuka, berapa orang berkunjung per hari, dan dari situs mana mereka datang (hanya nama situsnya, misalnya
+        Threads atau Google, bukan alamat lengkapnya), semuanya hanya sebagai angka. Kami juga menghitung berapa kali berkas template dan contekan
+        diunduh serta alamat yang tidak ditemukan, tanpa menyimpan siapa yang melakukannya. Tidak ada cookie pelacak,
         alamat IP tidak disimpan, dan kamu tidak bisa dilacak dari hari ke hari. Bila browsermu mengirim sinyal <em>Do Not Track</em> atau{' '}
         <em>Global Privacy Control</em>, kunjunganmu tidak dihitung.
       </p>

@@ -16,12 +16,22 @@ export function ProgramBanner() {
   const d = st.data;
   if (!d || !d.open) return null;
   return (
-    <aside className="xl-panel xl-panel-body d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4" aria-label="Program Perintis">
+    <aside
+      className="xl-panel xl-panel-body d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4"
+      aria-label="Program Perintis"
+    >
       <div>
         <p className="xl-eyebrow mb-1">Program Perintis</p>
         <p className="h5 mb-1">Sertifikat gratis untuk {d.quota} pengguna pertama</p>
         <p className="xl-muted mb-0">
-          Selesaikan tes penempatan, Sprint, dan {d.minExercises} latihan. Tersisa <strong>{d.remaining}</strong> dari {d.quota}.
+          Selesaikan tes penempatan, Sprint, dan {d.minExercises} latihan.
+          {/* Sisa kuota baru ditampilkan setelah ada yang klaim; kuota yang masih penuh tidak dipamerkan. */}
+          {d.taken > 0 && (
+            <>
+              {' '}
+              Tersisa <strong>{d.remaining}</strong> dari {d.quota}.
+            </>
+          )}
         </p>
       </div>
       <Link to="/program" className="btn btn-primary">
@@ -82,37 +92,41 @@ export function ProgramPage() {
         </p>
       </header>
 
-      <section aria-labelledby="kuota" className="mb-4">
-        <h2 id="kuota" className="h6">
-          Kuota
-        </h2>
-        <div
-          className="progress mb-2"
-          role="progressbar"
-          aria-label="Kuota sertifikat yang sudah diklaim"
-          aria-valuenow={d.taken}
-          aria-valuemin={0}
-          aria-valuemax={d.quota}
-        >
-          <div className="progress-bar" style={{ width: `${pct}%` }} />
-        </div>
-        <p className="xl-small xl-muted mb-0">
-          {d.taken} dari {d.quota} sertifikat sudah diklaim.{' '}
-          {d.open ? (
-            <>
-              Tersisa <strong>{d.remaining}</strong>.
-            </>
-          ) : d.enabled ? (
-            'Kuota sudah habis.'
-          ) : (
-            'Program sedang tidak dibuka.'
-          )}
-        </p>
-      </section>
+      {/* Kuota yang masih penuh (belum ada yang klaim) disembunyikan; mulai tampil setelah klaim pertama atau saat kuota habis. */}
+      {(d.taken > 0 || !d.open) && (
+        <section aria-labelledby="kuota" className="mb-4">
+          <h2 id="kuota" className="h6">
+            Kuota
+          </h2>
+          <div
+            className="progress mb-2"
+            role="progressbar"
+            aria-label="Kuota sertifikat yang sudah diklaim"
+            aria-valuenow={d.taken}
+            aria-valuemin={0}
+            aria-valuemax={d.quota}
+          >
+            <div className="progress-bar" style={{ width: `${pct}%` }} />
+          </div>
+          <p className="xl-small xl-muted mb-0">
+            {d.taken} dari {d.quota} sertifikat sudah diklaim.{' '}
+            {d.open ? (
+              <>
+                Tersisa <strong>{d.remaining}</strong>.
+              </>
+            ) : d.enabled ? (
+              'Kuota sudah habis.'
+            ) : (
+              'Program sedang tidak dibuka.'
+            )}
+          </p>
+        </section>
+      )}
 
       {claimed && (
         <Status tone="success">
-          <strong>Selamat, kamu Perintis ke-{claimed.slot}!</strong> Sertifikatmu diklaim pada {dateFmt.format(new Date(claimed.claimedAt))}.
+          <strong>Selamat, kamu Perintis ke-{claimed.slot}!</strong> Sertifikatmu diklaim pada {dateFmt.format(new Date(claimed.claimedAt))}
+          .
           <div className="d-flex flex-wrap gap-2 mt-2">
             <a className="btn btn-primary btn-sm" href="/api/program/certificate" download>
               <Download className="xl-icon" aria-hidden="true" /> Unduh sertifikat (PDF)
@@ -124,7 +138,9 @@ export function ProgramPage() {
         </Status>
       )}
 
-      {!claimed && !d.open && <Status tone="warning">{d.enabled ? 'Kuota sudah habis, terima kasih sudah tertarik.' : 'Program ini sedang tidak dibuka.'}</Status>}
+      {!claimed && !d.open && (
+        <Status tone="warning">{d.enabled ? 'Kuota sudah habis, terima kasih sudah tertarik.' : 'Program ini sedang tidak dibuka.'}</Status>
+      )}
 
       <section aria-labelledby="syarat" className="xl-panel xl-panel-body mb-4">
         <h2 id="syarat" className="h6">
@@ -134,11 +150,7 @@ export function ProgramPage() {
           <ul className="xl-list-plain mb-3">
             {d.requirements.map((q) => (
               <li key={q.key} className="d-flex gap-2 align-items-start mb-2">
-                {q.done ? (
-                  <Check className="xl-icon" aria-label="Selesai" />
-                ) : (
-                  <Circle className="xl-icon xl-muted" aria-label="Belum" />
-                )}
+                {q.done ? <Check className="xl-icon" aria-label="Selesai" /> : <Circle className="xl-icon xl-muted" aria-label="Belum" />}
                 <span className="flex-grow-1">
                   {q.label}
                   {q.progress && !q.done && (
@@ -194,8 +206,8 @@ export function ProgramPage() {
           <li>Nomor Perintis diberikan berurutan saat kamu menekan klaim, bukan saat mendaftar.</li>
           <li>Tes penempatan dan Sprint dihitung kalau dikerjakan saat sudah masuk akun.</li>
           <li>
-            Sertifikat ini penanda keikutsertaan di Mahir Excel, bukan sertifikasi resmi Microsoft. Ini terpisah dari sertifikat penyelesaian
-            materi di paket <Link to="/premium">Premium</Link>.
+            Sertifikat ini penanda keikutsertaan di Mahir Excel, bukan sertifikasi resmi Microsoft. Ini terpisah dari sertifikat
+            penyelesaian materi di paket <Link to="/premium">Premium</Link>.
           </li>
           <li>Pengelola dapat membatalkan klaim yang terbukti memakai akun ganda atau cara curang.</li>
         </ul>

@@ -365,7 +365,7 @@ const lessonView = (r: LessonRow) => ({
 });
 const exView = (r: ExerciseRow) => ({ id: r.id, ...rowToExercise(r), lessonSlug: r.lesson_slug });
 
-export function adminRoutes({ db, auth }: Ctx): Router {
+export function adminRoutes({ db, config, auth }: Ctx): Router {
   const r = Router();
   r.use(auth.requireAdmin);
 
@@ -442,6 +442,13 @@ export function adminRoutes({ db, auth }: Ctx): Router {
       "SELECT item, SUM(total) AS total FROM daily_stats WHERE metric = 'pageview' AND day >= ? GROUP BY item ORDER BY total DESC LIMIT 10",
       [weekFrom],
     );
+    const metricTop = (metric: string, limit: number) =>
+      rows<{ item: string; total: number }>(
+        db,
+        `SELECT item, SUM(total) AS total FROM daily_stats WHERE metric = ? AND day >= ? GROUP BY item ORDER BY total DESC LIMIT ${Math.trunc(limit)}`,
+        [metric, weekFrom],
+      );
+    const [sources, features, notFound] = await Promise.all([metricTop('source', 10), metricTop('feature', 15), metricTop('notfound', 10)]);
     const anonTop = await rows<{ item: string; attempts: number; correct: number }>(
       db,
       `SELECT a.item, SUM(a.total) AS attempts, COALESCE((SELECT SUM(c.total) FROM daily_stats c WHERE c.metric = 'anon_correct' AND c.item = a.item AND c.day >= ?), 0) AS correct
@@ -461,6 +468,9 @@ export function adminRoutes({ db, auth }: Ctx): Router {
         },
         today: daily[daily.length - 1],
         topPages: topPages.map((p) => ({ page: p.item, views: Number(p.total) })),
+        sources: sources.map((s) => ({ source: s.item, visitors: Number(s.total) })),
+        features: features.map((f) => ({ feature: f.item, count: Number(f.total) })),
+        notFound: notFound.map((n) => ({ path: n.item, hits: Number(n.total) })),
         anonymousExercises: anonTop.map((a) => ({ slug: a.item, attempts: Number(a.attempts), correct: Number(a.correct) })),
         note: 'Pengunjung unik dihitung per hari tanpa cookie (hash harian acak). Jumlah 7 hari adalah penjumlahan pengunjung harian, bukan pengunjung unik 7 hari. Pengunjung dengan Do Not Track tidak dihitung.',
       },
@@ -531,6 +541,60 @@ export function adminRoutes({ db, auth }: Ctx): Router {
         premium: !!u.premium_until && new Date(`${u.premium_until.replace(' ', 'T')}Z`).getTime() > Date.now(),
       })),
       meta: { page: q.page, pageSize: q.pageSize, total: Number(total?.n ?? 0) },
+    });
+  });
+
+  // Ringkasan Premium: aktif, segera habis, dan riwayat aktivasi (dari log audit admin; perkiraan pendapatan memakai harga sekarang).
+  r.get('/stats/premium', async (_req, res) => {
+    const one = async (sql: string, params: unknown[] = []): Promise<number> => Number((await row<{ n: number }>(db, sql, params))?.n ?? 0);
+    const users = await one("SELECT COUNT(*) AS n FROM users WHERE role = 'user'");
+    const active = await one("SELECT COUNT(*) AS n FROM users WHERE role = 'user' AND premium_until > UTC_TIMESTAMP()");
+    const expiring = await rows<{ email: string; display_name: string; premium_until: string }>(
+      db,
+      `SELECT email, display_name, premium_until FROM users
+       WHERE role = 'user' AND premium_until > UTC_TIMESTAMP() AND premium_until < (UTC_TIMESTAMP() + INTERVAL 30 DAY)
+       ORDER BY premium_until LIMIT 20`,
+    );
+    const grantWhere = "l.resource = 'users' AND l.action REGEXP '^premium-[0-9]+m$'";
+    const totals = await row<{ grants: number; months: number | null; grants30: number; months30: number | null }>(
+      db,
+      `SELECT COUNT(*) AS grants,
+         SUM(CAST(SUBSTRING(l.action, 9, LENGTH(l.action) - 9) AS UNSIGNED)) AS months,
+         SUM(l.created_at >= (UTC_TIMESTAMP() - INTERVAL 30 DAY)) AS grants30,
+         SUM(CASE WHEN l.created_at >= (UTC_TIMESTAMP() - INTERVAL 30 DAY) THEN CAST(SUBSTRING(l.action, 9, LENGTH(l.action) - 9) AS UNSIGNED) ELSE 0 END) AS months30
+       FROM admin_audit_logs l WHERE ${grantWhere}`,
+    );
+    const recent = await rows<{ created_at: string; action: string; email: string | null }>(
+      db,
+      `SELECT l.created_at, l.action, u.email FROM admin_audit_logs l LEFT JOIN users u ON u.id = l.resource_id
+       WHERE ${grantWhere} ORDER BY l.id DESC LIMIT 20`,
+    );
+    const online = await row<{ orders: number; amount: number | null }>(db, "SELECT COUNT(*) AS orders, SUM(amount) AS amount FROM premium_orders WHERE status = 'paid'");
+    const { priceIdr, months: priceMonths } = config.premium;
+    const estimate = (m: number | null): number => (priceIdr && priceMonths ? Math.round((Number(m ?? 0) / priceMonths) * priceIdr) : 0);
+    res.json({
+      data: {
+        users,
+        active,
+        rate: users ? active / users : 0,
+        grants: Number(totals?.grants ?? 0),
+        grants30: Number(totals?.grants30 ?? 0),
+        estimatedRevenue: estimate(totals?.months ?? 0),
+        estimatedRevenue30: estimate(totals?.months30 ?? 0),
+        onlineOrders: Number(online?.orders ?? 0),
+        onlineRevenue: Number(online?.amount ?? 0),
+        expiring: expiring.map((e) => ({
+          email: e.email,
+          name: e.display_name,
+          until: new Date(`${e.premium_until.replace(' ', 'T')}Z`).toISOString(),
+        })),
+        recent: recent.map((g) => ({
+          at: new Date(`${g.created_at.replace(' ', 'T')}Z`).toISOString(),
+          months: Number(g.action.slice(8, -1)),
+          email: g.email,
+        })),
+        note: 'Riwayat aktivasi diambil dari log tindakan admin. Perkiraan pendapatan memakai harga Premium saat ini dan ikut menghitung aktivasi hadiah, jadi ini batas atas, bukan catatan keuangan.',
+      },
     });
   });
 

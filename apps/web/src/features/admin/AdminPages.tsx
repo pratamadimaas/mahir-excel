@@ -265,6 +265,7 @@ export function AdminLayout() {
             Ringkasan
           </NavLink>
           <NavLink to="/admin/pengguna">Pengguna</NavLink>
+          <NavLink to="/admin/premium">Premium</NavLink>
           <NavLink to="/admin/sprint">Sprint</NavLink>
           <NavLink to="/admin/laporan">Laporan</NavLink>
           {Object.entries(RESOURCES).map(([k, r]) => (

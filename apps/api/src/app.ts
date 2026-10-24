@@ -27,6 +27,7 @@ import { templateRoutes } from './routes/templates';
 import { cheatsheetRoutes } from './routes/cheatsheets';
 import { applySeo, seoFor } from './lib/seo';
 import { pathRoutes } from './routes/paths';
+import { countNotFound } from './routes/track';
 import { progressRoutes } from './routes/progress';
 
 export interface Ctx {
@@ -125,6 +126,7 @@ export function createApp(
     const origin = config.webOrigins[0] ?? 'https://mahirexcel.online';
     app.get(/^(?!\/api\/).*/, (req, res) => {
       const seo = seoFor(req.path);
+      if (seo.status === 404) countNotFound(db, req.path).catch(() => undefined);
       res.status(seo.status).type('html').send(applySeo(indexHtml, seo, origin));
     });
   }

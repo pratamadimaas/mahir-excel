@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { EmptyState, ErrorState, Loading, Status } from '../../components/feedback/Feedback';
 import { useAsync } from '../../hooks/useAsync';
 import { api, apiUrl, errorMessage } from '../../services/api';
+import type { ProgramStatus } from '../../services/types';
 
 interface Stats {
   users: number;
@@ -30,6 +31,9 @@ interface Usage {
   today: DailyRow;
   week: Omit<DailyRow, 'day'>;
   topPages: { page: string; views: number }[];
+  sources: { source: string; visitors: number }[];
+  features: { feature: string; count: number }[];
+  notFound: { path: string; hits: number }[];
   anonymousExercises: { slug: string; attempts: number; correct: number }[];
   note: string;
 }
@@ -66,6 +70,16 @@ interface PlacementStats {
   }[];
 }
 
+/** Nama fitur yang mudah dibaca dari kunci pencatatan (mis. template:stok-barang). */
+const featureName = (key: string): string => {
+  const [kind, slug = ''] = key.split(':');
+  const nice = slug.replace(/-/g, ' ');
+  if (kind === 'template') return `Unduh template: ${nice}`;
+  if (kind === 'cheatsheet') return `Unduh contekan PDF: ${nice}`;
+  if (key === 'laporan-kemajuan') return 'Laporan kemajuan dibuka';
+  return key;
+};
+
 interface HardExercises {
   hard: { slug: string; title: string; attempts: number; correct: number; rate: number }[];
   note: string;
@@ -74,6 +88,7 @@ interface HardExercises {
 export function AdminDashboard() {
   const hard = useAsync((s) => api.get<HardExercises>('/admin/stats/hard', s), []);
   const placement = useAsync((s) => api.get<PlacementStats>('/admin/stats/placement', s), []);
+  const program = useAsync((s) => api.get<ProgramStatus>('/program/status', s), []);
   const data = useAsync(
     async (s) => ({
       stats: await api.get<Stats>('/admin/stats', s),
@@ -200,6 +215,101 @@ export function AdminDashboard() {
           )}
         </div>
       </div>
+
+      <div className="row g-4 mt-1">
+        <div className="col-12 col-lg-4">
+          <h2 className="h5">Sumber kunjungan (7 hari)</h2>
+          {(usage.sources ?? []).length === 0 ? (
+            <EmptyState title="Belum ada data sumber">Mulai tercatat dari kunjungan baru setelah fitur ini aktif.</EmptyState>
+          ) : (
+            <div className="xl-table-wrap">
+              <table className="xl-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Sumber</th>
+                    <th scope="col">Pengunjung</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(usage.sources ?? []).map((x) => (
+                    <tr key={x.source}>
+                      <td>{x.source}</td>
+                      <td>{nf.format(x.visitors)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="xl-small xl-muted mt-2">
+            Hanya asal kunjungan pertama tiap pengunjung per hari. Tautan dengan ?utm_source=nama dicatat dengan nama itu.
+          </p>
+        </div>
+        <div className="col-12 col-lg-4">
+          <h2 className="h5">Pemakaian fitur (7 hari)</h2>
+          {(usage.features ?? []).length === 0 ? (
+            <EmptyState title="Belum ada pemakaian tercatat" />
+          ) : (
+            <div className="xl-table-wrap">
+              <table className="xl-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Fitur</th>
+                    <th scope="col">Jumlah</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(usage.features ?? []).map((x) => (
+                    <tr key={x.feature}>
+                      <td>{featureName(x.feature)}</td>
+                      <td>{nf.format(x.count)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+        <div className="col-12 col-lg-4">
+          <h2 className="h5">Alamat tidak ditemukan (7 hari)</h2>
+          {(usage.notFound ?? []).length === 0 ? (
+            <EmptyState title="Tidak ada alamat 404 tercatat" />
+          ) : (
+            <div className="xl-table-wrap">
+              <table className="xl-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Alamat</th>
+                    <th scope="col">Dibuka</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(usage.notFound ?? []).map((x) => (
+                    <tr key={x.path}>
+                      <td>
+                        <code>{x.path}</code>
+                      </td>
+                      <td>{nf.format(x.hits)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="xl-small xl-muted mt-2">Alamat yang sering muncul di sini bisa jadi tautan rusak atau pemindai bot.</p>
+        </div>
+      </div>
+
+      {program.data && program.data.enabled && (
+        <aside className="xl-panel xl-panel-body mt-4" aria-label="Program Perintis">
+          <h2 className="h5">Program Perintis</h2>
+          <p className="mb-0">
+            {nf.format(program.data.taken)} dari {nf.format(program.data.quota)} sertifikat sudah diklaim, tersisa{' '}
+            {nf.format(program.data.remaining)}. {program.data.open ? 'Program masih dibuka.' : 'Kuota sudah habis.'} Angka ini tidak
+            ditampilkan ke pengunjung selama belum ada yang klaim.
+          </p>
+        </aside>
+      )}
 
       <h2 className="h5 mt-4">Latihan yang paling sering gagal</h2>
       {hard.error && <ErrorState message={hard.error} onRetry={hard.reload} />}

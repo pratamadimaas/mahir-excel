@@ -6,6 +6,28 @@ import { api } from '../../services/api';
 import { Footer } from './Footer';
 import { Header } from './Header';
 
+/**
+ * Asal kunjungan, dikirim sekali per sesi tab: utm_source bila ada, kalau tidak host halaman pengarah, kalau tidak "langsung".
+ * Hanya nama host yang dikirim (tanpa alamat lengkap), dan server menghitungnya per pengunjung per hari tanpa cookie.
+ */
+function visitSource(): string | undefined {
+  try {
+    if (sessionStorage.getItem('xl-src')) return undefined;
+    sessionStorage.setItem('xl-src', '1');
+  } catch {
+    /* penyimpanan diblokir: tetap kirim, server hanya menghitung kunjungan pertama pengunjung hari itu */
+  }
+  const utm = new URLSearchParams(window.location.search).get('utm_source');
+  if (utm && /^[A-Za-z0-9._-]{1,60}$/.test(utm)) return utm;
+  try {
+    const host = new URL(document.referrer).hostname;
+    if (host && host !== window.location.hostname && /^[A-Za-z0-9.-]{1,60}$/.test(host)) return host;
+  } catch {
+    /* tidak ada pengarah */
+  }
+  return 'langsung';
+}
+
 export function Layout() {
   const { pathname, hash } = useLocation();
   const { t, lang } = useI18n();
@@ -37,7 +59,7 @@ export function Layout() {
   useEffect(() => {
     if (pathname.startsWith('/admin') || lastTracked.current === pathname) return;
     lastTracked.current = pathname;
-    api.post('/track', { path: pathname }).catch(() => undefined);
+    api.post('/track', { path: pathname, src: visitSource() }).catch(() => undefined);
   }, [pathname]);
   return (
     <div className="xl-app">

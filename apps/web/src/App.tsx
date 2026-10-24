@@ -28,6 +28,7 @@ import { PathDetailPage, PathsPage } from './features/paths/PathPages';
 const AdminLayout = lazy(() => import('./features/admin/AdminPages').then((m) => ({ default: m.AdminLayout })));
 const AdminDashboard = lazy(() => import('./features/admin/AdminUsage').then((m) => ({ default: m.AdminDashboard })));
 const AdminUsers = lazy(() => import('./features/admin/AdminUsage').then((m) => ({ default: m.AdminUsers })));
+const AdminPremium = lazy(() => import('./features/admin/AdminPremium').then((m) => ({ default: m.AdminPremium })));
 const AdminReports = lazy(() => import('./features/admin/AdminReports').then((m) => ({ default: m.AdminReports })));
 const AdminSprint = lazy(() => import('./features/sprint/AdminSprint').then((m) => ({ default: m.AdminSprint })));
 const AdminResourcePage = lazy(() => import('./features/admin/AdminPages').then((m) => ({ default: m.AdminResourcePage })));
@@ -98,6 +99,7 @@ export function AppRoutes() {
           <Route index element={<AdminDashboard />} />
           <Route path="pengguna" element={<AdminUsers />} />
           <Route path="sprint" element={<AdminSprint />} />
+          <Route path="premium" element={<AdminPremium />} />
           <Route path="laporan" element={<AdminReports />} />
           <Route path=":resource" element={<AdminResourcePage />} />
         </Route>

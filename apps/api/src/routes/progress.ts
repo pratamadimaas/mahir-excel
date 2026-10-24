@@ -6,6 +6,7 @@ import { row, rows, run, withTransaction } from '../db/pool';
 import { notFound, parse } from '../middleware/errors';
 import { buildProgressView, touchLearningDay } from '../lib/progress';
 import { buildReport } from '../lib/report';
+import { bump } from './track';
 
 const slug = z.string().regex(/^[a-z0-9][a-z0-9-]{0,99}$/);
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -42,6 +43,7 @@ export function progressRoutes({ db, auth }: Ctx): Router {
 
   // Laporan kemajuan pribadi (Premium): topik terlemah dan rekomendasi latihan dari data yang sudah ada.
   r.get('/report', auth.requirePremium, async (req, res) => {
+    bump(db, jakartaDate(), 'feature', 'laporan-kemajuan').catch(() => undefined);
     res.json({ data: await buildReport(db, req.user!.id) });
   });
 
