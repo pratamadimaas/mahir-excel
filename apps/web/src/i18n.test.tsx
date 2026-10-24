@@ -50,9 +50,11 @@ describe('ganti bahasa', () => {
     expect(localStorage.getItem('excellab.lang')).toBe('en');
 
     const nav = screen.getByRole('navigation', { name: 'Main navigation' });
-    // Pengunjung tanpa akun hanya melihat tes penempatan; materi menunggu login.
-    expect(within(nav).getByRole('link', { name: 'Placement test' })).toBeInTheDocument();
-    expect(within(nav).queryByRole('link', { name: 'Learn' })).not.toBeInTheDocument();
+    // Navbar pengunjung menautkan ke bagian beranda dan ikut berganti bahasa.
+    expect(within(nav).getByRole('link', { name: 'Learn' })).toHaveAttribute('href', '/#belajar');
+    expect(within(nav).getByRole('link', { name: 'Pricing' })).toHaveAttribute('href', '/#harga');
+    expect(within(nav).getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/#faq');
+    expect(within(nav).queryByRole('link', { name: 'Placement test' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Sign up free' })).toHaveAttribute('href', '/daftar');
     expect(screen.getByRole('link', { name: 'Take the placement test' })).toHaveAttribute('href', '/tes-penempatan');
   });

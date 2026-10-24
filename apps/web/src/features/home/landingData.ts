@@ -105,6 +105,33 @@ export const TRY_TABLE = (formula: string): Row[] => [
 ];
 export const TRY_EXPECTED = 300000;
 
+/** Hasil nyata tiap modul, dalam kalimat sehari-hari. Dicek tes agar setiap modul punya satu. */
+export const MODULE_OUTCOMES: Record<string, string> = {
+  'mengenal-excel': 'Memahami workbook, sel, dan rentang, lalu memasukkan data dengan format yang benar.',
+  'mengolah-data': 'Merapikan tabel yang berantakan: urutkan, saring, dan temukan data yang tidak konsisten.',
+  'rumus-dasar': 'Menjumlahkan dan merata-ratakan data dengan rumus, bukan kalkulator.',
+  logika: 'Membuat Excel mengambil keputusan, misalnya lulus atau remedial, lunas atau belum.',
+  'fungsi-bersyarat': 'Meringkas data per kategori, misalnya total penjualan per cabang.',
+  'fungsi-pencarian': 'Mengambil harga atau nama dari tabel acuan tanpa mengetik ulang.',
+  'teks-tanggal': 'Merapikan nama dan kode, dan menghitung dengan tanggal seperti jatuh tempo.',
+  'rapi-dan-aman': 'Mencegah salah input, menyorot data penting otomatis, dan meringkas data.',
+};
+
+export const AUDIENCE: { title: string; text: string }[] = [
+  {
+    title: 'Pemula yang masih takut Excel',
+    text: 'Mulai dari sel dan rentang, tanpa istilah yang melompat. Tes penempatan membantu memilih titik awal.',
+  },
+  {
+    title: 'Pekerja kantor yang rumusnya masih tebak-tebakan',
+    text: 'Fungsi yang dipakai sehari-hari, dari SUM dan IF sampai VLOOKUP dan XLOOKUP, dengan latihan yang menunjukkan kenapa hasilnya salah.',
+  },
+  {
+    title: 'Mahasiswa dan pencari kerja',
+    text: 'Butuh bukti belajar untuk CV? Selesaikan materinya dan unduh sertifikat PDF yang keasliannya bisa diperiksa lewat kode.',
+  },
+];
+
 /** Tiga percobaan nyata di latihan "Total pengeluaran bulanan" (pesan persis dari validator, dicek tes). */
 export interface FeedbackStep {
   formula: string;

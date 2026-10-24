@@ -234,7 +234,7 @@ export function HomePage() {
                     <Link to="/daftar" className="btn btn-primary btn-lg">
                       {t('hero.signup')}
                     </Link>
-                    <Link to="/tes-penempatan" className="btn btn-outline-secondary btn-lg">
+                    <Link to="/tes-penempatan" className="xl-hero-link">
                       {t('hero.placement')}
                     </Link>
                   </>

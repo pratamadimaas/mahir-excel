@@ -7,13 +7,30 @@ import { Footer } from './Footer';
 import { Header } from './Header';
 
 export function Layout() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const { t, lang } = useI18n();
   // Isi pelajaran/latihan hanya berbahasa Indonesia; beri tahu pengguna English di area itu.
   const contentArea = /^\/(belajar|latihan|shortcut|worksheet|tantangan|tes-penempatan|kemajuan)/.test(pathname);
   useEffect(() => {
+    // Tautan seperti /#harga menggulir ke bagian itu; selain itu kembali ke atas.
+    // Bagian bisa baru tampil setelah sesi diperiksa, jadi dicoba lagi beberapa kali.
+    if (hash) {
+      const id = decodeURIComponent(hash.slice(1));
+      let tries = 0;
+      let frame = 0;
+      const go = (): void => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView?.({ block: 'start' });
+          return;
+        }
+        if (tries++ < 90) frame = requestAnimationFrame(go);
+      };
+      go();
+      return () => cancelAnimationFrame(frame);
+    }
     window.scrollTo?.({ top: 0 });
-  }, [pathname]);
+  }, [pathname, hash]);
 
   // Hitungan kunjungan agregat tanpa cookie (server menghormati Do Not Track). Area admin tidak dihitung.
   const lastTracked = useRef<string | null>(null);

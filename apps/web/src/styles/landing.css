@@ -718,3 +718,179 @@ main:has(.xl-l-closing) {
 main:has(.xl-l-closing) + .xl-footer {
   margin-top: 0;
 }
+
+/* ---------- Navbar ke bagian, tautan, demo bertab ---------- */
+.xl-l-section[id] {
+  scroll-margin-top: calc(var(--xl-header-h, 60px) + 16px);
+}
+.xl-hero-link {
+  align-self: center;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.xl-hero-link:hover {
+  color: var(--l-mint);
+}
+.xl-hero-link:focus-visible {
+  outline: 3px solid var(--l-mark);
+  outline-offset: 3px;
+}
+.xl-l-demo-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 22px 0 22px;
+  border-bottom: 1px solid var(--xl-border);
+}
+.xl-l-demo-tabs [role='tab'] {
+  margin-bottom: -1px;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 650;
+  color: var(--xl-text-muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+}
+.xl-l-demo-tabs [role='tab']:hover {
+  color: var(--xl-text);
+}
+.xl-l-demo-tabs [role='tab'][aria-selected='true'] {
+  color: var(--xl-green-dark);
+  border-bottom-color: var(--xl-green);
+}
+.xl-l-demo-tabs [role='tab']:focus-visible {
+  outline: 2px solid var(--xl-green);
+  outline-offset: -2px;
+}
+.xl-l-demo-body > h3 {
+  margin-bottom: 8px;
+}
+.xl-l-demo-body .xl-l-try,
+.xl-l-demo-body .xl-l-lab {
+  margin-top: 0;
+}
+
+/* Hasil per modul di kurikulum. */
+.xl-l-outcome {
+  display: block;
+  margin-top: 2px;
+  opacity: 0.92;
+}
+
+/* Sprint sebagai satu sel lebar di bawah kotak alat. */
+.xl-l-cell-f {
+  background: var(--l-butter);
+  border-color: #efdf9b;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+@media (min-width: 900px) {
+  .xl-l-cell-f {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+  }
+  .xl-l-cell-f p {
+    max-width: 70ch;
+  }
+}
+
+/* Daftar poin pendek di bagian sertifikat. */
+.xl-l-checks {
+  padding-left: 1.1rem;
+  margin: 0;
+}
+.xl-l-checks li + li {
+  margin-top: 8px;
+}
+
+/* Contoh sertifikat (dokumen A4 lanskap, diperkecil). */
+.xl-l-cert {
+  margin: 0;
+}
+.xl-l-cert-page {
+  position: relative;
+  aspect-ratio: 842 / 595;
+  padding: 6% 7%;
+  background: #fff;
+  border: 2px solid var(--xl-green);
+  outline: 1px solid #c9d1c9;
+  outline-offset: -8px;
+  text-align: center;
+  box-shadow: 0 10px 28px rgba(15, 58, 41, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  container-type: inline-size;
+}
+.xl-l-cert-brand {
+  font-weight: 700;
+  color: var(--xl-green-dark);
+  font-size: 3.2cqw;
+}
+.xl-l-cert-title {
+  font-weight: 700;
+  color: var(--xl-green);
+  font-size: 5.4cqw;
+  letter-spacing: 0.02em;
+  margin-top: 1cqw;
+}
+.xl-l-cert-label {
+  color: var(--xl-text-muted);
+  font-size: 2.4cqw;
+  margin-top: 4cqw;
+}
+.xl-l-cert-name {
+  font-weight: 700;
+  font-size: 6.2cqw;
+  line-height: 1.1;
+  margin-top: 1cqw;
+}
+.xl-l-cert-text {
+  font-size: 2.6cqw;
+  margin-top: 2.5cqw;
+}
+.xl-l-cert-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3cqw;
+  margin-top: auto;
+  text-align: left;
+}
+.xl-l-cert-qr {
+  width: 13cqw;
+  height: 13cqw;
+  flex: none;
+}
+.xl-l-cert-verify {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  font-size: 2cqw;
+}
+.xl-l-cert-verify span {
+  color: var(--xl-text-muted);
+}
+.xl-l-cert-issuer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.9cqw;
+  color: var(--xl-text-muted);
+  border-top: 1px solid #8b958d;
+  padding-top: 1cqw;
+  min-width: 26cqw;
+}
+.xl-l-cert-issuer em {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  color: var(--xl-green);
+  font-size: 4.2cqw;
+}

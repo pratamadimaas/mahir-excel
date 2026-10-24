@@ -1,10 +1,11 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { exercises, validateSubmission } from '@excellab/shared';
+import type { vi } from 'vitest';
+import { exercises, modules, validateSubmission } from '@excellab/shared';
 import { Sheet, formatValue, indexToCol, isError } from '@excellab/spreadsheet-engine';
 import { EMPTY_PROGRESS, MODULES, STUDENT, mockApi, renderApp } from './testutil';
-import { ERROR_CASES, FEEDBACK_STEPS, TRY_EXPECTED, TRY_TABLE, type Row } from './features/home/landingData';
+import { AUDIENCE, ERROR_CASES, FEEDBACK_STEPS, MODULE_OUTCOMES, TRY_EXPECTED, TRY_TABLE, type Row } from './features/home/landingData';
 
 const OVERVIEW = {
   counts: { modules: 8, lessons: 30, exercises: 54, shortcuts: 53, worksheets: 10, functions: 33 },
@@ -67,13 +68,14 @@ describe('beranda pengunjung', () => {
   it('memuat bagian-bagian utama dengan angka dari server, tanpa tanda pisah panjang', async () => {
     mockApi(anon);
     renderApp('/');
-    expect(await screen.findByRole('heading', { name: /Hasilnya aneh/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Untuk siapa Mahir Excel/ })).toBeInTheDocument();
     for (const name of [
-      /Coba satu rumus/,
-      /Salah itu wajar/,
+      /Coba sebelum daftar/,
+      /Coba satu rumus sekarang/,
       /Dari sel pertama sampai VLOOKUP/,
+      /Baca satu pelajaran dulu/,
       /Selain pelajaran/,
-      /Coba pelajaran contoh/,
+      /Bukti belajar yang bisa diperiksa/,
       /Yang sebaiknya kamu tahu/,
       /Belajarnya gratis/,
       /Pertanyaan yang sering muncul/,
@@ -100,6 +102,7 @@ describe('beranda pengunjung', () => {
   it('lab kesalahan: ganti kasus, lihat galat, tekan Perbaiki untuk melihat hasil yang benar', async () => {
     mockApi(anon);
     renderApp('/');
+    await userEvent.click(await screen.findByRole('tab', { name: 'Hasilnya aneh?' }));
     expect(await screen.findByRole('gridcell', { name: /^B6: 520\.000/ })).toBeInTheDocument();
     expect(screen.getByText(/Rentang SUM berhenti di B4/)).toBeInTheDocument();
 
@@ -121,6 +124,7 @@ describe('beranda pengunjung', () => {
   it('tab dapat dipindah dengan panah keyboard', async () => {
     mockApi(anon);
     renderApp('/');
+    await userEvent.click(await screen.findByRole('tab', { name: 'Hasilnya aneh?' }));
     const first = await screen.findByRole('tab', { name: 'Total kurang' });
     first.focus();
     await userEvent.keyboard('{ArrowDown}');
@@ -206,6 +210,99 @@ describe('beranda pengunjung', () => {
   });
 });
 
+describe('susunan beranda yang baru', () => {
+  it('setiap modul punya satu kalimat hasil nyata', () => {
+    for (const m of modules) expect(MODULE_OUTCOMES[m.slug], m.slug).toBeTruthy();
+    expect(Object.keys(MODULE_OUTCOMES).sort()).toEqual(modules.map((m) => m.slug).sort());
+  });
+
+  it('urutan bagian: untuk siapa, isi kursus, pelajaran contoh, demo, alat, sertifikat, batasan, harga', async () => {
+    mockApi(anon);
+    renderApp('/');
+    await screen.findByRole('heading', { name: /Untuk siapa Mahir Excel/ });
+    const order = [/Untuk siapa Mahir Excel/, /Dari sel pertama sampai VLOOKUP/, /Baca satu pelajaran dulu/, /Coba sebelum daftar/, /Selain pelajaran/, /Bukti belajar/, /Yang sebaiknya kamu tahu/, /Belajarnya gratis/];
+    const all = [...document.querySelectorAll('main h2')].map((h) => h.textContent ?? '');
+    const positions = order.map((re) => all.findIndex((t) => re.test(t)));
+    for (const p of positions) expect(p).toBeGreaterThanOrEqual(0);
+    expect([...positions].sort((a, b) => a - b)).toEqual(positions);
+  });
+
+  it('bagian untuk siapa menyebut tiga kelompok pembaca dan menautkan tes penempatan', async () => {
+    mockApi(anon);
+    renderApp('/');
+    const h = await screen.findByRole('heading', { name: /Untuk siapa Mahir Excel/ });
+    const section = h.closest('section')!;
+    for (const t of AUDIENCE) expect(within(section).getByText(t.title)).toBeInTheDocument();
+    expect(within(section).getByRole('link', { name: 'Ikuti tes penempatan' })).toHaveAttribute('href', '/tes-penempatan');
+  });
+
+  it('kurikulum menampilkan hasil nyata tiap modul dan menjadi tujuan tautan #belajar', async () => {
+    mockApi(anon);
+    renderApp('/');
+    expect(await screen.findByText(/Hasilnya: Menjumlahkan dan merata-ratakan data dengan rumus/)).toBeInTheDocument();
+    expect(document.getElementById('belajar')).not.toBeNull();
+    expect(document.getElementById('harga')).not.toBeNull();
+    expect(document.getElementById('faq')).not.toBeNull();
+  });
+
+  it('tiga demo menjadi satu bagian bertab, dan tab bisa dipindah dengan panah', async () => {
+    mockApi(anon);
+    renderApp('/');
+    const user = userEvent.setup();
+    const tabs = await screen.findByRole('tablist', { name: 'Pilih contoh' });
+    const rumus = within(tabs).getByRole('tab', { name: 'Coba satu rumus' });
+    expect(rumus).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('heading', { name: /Coba satu rumus sekarang/ })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Hasilnya aneh/ })).not.toBeInTheDocument();
+
+    rumus.focus();
+    await user.keyboard('{ArrowRight}');
+    expect(within(tabs).getByRole('tab', { name: 'Hasilnya aneh?' })).toHaveAttribute('aria-selected', 'true');
+    expect(await screen.findByRole('heading', { name: /Hasilnya aneh/ })).toBeInTheDocument();
+
+    await user.click(within(tabs).getByRole('tab', { name: 'Salah itu wajar' }));
+    expect(await screen.findByRole('heading', { name: /Salah itu wajar/ })).toBeInTheDocument();
+    expect(screen.getByText(FEEDBACK_STEPS[0]!.formula)).toBeInTheDocument();
+  });
+
+  it('Sprint hanya satu sel di kotak alat dan contoh sertifikat tampil dengan penjelasan', async () => {
+    mockApi(anon);
+    renderApp('/');
+    const sprint = await screen.findByRole('heading', { name: 'Sprint 60 detik' });
+    expect(within(sprint.closest('article')!).getByRole('link', { name: 'Main sekarang' })).toHaveAttribute('href', '/sprint');
+    expect(screen.getByRole('img', { name: /Contoh sertifikat penyelesaian modul Rumus Dasar/ })).toBeInTheDocument();
+    expect(screen.getByText(/Contoh tampilan\. Sertifikat asli memuat namamu/)).toBeInTheDocument();
+  });
+
+  it('hero: satu tombol utama, tes penempatan hanya tautan teks, dan navbar pengunjung memuat tiga tautan bagian', async () => {
+    mockApi(anon);
+    renderApp('/');
+    const hero = (await screen.findByRole('heading', { level: 1, name: /Excel bisa dipelajari/ })).closest('section')!;
+    expect(within(hero).getByRole('link', { name: 'Daftar gratis' })).toHaveClass('btn-primary');
+    const link = within(hero).getByRole('link', { name: 'Ikuti tes penempatan' });
+    expect(link).toHaveAttribute('href', '/tes-penempatan');
+    expect(link).not.toHaveClass('btn');
+
+    const nav = screen.getByRole('navigation', { name: 'Navigasi utama' });
+    expect(within(nav).getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
+      ['Belajar', '/#belajar'],
+      ['Harga', '/#harga'],
+      ['FAQ', '/#faq'],
+    ]);
+  });
+
+  it('membuka /#harga menggulir ke bagian harga', async () => {
+    // test-setup.ts sudah mengganti scrollIntoView dengan vi.fn() di HTMLElement.prototype.
+    const spy = HTMLElement.prototype.scrollIntoView as unknown as ReturnType<typeof vi.fn>;
+    spy.mockClear();
+    mockApi(anon);
+    renderApp('/#harga');
+    await screen.findByRole('heading', { name: /Belajarnya gratis/ });
+    await waitFor(() => expect(spy).toHaveBeenCalled());
+    expect((spy.mock.contexts[0] as HTMLElement).id).toBe('harga');
+  });
+});
+
 describe('profil pembuat dan angka di beranda', () => {
   it('empat angka asli tampil tepat setelah hero, dengan labelnya', async () => {
     mockApi(anon);
@@ -224,7 +321,7 @@ describe('profil pembuat dan angka di beranda', () => {
   it('angka tidak muncul bila server gagal (tidak ada angka karangan)', async () => {
     mockApi({ ...anon, 'GET /public/overview': () => ({ status: 500, body: { error: { code: 'INTERNAL_ERROR', message: 'x' } } }) });
     renderApp('/');
-    await screen.findByRole('heading', { name: /Hasilnya aneh/ });
+    await screen.findByRole('heading', { name: /Dari sel pertama sampai VLOOKUP/ });
     expect(screen.queryByText('fungsi rumus', { selector: 'dt' })).not.toBeInTheDocument();
   });
 

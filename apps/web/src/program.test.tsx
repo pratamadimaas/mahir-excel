@@ -145,12 +145,19 @@ describe('banner Program Perintis di beranda', () => {
     expect(screen.queryByRole('complementary', { name: 'Program Perintis' })).not.toBeInTheDocument();
   });
 
-  it('ada tautan "Sertifikat gratis" di menu utama', async () => {
-    mockApi({ ...home, 'GET /program/status': pub });
+  it('anggota melihat tautan "Sertifikat gratis" di menu utama', async () => {
+    mockApi({ ...home, 'GET /auth/me': { user: STUDENT, csrfToken: 'tok' }, 'GET /program/status': pub });
     renderApp('/tentang');
-    const nav = await screen.findByRole('navigation', { name: 'Navigasi utama' }).catch(() => null);
-    void nav;
     const links = await screen.findAllByRole('link', { name: 'Sertifikat gratis' });
     expect(links[0]).toHaveAttribute('href', '/program');
+  });
+
+  it('pengunjung menemukan program lewat banner dan bagian sertifikat di beranda, bukan di navbar', async () => {
+    mockApi({ ...home, 'GET /program/status': pub });
+    renderApp('/');
+    const nav = await screen.findByRole('navigation', { name: 'Navigasi utama' });
+    expect(within(nav).queryByRole('link', { name: 'Sertifikat gratis' })).not.toBeInTheDocument();
+    const heading = await screen.findByRole('heading', { name: /Bukti belajar yang bisa diperiksa/ });
+    expect(within(heading.closest('section')!).getByRole('link', { name: 'Lihat syarat' })).toHaveAttribute('href', '/program');
   });
 });

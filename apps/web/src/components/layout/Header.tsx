@@ -43,9 +43,9 @@ export function Header() {
         ...(user.premium ? [] : [{ to: '/premium', label: t('nav.premium') }]),
       ]
     : [
-        { to: '/tes-penempatan', label: t('nav.placement') },
-        { to: '/sprint', label: t('nav.sprint') },
-        { to: '/program', label: t('nav.program') },
+        { to: '/#belajar', label: t('nav.learn'), hash: true },
+        { to: '/#harga', label: t('nav.pricing'), hash: true },
+        { to: '/#faq', label: t('nav.faq'), hash: true },
       ];
 
   useEffect(() => setOpen(false), [loc.pathname]);
@@ -88,11 +88,17 @@ export function Header() {
         <div className="xl-header-inner">
           <Wordmark />
           <nav className="xl-nav" aria-label={t('nav.main')}>
-            {NAV.map((n) => (
-              <NavLink key={n.to} to={n.to}>
-                {n.label}
-              </NavLink>
-            ))}
+            {NAV.map((n) =>
+              'hash' in n ? (
+                <Link key={n.to} to={n.to}>
+                  {n.label}
+                </Link>
+              ) : (
+                <NavLink key={n.to} to={n.to}>
+                  {n.label}
+                </NavLink>
+              ),
+            )}
           </nav>
           <div className="xl-header-actions">
             {user && (
@@ -153,11 +159,17 @@ export function Header() {
         <div id="mobile-menu" className="xl-mobile-menu">
           <div className="xl-page">
             <nav aria-label={t('nav.mobile')}>
-              {NAV.map((n) => (
-                <NavLink key={n.to} to={n.to}>
-                  {n.label}
-                </NavLink>
-              ))}
+              {NAV.map((n) =>
+                'hash' in n ? (
+                  <Link key={n.to} to={n.to}>
+                    {n.label}
+                  </Link>
+                ) : (
+                  <NavLink key={n.to} to={n.to}>
+                    {n.label}
+                  </NavLink>
+                ),
+              )}
               {user && <NavLink to="/tantangan">{t('nav.challenge')}</NavLink>}
               {user && (
                 <NavLink to="/kemajuan">{t('nav.progress', { points: progress.totalPoints, days: progress.streak.current })}</NavLink>

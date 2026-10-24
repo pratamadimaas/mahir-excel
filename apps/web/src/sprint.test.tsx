@@ -55,8 +55,6 @@ describe('halaman Sprint', () => {
     expect(screen.getByRole('button', { name: /Mulai/ })).toBeEnabled();
     expect(await screen.findByText('Andi')).toBeInTheDocument();
     expect(screen.getByText('Sari')).toBeInTheDocument();
-    // Header memuat tautan Sprint untuk pengunjung.
-    expect(screen.getAllByRole('link', { name: 'Sprint' }).length).toBeGreaterThan(0);
   });
 
   it('papan peringkat mengganti periode dan meminta data yang sesuai', async () => {
@@ -255,7 +253,7 @@ describe('halaman Sprint', () => {
 });
 
 describe('Sprint di beranda dan admin', () => {
-  it('beranda pengunjung memuat bagian Sprint dengan papan singkat dan tautan main', async () => {
+  it('beranda pengunjung memuat sel Sprint di kotak alat dengan tautan main', async () => {
     mockApi({
       ...anon,
       'GET /auth/config': { emailEnabled: false, googleClientId: null, premium: { priceLabel: '', contactUrl: null } },
@@ -263,10 +261,11 @@ describe('Sprint di beranda dan admin', () => {
       'GET /public/lessons': [],
     });
     renderApp('/');
-    const h = await screen.findByRole('heading', { name: /Adu cepat 60 detik/ });
-    const section = h.closest('section')!;
-    expect(within(section).getByRole('link', { name: 'Main sekarang' })).toHaveAttribute('href', '/sprint');
-    expect(await within(section).findByText('Andi')).toBeInTheDocument();
+    const h = await screen.findByRole('heading', { name: 'Sprint 60 detik' });
+    const cell = h.closest('article')!;
+    expect(within(cell).getByRole('link', { name: 'Main sekarang' })).toHaveAttribute('href', '/sprint');
+    // Papan peringkat tidak dipajang di beranda pengunjung supaya halaman tidak terlihat kosong.
+    expect(screen.queryByText('Belum ada skor')).not.toBeInTheDocument();
   });
 
   it('beranda anggota juga punya tautan ke Sprint', async () => {

@@ -1,7 +1,8 @@
-import { useMemo, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Sheet, formatValue, isError } from '@excellab/spreadsheet-engine';
 import { Check, X } from 'lucide-react';
+import QRCode from 'qrcode';
 import { Keycaps } from '../../components/learning/Bits';
 import { MiniSheet } from '../../components/spreadsheet/MiniSheet';
 import { useAsync } from '../../hooks/useAsync';
@@ -9,7 +10,7 @@ import { api } from '../../services/api';
 import { useAuthConfig } from '../auth/EmailAuth';
 import { ProgramBanner } from '../program/ProgramPage';
 import { Leaderboard } from '../sprint/Leaderboard';
-import { ERROR_CASES, FEEDBACK_STEPS, TRY_EXPECTED, TRY_TABLE, faqs, type ErrorCase, type Row } from './landingData';
+import { AUDIENCE, ERROR_CASES, FEEDBACK_STEPS, MODULE_OUTCOMES, TRY_EXPECTED, TRY_TABLE, faqs, type ErrorCase, type Row } from './landingData';
 
 interface Overview {
   counts: { modules: number; lessons: number; exercises: number; shortcuts: number; worksheets: number; functions: number };
@@ -46,10 +47,10 @@ function ErrorLab() {
   };
 
   return (
-    <section className="xl-l-section" aria-labelledby="l-salah">
-      <h2 id="l-salah">
+    <div className="xl-l-demo-body" aria-labelledby="l-salah">
+      <h3 id="l-salah" className="h4">
         <mark className="xl-l-mark">Hasilnya aneh?</mark> Biasanya salah satu dari empat ini.
-      </h2>
+      </h3>
       <p className="xl-l-lead">
         Pilih satu kasus, cari sel yang bermasalah, lalu tekan Perbaiki. Tabelnya hidup, jadi hasilnya benar-benar dihitung ulang.
       </p>
@@ -98,7 +99,7 @@ function ErrorLab() {
           </button>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -148,9 +149,11 @@ function TryIt({ exercises }: { exercises: number | null }) {
   };
 
   return (
-    <section className="xl-l-section xl-l-try" aria-labelledby="l-coba">
+    <div className="xl-l-try" aria-labelledby="l-coba">
       <div className="xl-l-try-copy">
-        <h2 id="l-coba">Coba satu rumus sekarang.</h2>
+        <h3 id="l-coba" className="h4">
+          Coba satu rumus sekarang.
+        </h3>
         <p className="xl-l-lead">Jumlahkan semua biaya di sel B6. Tidak perlu akun untuk mencoba ini.</p>
         <form onSubmit={check} noValidate aria-label="Coba rumus">
           <label htmlFor="coba-rumus" className="form-label">
@@ -201,6 +204,142 @@ function TryIt({ exercises }: { exercises: number | null }) {
         <MiniSheet key="coba" table={TRY_TABLE(formula.trim()) as Row[]} label="Latihan mencoba rumus" initial="B6" />
         <p className="xl-small xl-muted mt-2 mb-0">Dihitung langsung di browsermu oleh mesin rumus yang sama dengan latihan.</p>
       </div>
+    </div>
+  );
+}
+
+/* ---------- Demo bertab: tiga contoh jadi satu bagian ---------- */
+const DEMO_TABS = [
+  { id: 'rumus', label: 'Coba satu rumus' },
+  { id: 'aneh', label: 'Hasilnya aneh?' },
+  { id: 'umpan', label: 'Salah itu wajar' },
+] as const;
+type DemoTab = (typeof DEMO_TABS)[number]['id'];
+
+function Demo({ exercises }: { exercises: number | null }) {
+  const [tab, setTab] = useState<DemoTab>('rumus');
+  const refs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  const onKey = (e: KeyboardEvent<HTMLDivElement>): void => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    e.preventDefault();
+    const i = DEMO_TABS.findIndex((t) => t.id === tab);
+    const next = DEMO_TABS[(i + (e.key === 'ArrowRight' ? 1 : -1) + DEMO_TABS.length) % DEMO_TABS.length]!;
+    setTab(next.id);
+    refs.current[next.id]?.focus();
+  };
+
+  return (
+    <section className="xl-l-section" aria-labelledby="l-demo">
+      <h2 id="l-demo">Coba sebelum daftar.</h2>
+      <p className="xl-l-lead">Tiga contoh yang jalan di browsermu tanpa akun. Tabelnya hidup, jadi hasilnya benar-benar dihitung ulang.</p>
+      <div role="tablist" aria-label="Pilih contoh" className="xl-l-demo-tabs" onKeyDown={onKey}>
+        {DEMO_TABS.map((t) => (
+          <button
+            key={t.id}
+            ref={(el) => {
+              refs.current[t.id] = el;
+            }}
+            type="button"
+            role="tab"
+            id={`demo-${t.id}`}
+            aria-selected={tab === t.id}
+            aria-controls="demo-panel"
+            tabIndex={tab === t.id ? 0 : -1}
+            onClick={() => setTab(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <div id="demo-panel" role="tabpanel" aria-labelledby={`demo-${tab}`}>
+        {tab === 'rumus' && <TryIt exercises={exercises} />}
+        {tab === 'aneh' && <ErrorLab />}
+        {tab === 'umpan' && <FeedbackDemo />}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Untuk siapa ---------- */
+function Audience() {
+  return (
+    <section className="xl-l-section xl-l-split2" aria-labelledby="l-siapa">
+      <div className="xl-l-side">
+        <h2 id="l-siapa">Untuk siapa Mahir Excel.</h2>
+        <p className="xl-l-lead mb-0">
+          Belum yakin level kamu? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>: 12 pertanyaan, sekitar 3 menit, tanpa akun.
+        </p>
+      </div>
+      <dl className="xl-l-limits">
+        {AUDIENCE.map((a) => (
+          <div key={a.title}>
+            <dt>{a.title}</dt>
+            <dd>{a.text}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+/* ---------- Sertifikat ---------- */
+/** Contoh tampilan sertifikat. QR-nya sungguhan tetapi mengarah ke beranda; nama dan kode di sertifikat asli milik pemiliknya. */
+function CertificatePreview() {
+  const cells = useMemo(() => {
+    const qr = QRCode.create('https://mahirexcel.online', { errorCorrectionLevel: 'M' });
+    const n = qr.modules.size;
+    const out: ReactNode[] = [];
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)) out.push(<rect key={`${r}-${c}`} x={c} y={r} width={1.05} height={1.05} />);
+    return { n, out };
+  }, []);
+  return (
+    <figure className="xl-l-cert">
+      <div className="xl-l-cert-page" role="img" aria-label="Contoh sertifikat penyelesaian modul Rumus Dasar">
+        <div className="xl-l-cert-brand">Mahir Excel</div>
+        <div className="xl-l-cert-title">SERTIFIKAT PENYELESAIAN</div>
+        <div className="xl-l-cert-label">Diberikan kepada</div>
+        <div className="xl-l-cert-name">Contoh Nama</div>
+        <div className="xl-l-cert-text">yang telah menyelesaikan modul 3: Rumus Dasar</div>
+        <div className="xl-l-cert-foot">
+          <svg viewBox={`0 0 ${cells.n} ${cells.n}`} className="xl-l-cert-qr" aria-hidden="true" shapeRendering="crispEdges">
+            <g fill="#185c37">{cells.out}</g>
+          </svg>
+          <div className="xl-l-cert-verify">
+            <strong>Pindai untuk memeriksa keaslian</strong>
+            <span>Kode verifikasi unik</span>
+          </div>
+          <div className="xl-l-cert-issuer">
+            <em>Mahir Excel</em>
+            <span>Diterbitkan oleh Mahir Excel</span>
+          </div>
+        </div>
+      </div>
+      <figcaption className="xl-small xl-muted mt-2">
+        Contoh tampilan. Sertifikat asli memuat namamu, tanggal terbit, dan kode unik yang bisa diperiksa siapa pun.
+      </figcaption>
+    </figure>
+  );
+}
+
+function Certificates() {
+  return (
+    <section className="xl-l-section xl-l-split" aria-labelledby="l-sertifikat">
+      <div>
+        <h2 id="l-sertifikat">Bukti belajar yang bisa diperiksa.</h2>
+        <p className="xl-l-lead">
+          Selesaikan semua pelajaran sebuah modul, atau seluruh materi, lalu unduh sertifikat PDF. Siapa pun bisa memeriksa keasliannya lewat
+          kode di sertifikat.
+        </p>
+        <ul className="xl-l-checks">
+          <li>Sertifikat per modul dan untuk seluruh materi tersedia di paket Premium.</li>
+          <li>
+            Program Perintis memberi sertifikat gratis untuk pengguna pertama yang menyelesaikan syaratnya. <Link to="/program">Lihat syarat</Link>
+          </li>
+          <li>Ini bukan sertifikasi Microsoft. Sertifikat menandakan kamu menyelesaikan materi di sini.</li>
+        </ul>
+      </div>
+      <CertificatePreview />
     </section>
   );
 }
@@ -208,7 +347,7 @@ function TryIt({ exercises }: { exercises: number | null }) {
 /* ---------- 3. Kurikulum ---------- */
 function Curriculum({ overview }: { overview: Overview | null }) {
   return (
-    <section className="xl-l-section xl-l-split" aria-labelledby="l-modul">
+    <section id="belajar" className="xl-l-section xl-l-split" aria-labelledby="l-modul">
       <div className="xl-l-sticky">
         <h2 id="l-modul">
           Dari sel pertama sampai <mark className="xl-l-mark">VLOOKUP</mark>.
@@ -231,6 +370,7 @@ function Curriculum({ overview }: { overview: Overview | null }) {
             <div className="xl-path-body">
               <strong>{m.title}</strong>
               <span className="xl-muted xl-small">{m.summary}</span>
+              {MODULE_OUTCOMES[m.slug] && <span className="xl-small xl-l-outcome">Hasilnya: {MODULE_OUTCOMES[m.slug]}</span>}
               <span className="xl-small xl-l-count">
                 {m.lessons} pelajaran, {m.exercises} latihan
               </span>
@@ -246,10 +386,10 @@ function Curriculum({ overview }: { overview: Overview | null }) {
 /* ---------- 4. Umpan balik ---------- */
 function FeedbackDemo() {
   return (
-    <section className="xl-l-section" aria-labelledby="l-umpan">
-      <h2 id="l-umpan">
+    <div className="xl-l-demo-body" aria-labelledby="l-umpan">
+      <h3 id="l-umpan" className="h4">
         <mark className="xl-l-mark">Salah itu wajar.</mark> Yang penting tahu kenapa.
-      </h2>
+      </h3>
       <p className="xl-l-lead">
         Yang diperiksa adalah rumus yang kamu tulis, bukan sekadar angkanya. Ini tiga percobaan nyata di latihan Total pengeluaran bulanan.
       </p>
@@ -269,7 +409,7 @@ function FeedbackDemo() {
       <p className="xl-muted mb-0">
         Petunjuk dibuka satu per satu. Solusi lengkap baru terbuka setelah kamu menjawab benar atau memilih menyerah, tanpa poin.
       </p>
-    </section>
+    </div>
   );
 }
 
@@ -319,7 +459,18 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
           <h3 className="h5">Tes penempatan</h3>
           <p>12 pertanyaan, hasilnya saran modul untuk memulai. Terbuka tanpa akun.</p>
           <Link to="/tes-penempatan" className="btn btn-light btn-sm">
-            Coba sekarang
+            Ikuti tes penempatan
+          </Link>
+        </article>
+        <article className="xl-l-cell xl-l-cell-f">
+          <div>
+            <h3 className="h5">Sprint 60 detik</h3>
+            <p className="mb-0">
+              Jawab soal Excel sebanyak mungkin dalam satu menit: hasil rumus, nama galat, dan shortcut. Tanpa akun, cukup isi nama di akhir.
+            </p>
+          </div>
+          <Link to="/sprint" className="btn btn-primary">
+            Main sekarang
           </Link>
         </article>
       </div>
@@ -391,8 +542,8 @@ function SampleLessons() {
   if (list.loading || list.error || !list.data || list.data.length === 0) return null;
   return (
     <section className="xl-l-section" aria-labelledby="l-contoh">
-      <h2 id="l-contoh">Coba pelajaran contoh</h2>
-      <p className="xl-l-lead">Bisa dibaca tanpa daftar. Latihan dan progresnya ada setelah kamu masuk.</p>
+      <h2 id="l-contoh">Baca satu pelajaran dulu</h2>
+      <p className="xl-l-lead">Lima pelajaran contoh bisa dibaca tanpa daftar. Latihan dan progresnya ada setelah kamu masuk.</p>
       <ul className="xl-lesson-list">
         {list.data.map((l) => (
           <li key={l.slug}>
@@ -415,7 +566,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
   const cfg = useAuthConfig();
   const price = cfg?.premium.priceLabel;
   return (
-    <section className="xl-l-section" aria-labelledby="l-paket">
+    <section id="harga" className="xl-l-section" aria-labelledby="l-paket">
       <h2 id="l-paket">Belajarnya gratis. Premium untuk latihan lebih banyak dan bukti belajar.</h2>
       <div className="xl-l-plans">
         <div className="xl-l-plan">
@@ -456,7 +607,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
 /* ---------- 9. FAQ ---------- */
 function Faqs({ functions }: { functions: number | null }) {
   return (
-    <section className="xl-l-section xl-l-split2" aria-labelledby="l-faq">
+    <section id="faq" className="xl-l-section xl-l-split2" aria-labelledby="l-faq">
       <div className="xl-l-side">
         <h2 id="l-faq">Pertanyaan yang sering muncul</h2>
       </div>
@@ -483,7 +634,7 @@ function Closing() {
           <Link to="/daftar" className="btn btn-light btn-lg">
             Daftar gratis
           </Link>
-          <Link to="/tes-penempatan" className="btn btn-outline-light btn-lg">
+          <Link to="/tes-penempatan" className="xl-hero-link">
             Ikuti tes penempatan
           </Link>
         </div>
@@ -581,25 +732,22 @@ export function Landing() {
         <StatStrip counts={data?.counts ?? null} />
       </Band>
       <Band tone="white">
-        <ErrorLab />
-      </Band>
-      <Band tone="sage">
-        <TryIt exercises={data?.counts.exercises ?? null} />
-      </Band>
-      <Band tone="white">
-        <FeedbackDemo />
+        <Audience />
       </Band>
       <Band tone="deep">
         <Curriculum overview={data} />
       </Band>
       <Band tone="white">
+        <SampleLessons />
+      </Band>
+      <Band tone="sage">
+        <Demo exercises={data?.counts.exercises ?? null} />
+      </Band>
+      <Band tone="white">
         <Toolbox counts={data?.counts ?? null} />
       </Band>
       <Band tone="butter">
-        <SprintTeaser />
-      </Band>
-      <Band tone="white">
-        <SampleLessons />
+        <Certificates />
       </Band>
       <Band tone="sage">
         <Limits functions={data?.counts.functions ?? null} />
