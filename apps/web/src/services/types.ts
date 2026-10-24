@@ -88,6 +88,18 @@ export interface RevealResult {
   explanation: string;
   solution: Record<string, string>;
   pointsAwarded: number;
+  /** Solusi dibuka dari jatah gratis mingguan (bukan Premium). */
+  free?: boolean;
+  nextFreeAt?: string | null;
+}
+
+/** Jatah solusi gratis: satu solusi baru setiap 7 hari untuk akun gratis. */
+export interface SolutionQuota {
+  premium: boolean;
+  available: boolean;
+  nextFreeAt: string | null;
+  /** Slug latihan yang solusinya pernah dibuka lewat jatah gratis; membukanya lagi tidak memakai jatah. */
+  unlocked: string[];
 }
 
 export interface User {

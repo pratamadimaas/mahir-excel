@@ -266,6 +266,7 @@ export function AdminLayout() {
           </NavLink>
           <NavLink to="/admin/pengguna">Pengguna</NavLink>
           <NavLink to="/admin/sprint">Sprint</NavLink>
+          <NavLink to="/admin/laporan">Laporan</NavLink>
           {Object.entries(RESOURCES).map(([k, r]) => (
             <NavLink key={k} to={`/admin/${k}`}>
               {r.title}

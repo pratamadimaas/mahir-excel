@@ -370,11 +370,89 @@ export function contentRoutes({ db, config, auth }: Ctx): Router {
     });
   });
 
+  // Solusi langsung: Premium kapan saja. Akun gratis mendapat cicipan: satu solusi setiap 7 hari.
+  // Membuka lagi solusi yang pernah dibuka tidak memakai jatah. Petunjuk bertahap selalu gratis.
+  const FREE_SOLUTION_MS = 7 * 86_400_000;
+
+  async function solutionQuota(userId: number): Promise<{ available: boolean; nextFreeAt: string | null; unlocked: string[] }> {
+    const used = await rows<{ slug: string; unlocked_at: string }>(
+      db,
+      `SELECT e.slug, su.unlocked_at FROM solution_unlocks su JOIN exercises e ON e.id = su.exercise_id
+       WHERE su.user_id = ? ORDER BY su.unlocked_at DESC`,
+      [userId],
+    );
+    const lastMs = used[0] ? new Date(`${used[0].unlocked_at.replace(' ', 'T')}Z`).getTime() : null;
+    const blocked = lastMs !== null && lastMs + FREE_SOLUTION_MS > Date.now();
+    return {
+      available: !blocked,
+      nextFreeAt: blocked && lastMs !== null ? new Date(lastMs + FREE_SOLUTION_MS).toISOString() : null,
+      unlocked: used.map((u) => u.slug),
+    };
+  }
+
+  r.get('/solution-quota', auth.requireAuth, async (req, res) => {
+    const user = req.user!;
+    if (user.premium) {
+      res.json({ data: { premium: true, available: true, nextFreeAt: null, unlocked: [] } });
+      return;
+    }
+    res.json({ data: { premium: false, ...(await solutionQuota(user.id)) } });
+  });
+
   // Menyerah/lihat solusi: tidak memberi poin dan tidak menandai latihan selesai.
-  // Lihat solusi tanpa menjawab benar: khusus Premium. Petunjuk bertahap tetap gratis.
-  r.post('/exercises/:slug/reveal', auth.requirePremium, async (req, res) => {
-    const { def } = await loadExercise(parse(slugParam, req.params.slug), isPreview(req));
-    res.json({ data: { explanation: def.explanation, solution: solutionCells(def), pointsAwarded: 0 } });
+  r.post('/exercises/:slug/reveal', async (req, res) => {
+    const { def, id } = await loadExercise(parse(slugParam, req.params.slug), isPreview(req));
+    const user = req.user!;
+    let free = false;
+    let nextFreeAt: string | null = null;
+    if (!user.premium) {
+      free = true;
+      // Kunci baris pengguna supaya permintaan paralel tidak melewati batas satu solusi per minggu.
+      nextFreeAt = await withTransaction(db, async (conn) => {
+        await row(conn, 'SELECT id FROM users WHERE id = ? FOR UPDATE', [user.id]);
+        const already = await row<{ x: number }>(conn, 'SELECT 1 AS x FROM solution_unlocks WHERE user_id = ? AND exercise_id = ?', [user.id, id]);
+        const last = await row<{ unlocked_at: string }>(conn, 'SELECT MAX(unlocked_at) AS unlocked_at FROM solution_unlocks WHERE user_id = ?', [user.id]);
+        const lastMs = last?.unlocked_at ? new Date(`${last.unlocked_at.replace(' ', 'T')}Z`).getTime() : null;
+        const blocked = lastMs !== null && lastMs + FREE_SOLUTION_MS > Date.now();
+        if (already) return blocked && lastMs !== null ? new Date(lastMs + FREE_SOLUTION_MS).toISOString() : null;
+        if (blocked && lastMs !== null) {
+          throw new AppError(402, 'PREMIUM_REQUIRED', 'Jatah solusi gratis minggu ini sudah terpakai.', {
+            nextFreeAt: new Date(lastMs + FREE_SOLUTION_MS).toISOString(),
+          });
+        }
+        await run(conn, 'INSERT INTO solution_unlocks (user_id, exercise_id) VALUES (?,?)', [user.id, id]);
+        // Tanggal jatah berikutnya dihitung dari waktu yang tersimpan di database, sama dengan /solution-quota.
+        const saved = await row<{ unlocked_at: string }>(conn, 'SELECT unlocked_at FROM solution_unlocks WHERE user_id = ? AND exercise_id = ?', [user.id, id]);
+        return new Date(new Date(`${saved!.unlocked_at.replace(' ', 'T')}Z`).getTime() + FREE_SOLUTION_MS).toISOString();
+      });
+    }
+    res.json({ data: { explanation: def.explanation, solution: solutionCells(def), pointsAwarded: 0, free, nextFreeAt } });
+  });
+
+  // Laporan soal dari pengguna. Satu laporan terbuka per pengguna dan latihan, dan paling banyak 10 laporan sehari.
+  const reportBody = z.object({
+    reason: z.enum(['tidak-jelas', 'jawaban-meragukan', 'salah-ketik', 'lainnya']),
+    note: z.string().trim().max(500).optional(),
+  });
+
+  r.post('/exercises/:slug/report', async (req, res) => {
+    const body = parse(reportBody, req.body);
+    const { id } = await loadExercise(parse(slugParam, req.params.slug), false);
+    const userId = req.user!.id;
+    const open = await row<{ id: number }>(db, 'SELECT id FROM exercise_reports WHERE user_id = ? AND exercise_id = ? AND resolved_at IS NULL', [userId, id]);
+    if (open) {
+      res.json({ data: { id: open.id, duplicate: true } });
+      return;
+    }
+    const today = await row<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM exercise_reports WHERE user_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)', [userId]);
+    if (Number(today?.n ?? 0) >= 10) throw new AppError(429, 'RATE_LIMITED', 'Terlalu banyak laporan hari ini. Coba lagi besok.');
+    const ins = await run(db, 'INSERT INTO exercise_reports (user_id, exercise_id, reason, note) VALUES (?,?,?,?)', [
+      userId,
+      id,
+      body.reason,
+      body.note ? body.note : null,
+    ]);
+    res.status(201).json({ data: { id: ins.insertId, duplicate: false } });
   });
 
   r.get('/shortcuts', async (req, res) => {

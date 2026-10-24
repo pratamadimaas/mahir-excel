@@ -766,6 +766,54 @@ export function adminRoutes({ db, auth }: Ctx): Router {
     );
   });
 
+  // Laporan soal dari pengguna.
+  r.get('/reports', async (req, res) => {
+    const status = z.enum(['open', 'all']).default('open').parse(req.query.status ?? 'open');
+    const list = await rows<{
+      id: number;
+      reason: string;
+      note: string | null;
+      created_at: string;
+      resolved_at: string | null;
+      exercise_slug: string;
+      exercise_title: string;
+      email: string;
+      reports_for_exercise: number;
+    }>(
+      db,
+      `SELECT r.id, r.reason, r.note, r.created_at, r.resolved_at, e.slug AS exercise_slug, e.title AS exercise_title, u.email,
+         (SELECT COUNT(*) FROM exercise_reports r2 WHERE r2.exercise_id = r.exercise_id AND r2.resolved_at IS NULL) AS reports_for_exercise
+       FROM exercise_reports r JOIN exercises e ON e.id = r.exercise_id JOIN users u ON u.id = r.user_id
+       ${status === 'open' ? 'WHERE r.resolved_at IS NULL' : ''}
+       ORDER BY r.resolved_at IS NOT NULL, r.created_at DESC LIMIT 200`,
+    );
+    const iso = (s: string | null): string | null => (s ? new Date(`${s.replace(' ', 'T')}Z`).toISOString() : null);
+    res.json({
+      data: list.map((x) => ({
+        id: x.id,
+        reason: x.reason,
+        note: x.note,
+        createdAt: iso(x.created_at),
+        resolvedAt: iso(x.resolved_at),
+        exerciseSlug: x.exercise_slug,
+        exerciseTitle: x.exercise_title,
+        email: x.email,
+        openForExercise: Number(x.reports_for_exercise),
+      })),
+    });
+  });
+
+  r.put('/reports/:id/resolve', async (req, res) => {
+    const id = z.coerce.number().int().positive().parse(req.params.id);
+    const r1 = await run(db, 'UPDATE exercise_reports SET resolved_at = NOW() WHERE id = ? AND resolved_at IS NULL', [id]);
+    if (r1.affectedRows === 0) {
+      const exists = await row<{ id: number }>(db, 'SELECT id FROM exercise_reports WHERE id = ?', [id]);
+      if (!exists) throw notFound('Laporan');
+    }
+    await audit(req.user!.id, 'report-resolve', 'exercise_reports', id);
+    res.json({ data: { id, resolved: true } });
+  });
+
   r.use('/:resource', (req, _res, next) => {
     if (!isResource(String(req.params.resource))) return next(notFound('Sumber daya'));
     next();

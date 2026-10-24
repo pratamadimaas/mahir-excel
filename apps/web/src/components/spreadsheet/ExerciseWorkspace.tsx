@@ -4,10 +4,12 @@ import { ArrowDownToLine, ArrowRight, ArrowRightToLine, Eye, Lightbulb, RotateCc
 import { FUNCTION_NAMES, addrToRef, expandRef, isFormula, parseCellRef, shiftFormula } from '@excellab/spreadsheet-engine';
 import { useAuth } from '../../app/AuthContext';
 import { useProgress } from '../../app/ProgressContext';
+import { useAsync } from '../../hooks/useAsync';
 import { api, errorMessage } from '../../services/api';
-import { DIFFICULTY_LABELS, TOPIC_LABELS, type PublicExercise, type RevealResult, type SubmitResult } from '../../services/types';
+import { DIFFICULTY_LABELS, TOPIC_LABELS, type PublicExercise, type RevealResult, type SolutionQuota, type SubmitResult } from '../../services/types';
 import { ConfirmDialog, Status } from '../feedback/Feedback';
 import { Level } from '../learning/Bits';
+import { ReportExercise } from '../learning/ReportExercise';
 import { DataTools } from './DataTools';
 import { SpreadsheetGrid } from './SpreadsheetGrid';
 import { expandAll, referencedCells, useSheetModel } from './useSheetModel';
@@ -21,10 +23,18 @@ interface Props {
 
 const SUPPORTED = [...FUNCTION_NAMES].sort();
 
+const dateLong = new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' });
+
 export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
   const { recordSubmission, progress } = useProgress();
   const { user } = useAuth();
-  const canReveal = !!user?.premium;
+  const premium = !!user?.premium;
+  // Akun gratis mendapat cicipan: satu solusi langsung setiap 7 hari. Solusi yang pernah dibuka bisa dibuka lagi.
+  const quota = useAsync((s) => (user && !user.premium ? api.get<SolutionQuota>('/solution-quota', s) : Promise.resolve(null)), [user?.id, user?.premium]);
+  const unlockedHere = !!quota.data?.unlocked.includes(exercise.slug);
+  const quotaOpen = !!quota.data?.available;
+  const canReveal = premium || unlockedHere || quotaOpen;
+  const nextFree = quota.data?.nextFreeAt ?? null;
   const editable = useMemo(() => expandAll(exercise.editable), [exercise.editable]);
   const targets = useMemo(() => new Set(exercise.targetCells), [exercise.targetCells]);
   const [cells, setCells] = useState<Record<string, string>>(exercise.cells);
@@ -79,9 +89,12 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
     setBusy(true);
     setError(null);
     try {
-      setRevealed(await api.post<RevealResult>(`/exercises/${exercise.slug}/reveal${q}`));
+      const res = await api.post<RevealResult>(`/exercises/${exercise.slug}/reveal${q}`);
+      setRevealed(res);
+      if (res.free) quota.reload();
     } catch (e) {
       setError(errorMessage(e));
+      quota.reload();
     } finally {
       setBusy(false);
     }
@@ -235,7 +248,7 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
             </button>
             <span className="xl-toolbar-spacer" />
             <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setConfirmReveal(true)} disabled={busy}>
-              <Eye className="xl-icon" aria-hidden="true" /> Lihat solusi
+              <Eye className="xl-icon" aria-hidden="true" /> {!premium && !unlockedHere && quotaOpen ? 'Lihat solusi (gratis minggu ini)' : 'Lihat solusi'}
             </button>
           </div>
 
@@ -398,6 +411,11 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
               jawaban” bila sudah yakin.
             </p>
           )}
+          {!preview && (
+            <div className="mt-3">
+              <ReportExercise slug={exercise.slug} />
+            </div>
+          )}
         </div>
 
         <ConfirmDialog
@@ -407,15 +425,21 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
           onConfirm={reveal}
           onCancel={() => setConfirmReveal(false)}
         >
-          <p className="mb-0">
+          <p className={premium || unlockedHere ? 'mb-0' : 'mb-2'}>
             Cobalah buka petunjuk dulu; belajar lebih melekat bila kamu menemukan jawabannya sendiri. Poin tetap hanya diberikan satu kali
             per latihan.
           </p>
+          {!premium && !unlockedHere && (
+            <p className="mb-0">
+              <strong>Ini memakai jatah solusi gratis minggu ini.</strong> Jatah berikutnya tersedia 7 hari setelah ini.
+            </p>
+          )}
         </ConfirmDialog>
         {confirmReveal && !canReveal && (
           <Status tone="info">
-            <strong>Solusi langsung khusus Premium.</strong> Yang gratis: buka petunjuk satu per satu, dan solusi lengkap muncul otomatis begitu
-            jawabanmu benar. <Link to="/premium">Lihat Premium</Link>{' '}
+            <strong>Jatah solusi gratis minggu ini sudah terpakai.</strong>
+            {nextFree ? ` Jatah berikutnya tersedia ${dateLong.format(new Date(nextFree))}.` : ''} Yang gratis: buka petunjuk satu per satu, dan solusi
+            lengkap muncul otomatis begitu jawabanmu benar. Premium membuka solusi kapan saja. <Link to="/premium">Lihat Premium</Link>{' '}
             <button type="button" className="btn btn-link btn-sm p-0" onClick={() => setConfirmReveal(false)}>
               Tutup
             </button>

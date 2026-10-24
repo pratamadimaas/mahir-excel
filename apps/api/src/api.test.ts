@@ -190,8 +190,11 @@ describe('submit latihan', () => {
     expect(r.status).toBe(404);
   });
 
-  it('reveal khusus Premium, dan membuka solusi tanpa poin', async () => {
-    const denied = await member.agent.post('/api/exercises/total-pengeluaran/reveal').set('X-CSRF-Token', member.csrf);
+  it('reveal: akun gratis dapat satu solusi per minggu, Premium tanpa batas, dan tanpa poin', async () => {
+    const first = await member.agent.post('/api/exercises/total-pengeluaran/reveal').set('X-CSRF-Token', member.csrf);
+    expect(first.status).toBe(200);
+    expect(first.body.data).toMatchObject({ free: true, pointsAwarded: 0 });
+    const denied = await member.agent.post('/api/exercises/total-harga-barang/reveal').set('X-CSRF-Token', member.csrf);
     expect(denied.status).toBe(402);
     expect(denied.body.error.code).toBe('PREMIUM_REQUIRED');
     const prem = await registerUser(env.app);

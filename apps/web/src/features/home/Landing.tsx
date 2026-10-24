@@ -578,6 +578,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
             <li>Tes penempatan dan jadwal ulang</li>
             <li>Pustaka shortcut dan mode kuis</li>
             <li>Petunjuk bertahap dan pembahasan setelah jawabanmu benar</li>
+            <li>Satu solusi langsung gratis setiap 7 hari</li>
             <li>3 worksheet .xlsx pertama</li>
             <li>Sprint 60 detik dan papan peringkat</li>
             <li>Progres, poin, dan streak tersimpan di akun</li>
@@ -590,7 +591,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
           <h3 className="h5">Premium</h3>
           <ul>
             <li>Semua yang gratis</li>
-            <li>Tombol “Lihat solusi” langsung di setiap latihan</li>
+            <li>Tombol “Lihat solusi” tanpa batas di setiap latihan</li>
             <li>7 worksheet lanjutan dan kunci jawaban semua worksheet</li>
             <li>Sertifikat PDF per modul dan untuk seluruh materi, bisa dicek lewat kode</li>
           </ul>

@@ -193,7 +193,7 @@ describe('beranda pengunjung', () => {
     expect(details).not.toHaveAttribute('open');
     await userEvent.click(summary);
     expect(details).toHaveAttribute('open');
-    expect(within(details).getByText(/Premium menambah solusi langsung di latihan/)).toBeInTheDocument();
+    expect(within(details).getByText(/Premium menambah solusi langsung tanpa batas di latihan/)).toBeInTheDocument();
   });
 
   it('pengguna yang sudah masuk tidak melihat beranda pengunjung', async () => {
