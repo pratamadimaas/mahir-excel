@@ -197,7 +197,7 @@ describe('rumus tidak valid', () => {
     expect(code({ A1: f }, 'A1')).toBe(c);
   });
   it('menolak fungsi tak didukung', () => {
-    expect(code({ A1: '=SUMPRODUCT(A1:B2)' }, 'A1')).toBe('#NAME?');
+    expect(code({ A1: '=UNIQUE(A1:B2)' }, 'A1')).toBe('#NAME?');
     expect(code({ A1: '=eval("1")' }, 'A1')).toBe('#NAME?');
     expect(code({ A1: '=CONSTRUCTOR("x")' }, 'A1')).toBe('#NAME?');
   });

@@ -130,7 +130,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-rekap-gaji',
     'rumus-dasar',
-    6,
+    8,
     'Rekap Gaji Karyawan',
     'Hitung gaji bersih dan ringkasannya dengan SUM, AVERAGE, MAX, MIN, COUNTA, dan ROUND.',
     [
@@ -169,7 +169,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-penilaian-siswa',
     'logika',
-    4,
+    5,
     'Penilaian Siswa',
     'Hitung nilai akhir, status kelulusan, dan kelayakan beasiswa dengan IF, AND, dan ROUND.',
     ['Guru ingin menghitung nilai akhir dari nilai tugas dan UAS, menentukan siapa yang lulus, dan siapa yang berhak mendapat beasiswa.'],
@@ -203,7 +203,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-laporan-penjualan',
     'fungsi-bersyarat',
-    3,
+    4,
     'Laporan Penjualan',
     'Ringkas data transaksi dengan SUM, SUMIF, COUNTIF, SUMIFS, dan COUNTIF.',
     [
@@ -242,7 +242,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-katalog-harga',
     'fungsi-pencarian',
-    4,
+    5,
     'Formulir Pesanan dari Katalog',
     'Ambil nama dan harga dari katalog, hitung total, dan tangani kode yang tidak ada.',
     [
@@ -280,7 +280,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-data-pelanggan',
     'teks-tanggal',
-    3,
+    6,
     'Merapikan Data Pelanggan',
     'Rapikan nama, seragamkan kode, dan ambil tahun pendaftaran dari tanggal.',
     [

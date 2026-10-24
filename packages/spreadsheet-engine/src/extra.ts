@@ -1,5 +1,6 @@
 import { FUNCTION_ARITY } from './functions-meta';
 import { type Range, clean, compare, err, toNumber, toText, typeRank } from './helpers';
+import { callMore } from './more';
 import { type ErrorValue, type Node, type Scalar, type Value, isError } from './types';
 
 /** Kemampuan Sheet yang dibutuhkan fungsi tambahan (teks, tanggal, pencarian). */
@@ -262,5 +263,5 @@ export function callExtra(name: string, args: Node[], ctx: ExtraCtx): Value | un
       return orEmpty(arr.values[(row - 1) * arr.cols + (col - 1)]!);
     }
   }
-  return undefined;
+  return callMore(name, args, ctx);
 }

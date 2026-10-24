@@ -13,9 +13,11 @@ import { lessonsPart1 } from './content/lessons-1';
 import { lessonsPart2 } from './content/lessons-2';
 import { lessonsPart3 } from './content/lessons-3';
 import { lessonsPart4 } from './content/lessons-4';
+import { lessonsPart5 } from './content/lessons-5';
+import { lanjutanExercises } from './content/exercises-lanjutan';
 
-export const lessons = [...lessonsPart1, ...lessonsPart2, ...lessonsPart3, ...lessonsPart4];
-export const exercises = [...baseExercises, ...moreExercises];
+export const lessons = [...lessonsPart1, ...lessonsPart2, ...lessonsPart3, ...lessonsPart4, ...lessonsPart5];
+export const exercises = [...baseExercises, ...moreExercises, ...lanjutanExercises];
 export { placementQuestions, evaluatePlacement } from './content/placement';
 export type { PlacementQuestion, PlacementResult } from './content/placement';
 export { PUBLIC_LESSON_SLUGS, isPublicLesson, FREE_WORKSHEET_SLUGS, isFreeWorksheet } from './content/public';

@@ -28,6 +28,9 @@ describe('wizard: tujuan dan perakit rumus', () => {
     'gabung-teks': 'Kopi susu Minuman',
     'rapikan-teks': 'Kopi susu',
     bulatkan: 18000,
+    'rata-rata-jika': 13250,
+    peringkat: 3,
+    'ganti-teks': 'Kopi coklat',
   };
 
   it('setiap tujuan punya contoh jadi yang hasilnya cocok dengan hitungan manual', () => {

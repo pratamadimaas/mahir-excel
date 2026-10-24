@@ -93,8 +93,8 @@ export function AcademyPage() {
       <aside className="xl-panel xl-panel-body mt-4" aria-label="Rencana berikutnya">
         <h2 className="h6">Rencana berikutnya</h2>
         <p className="xl-muted mb-0">
-          Belum tersedia: PivotTable dan grafik sungguhan di playground, array dinamis, SUMPRODUCT, serta fungsi teks dan tanggal lanjutan
-          (TEXT, SUBSTITUTE, FIND, EDATE, EOMONTH). Pelajarannya sudah menjelaskan konsepnya; latihan memakai padanan rumus yang didukung.
+          Belum tersedia: PivotTable dan grafik sungguhan di playground, array dinamis (UNIQUE, FILTER, SORT), serta rumus antar sheet. Pelajarannya
+          sudah menjelaskan konsepnya; latihan memakai padanan rumus yang didukung.
         </p>
       </aside>
     </div>

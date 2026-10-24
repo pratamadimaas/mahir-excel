@@ -287,6 +287,7 @@ export class Sheet {
       case 'COUNTIFS':
       case 'SUMIF':
       case 'SUMIFS':
+      case 'AVERAGEIF':
         return this.conditional(name, args);
     }
     const extra = callExtra(name, args, this.extraCtx());
@@ -390,13 +391,13 @@ export class Sheet {
       sumRange = s;
       pairStart = 1;
     }
-    if (name === 'SUMIF' || name === 'COUNTIF') {
+    if (name === 'SUMIF' || name === 'COUNTIF' || name === 'AVERAGEIF') {
       const rg = this.rangeArg(args[0]!, name, 'rentang');
       if (isError(rg)) return rg;
       const c = this.scalar(args[1]!);
       if (isError(c)) return c;
       pairs.push({ range: rg, crit: c });
-      if (name === 'SUMIF' && args[2]) {
+      if ((name === 'SUMIF' || name === 'AVERAGEIF') && args[2]) {
         const s = this.rangeArg(args[2], name, 'rentang jumlah');
         if (isError(s)) return s;
         // Seperti Excel: rentang jumlah dihitung dari sel kiri atas dengan ukuran yang sama dengan rentang kriteria.
@@ -405,7 +406,7 @@ export class Sheet {
           if (isError(sr)) return sr;
           sumRange = sr;
         } else sumRange = s;
-      } else if (name === 'SUMIF') sumRange = rg;
+      } else if (name === 'SUMIF' || name === 'AVERAGEIF') sumRange = rg;
     } else {
       if ((args.length - pairStart) % 2 !== 0) {
         return err('#ERROR!', `Fungsi ${name} membutuhkan pasangan (rentang kriteria, kriteria). Jumlah argumen kurang atau berlebih.`);
@@ -432,6 +433,7 @@ export class Sheet {
     const matchers = pairs.map((p) => buildMatcher(p.crit as Scalar));
     let count = 0;
     let sum = 0;
+    let numCount = 0;
     for (let i = 0; i < base.values.length; i++) {
       let ok = true;
       for (let k = 0; k < pairs.length; k++) {
@@ -446,8 +448,16 @@ export class Sheet {
       if (sumRange) {
         const sv = sumRange.values[i]!;
         if (isError(sv)) return sv;
-        if (typeof sv === 'number') sum += sv;
+        if (typeof sv === 'number') {
+          sum += sv;
+          numCount++;
+        }
       }
+    }
+    if (name === 'AVERAGEIF') {
+      return numCount === 0
+        ? err('#DIV/0!', 'AVERAGEIF tidak menemukan angka yang memenuhi syarat, sehingga tidak bisa dihitung rata-ratanya.')
+        : clean(sum / numCount);
     }
     return name === 'COUNTIF' || name === 'COUNTIFS' ? count : clean(sum);
   }

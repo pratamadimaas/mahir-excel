@@ -42,6 +42,8 @@ const RANGE = /^\$?[A-Za-z]{1,3}\$?\d+:\$?[A-Za-z]{1,3}\$?\d+$/;
 const NUMBER = /^-?\d+([.]\d+)?$/;
 
 const up = (s: string): string => s.trim().toUpperCase();
+/** "C2:C8" menjadi "$C$2:$C$8". */
+const absolute = (range: string): string => up(range).replace(/([A-Z]+)(\d+)/g, '$$$1$$$2');
 const quote = (s: string): string => `"${s.replace(/"/g, '""')}"`;
 
 /** Teks atau angka biasa untuk dimasukkan ke rumus: angka dan alamat sel apa adanya, selain itu diberi tanda kutip. */
@@ -320,6 +322,62 @@ export const GOALS: WizardGoal[] = [
       v.mode === 'TRIM'
         ? 'TRIM membuang spasi di awal dan akhir, dan menyisakan satu spasi di antara kata.'
         : `${v.mode} mengubah huruf teks di ${up(v.cell!)}; teks asli tidak berubah, hasilnya ada di sel rumus.`,
+    ],
+  },
+  {
+    id: 'rata-rata-jika',
+    title: 'Rata-rata yang memenuhi syarat',
+    hint: 'Rata-rata harga untuk satu kategori, rata-rata nilai satu kelas.',
+    free: false,
+    fields: [
+      r('Rentang yang diperiksa', 'range', 'B2:B8'),
+      t('Syaratnya', 'crit', 'Minuman'),
+      r('Rentang angka yang dirata-ratakan', 'avg', 'C2:C8', 'Harus sebaris dengan rentang yang diperiksa dan sama panjang.'),
+    ],
+    build: (v) => `=AVERAGEIF(${up(v.range!)},${crit(v.crit ?? '')},${up(v.avg!)})`,
+    explain: (v) => [
+      `AVERAGEIF memeriksa ${up(v.range!)} satu per satu.`,
+      `Angka dari ${up(v.avg!)} pada baris yang cocok dengan syarat ${crit(v.crit ?? '')} dirata-ratakan.`,
+      'Kalau tidak ada baris yang cocok, hasilnya #DIV/0!.',
+    ],
+  },
+  {
+    id: 'peringkat',
+    title: 'Memberi peringkat',
+    hint: 'Peringkat penjualan, peringkat nilai.',
+    free: false,
+    fields: [
+      c('Sel yang dicari peringkatnya', 'cell', 'C2'),
+      r('Rentang pembanding', 'range', 'C2:C8', 'Rumus mengunci rentang ini dengan $ supaya aman disalin ke bawah.'),
+      {
+        key: 'order',
+        label: 'Peringkat 1 untuk',
+        kind: 'choice',
+        default: '0',
+        options: [
+          { value: '0', label: 'Angka terbesar' },
+          { value: '1', label: 'Angka terkecil' },
+        ],
+      },
+    ],
+    build: (v) => `=RANK(${up(v.cell!)},${absolute(v.range!)}${v.order === '1' ? ',1' : ''})`,
+    explain: (v) => [
+      `RANK membandingkan ${up(v.cell!)} dengan semua angka di ${absolute(v.range!)}.`,
+      `Peringkat 1 diberikan kepada angka ${v.order === '1' ? 'terkecil' : 'terbesar'}.`,
+      'Angka yang sama mendapat peringkat yang sama, dan peringkat berikutnya melompat.',
+    ],
+  },
+  {
+    id: 'ganti-teks',
+    title: 'Mengganti bagian teks',
+    hint: 'Ganti kata, buang tanda, rapikan penulisan.',
+    free: false,
+    fields: [c('Sel teks', 'cell', 'A2'), t('Teks yang diganti', 'old', 'susu'), t('Penggantinya', 'new', 'coklat', 'Kosongkan untuk membuang teks itu.')],
+    build: (v) => `=SUBSTITUTE(${up(v.cell!)},${quote(v.old ?? '')},${quote(v.new ?? '')})`,
+    explain: (v) => [
+      `SUBSTITUTE mengganti setiap "${v.old ?? ''}" di ${up(v.cell!)} dengan "${v.new ?? ''}".`,
+      'Huruf besar dan kecil dibedakan: "susu" tidak sama dengan "Susu".',
+      'Teks aslinya tidak berubah, hasilnya ada di sel rumus.',
     ],
   },
   {

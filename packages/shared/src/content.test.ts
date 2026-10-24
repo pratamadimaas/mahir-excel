@@ -155,7 +155,7 @@ describe('validasi - kasus khusus', () => {
   });
 
   it('fungsi tidak didukung memberi pesan #NAME?', () => {
-    const r = validateSubmission(ex('total-pengeluaran'), { B7: '=SUMPRODUCT(B2:B6)' });
+    const r = validateSubmission(ex('total-pengeluaran'), { B7: '=UNIQUE(B2:B6)' });
     expect(r.targets[0]!.message).toContain('#NAME?');
   });
 

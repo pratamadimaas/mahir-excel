@@ -289,7 +289,7 @@ describe('playground latihan', () => {
     mockApi({ ...base, 'GET /exercises/total-pengeluaran': EXERCISE });
     renderApp('/latihan/total-pengeluaran');
     await screen.findByRole('heading', { level: 1, name: EXERCISE.title });
-    await userEvent.type(screen.getByRole('textbox', { name: 'Isi sel B4' }), '=SUMPRODUCT(B2:B3)');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Isi sel B4' }), '=UNIQUE(B2:B3)');
     expect(screen.getAllByText('#NAME?').length).toBeGreaterThan(0);
     expect(screen.getByText(/tidak dikenal atau belum didukung/)).toBeInTheDocument();
   });

@@ -397,7 +397,7 @@ export const lessonsPart3: LessonDef[] = [
         { title: 'Menghapus spasi manual', detail: 'Spasi tak terlihat di akhir teks merusak pencarian. Pakai TRIM, jangan menebak.' },
       ],
       playgroundNote:
-        'Angka diubah menjadi teks dengan titik desimal (3.5), sedangkan Excel mengikuti pengaturan regional. Fungsi teks lain seperti TEXT, SUBSTITUTE, dan FIND belum didukung.',
+        'Angka diubah menjadi teks dengan titik desimal (3.5), sedangkan Excel mengikuti pengaturan regional. Fungsi teks lain seperti SUBSTITUTE, FIND, CONCAT, TEXTJOIN, dan TEXT dibahas di modul Teks dan Tanggal.',
       quiz: [
         {
           question: 'Apa hasil =LEN(TRIM("  Jakarta  Selatan "))?',
@@ -467,7 +467,7 @@ export const lessonsPart3: LessonDef[] = [
         },
       ],
       playgroundNote:
-        'Playground belum memiliki format sel, sehingga tanggal tampil sebagai nomor serial. Latihan tetap menilai angka serialnya. DATEDIF, EDATE, dan EOMONTH belum didukung.',
+        'Playground belum memiliki format sel, sehingga tanggal tampil sebagai nomor serial. Latihan tetap menilai angka serialnya. Fungsi tanggal lanjutan seperti DATEDIF, EOMONTH, dan NETWORKDAYS ada di modul Teks dan Tanggal.',
       quiz: [
         {
           question: 'Bagaimana menghitung jumlah hari dari tanggal di A2 sampai tanggal di B2?',

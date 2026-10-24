@@ -16,31 +16,31 @@ export const modules: ModuleDef[] = [
   {
     slug: 'rumus-dasar',
     title: 'Rumus Dasar',
-    summary: 'SUM, AVERAGE, MIN, MAX, COUNT, COUNTA, serta referensi relatif dan absolut.',
+    summary: 'SUM, AVERAGE, MIN, MAX, COUNT, COUNTA, MEDIAN, LARGE, SMALL, RANK, pembulatan, serta referensi relatif dan absolut.',
     sortOrder: 3,
   },
   {
     slug: 'logika',
     title: 'Logika',
-    summary: 'IF, AND, OR, IFERROR, dan IF bertingkat setelah konsep dasarnya dipahami.',
+    summary: 'IF, AND, OR, IFERROR, IFS, SWITCH, dan IF bertingkat setelah konsep dasarnya dipahami.',
     sortOrder: 4,
   },
   {
     slug: 'fungsi-bersyarat',
     title: 'Fungsi Bersyarat',
-    summary: 'COUNTIF, COUNTIFS, SUMIF, dan SUMIFS untuk meringkas data berdasarkan syarat.',
+    summary: 'COUNTIF, COUNTIFS, SUMIF, SUMIFS, AVERAGEIF, dan SUMPRODUCT untuk meringkas data berdasarkan syarat.',
     sortOrder: 5,
   },
   {
     slug: 'fungsi-pencarian',
     title: 'Fungsi Pencarian',
-    summary: 'VLOOKUP, XLOOKUP, serta INDEX dan MATCH untuk mengambil data dari tabel acuan.',
+    summary: 'VLOOKUP, HLOOKUP, XLOOKUP, serta INDEX dan MATCH untuk mengambil data dari tabel acuan.',
     sortOrder: 6,
   },
   {
     slug: 'teks-tanggal',
     title: 'Teks dan Tanggal',
-    summary: 'Merapikan teks (LEFT, RIGHT, MID, TRIM, PROPER) dan menghitung dengan tanggal (DATE, YEAR, MONTH, DAY).',
+    summary: 'Merapikan dan menyambung teks (LEFT, RIGHT, MID, TRIM, PROPER, SUBSTITUTE, FIND, TEXTJOIN, TEXT) dan menghitung dengan tanggal (DATE, DATEDIF, EOMONTH, NETWORKDAYS).',
     sortOrder: 7,
   },
   {
