@@ -274,7 +274,7 @@ describe('susunan beranda yang baru', () => {
     expect(screen.getByText(/Contoh tampilan\. Sertifikat asli memuat namamu/)).toBeInTheDocument();
   });
 
-  it('hero: satu tombol utama, tes penempatan hanya tautan teks, dan navbar pengunjung memuat tiga tautan bagian', async () => {
+  it('hero: satu tombol utama, tes penempatan hanya tautan teks, dan navbar pengunjung memuat Jalur dan tiga tautan bagian', async () => {
     mockApi(anon);
     renderApp('/');
     const hero = (await screen.findByRole('heading', { level: 1, name: /Excel bisa dipelajari/ })).closest('section')!;
@@ -285,6 +285,7 @@ describe('susunan beranda yang baru', () => {
 
     const nav = screen.getByRole('navigation', { name: 'Navigasi utama' });
     expect(within(nav).getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
+      ['Jalur', '/jalur'],
       ['Belajar', '/#belajar'],
       ['Harga', '/#harga'],
       ['FAQ', '/#faq'],

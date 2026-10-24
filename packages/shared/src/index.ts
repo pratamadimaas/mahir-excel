@@ -29,3 +29,5 @@ import { FUNCTION_NAMES } from '@excellab/spreadsheet-engine';
 export const FUNCTION_COUNT = FUNCTION_NAMES.size;
 export { templates, isFreeTemplate } from './content/templates';
 export type { TemplateDef, TemplateCategory } from './content/templates';
+export { paths, pathBySlug } from './content/paths';
+export type { PathDef } from './content/paths';

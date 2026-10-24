@@ -54,6 +54,24 @@ describe('template .xlsx', () => {
   });
 });
 
+describe('jalur belajar', () => {
+  it('daftar dan rincian terbuka tanpa login, dihitung dari kurikulum', async () => {
+    const list = await request(env.app).get('/api/paths');
+    expect(list.status).toBe(200);
+    expect(list.body.data.map((p: { slug: string }) => p.slug)).toEqual(['perkantoran-admin', 'jualan-usaha', 'keuangan-dasar']);
+    const admin = list.body.data[0];
+    expect(admin.lessons).toBeGreaterThanOrEqual(8);
+    expect(admin.minutes).toBeGreaterThan(admin.lessons);
+    expect(admin.lessonSlugs).toHaveLength(admin.lessons);
+    const one = await request(env.app).get('/api/paths/perkantoran-admin');
+    expect(one.status).toBe(200);
+    expect(one.body.data.steps[0]).toMatchObject({ slug: 'sel-baris-kolom-rentang', publicLesson: true });
+    expect(one.body.data.steps.every((s: { title: string; minutes: number }) => s.title && s.minutes > 0)).toBe(true);
+    expect(one.body.data.templates.some((t: { free: boolean }) => t.free)).toBe(true);
+    expect((await request(env.app).get('/api/paths/tidak-ada')).status).toBe(404);
+  });
+});
+
 describe('lembar contekan PDF', () => {
   it('daftar modul untuk pengguna masuk, PDF khusus Premium', async () => {
     const free1 = await registerUser(env.app);

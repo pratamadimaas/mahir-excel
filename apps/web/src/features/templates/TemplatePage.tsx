@@ -90,6 +90,10 @@ export function TemplatePage() {
         </p>
       </header>
 
+      <p className="xl-small xl-muted">
+        Butuh rumus untuk datamu sendiri? Coba <Link to="/wizard">Wizard rumus</Link>. Mau belajar sesuai tujuan? Lihat <Link to="/jalur">jalur belajar</Link>.
+      </p>
+
       {list.loading && <Loading label="Memuat template…" lines={4} />}
       {list.error && <ErrorState message={list.error} onRetry={list.reload} />}
 

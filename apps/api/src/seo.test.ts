@@ -24,7 +24,7 @@ describe('SEO per halaman di sisi server', () => {
   });
 
   it('halaman publik punya judul, deskripsi, dan canonical sendiri', () => {
-    for (const p of ['/template', '/premium', '/tes-penempatan', '/sprint', '/tentang', '/program', '/privasi', '/syarat']) {
+    for (const p of ['/template', '/jalur', '/jalur/perkantoran-admin', '/jalur/jualan-usaha', '/jalur/keuangan-dasar', '/premium', '/tes-penempatan', '/sprint', '/tentang', '/program', '/privasi', '/syarat']) {
       const h = render(p);
       expect(seoFor(p).status, p).toBe(200);
       expect(canonical(h), p).toBe(`${ORIGIN}${p}`);
@@ -60,7 +60,7 @@ describe('SEO per halaman di sisi server', () => {
   });
 
   it('alamat yang tidak dikenal menjawab 404 dan noindex', () => {
-    for (const p of ['/nonexistent-xyz', '/ads.txt', '/belajar/tidak-ada', '/latihan/tidak-ada', '/worksheet/tidak-ada', '/index.html', '/a/b/c']) {
+    for (const p of ['/nonexistent-xyz', '/ads.txt', '/belajar/tidak-ada', '/jalur/tidak-ada', '/latihan/tidak-ada', '/worksheet/tidak-ada', '/index.html', '/a/b/c']) {
       expect(seoFor(p).status, p).toBe(404);
       const h = render(p);
       expect(h, p).toContain('noindex');

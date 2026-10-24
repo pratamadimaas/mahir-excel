@@ -22,6 +22,7 @@ import { WorksheetDetailPage, WorksheetsPage } from './features/worksheets/Works
 import { TemplatePage } from './features/templates/TemplatePage';
 import { ReportPage } from './features/progress/ReportPage';
 import { WizardPage } from './features/wizard/WizardPage';
+import { PathDetailPage, PathsPage } from './features/paths/PathPages';
 
 // Area admin jarang dipakai: dimuat terpisah agar bundel pengunjung tetap kecil.
 const AdminLayout = lazy(() => import('./features/admin/AdminPages').then((m) => ({ default: m.AdminLayout })));
@@ -78,6 +79,8 @@ export function AppRoutes() {
         {/* Pelajaran contoh terbuka tanpa login; server menolak (401) pelajaran lain dan halaman menampilkan ajakan masuk. */}
         <Route path="belajar/:slug" element={<LessonPage />} />
         <Route path="tes-penempatan" element={<PlacementPage />} />
+        <Route path="jalur" element={<PathsPage />} />
+        <Route path="jalur/:slug" element={<PathDetailPage />} />
         <Route path="template" element={<TemplatePage />} />
         <Route path="premium" element={<PremiumPage />} />
         <Route path="program" element={<ProgramPage />} />

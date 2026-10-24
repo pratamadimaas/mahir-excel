@@ -47,6 +47,12 @@ export function Footer() {
               <li>
                 <Link to="/worksheet">{t('footer.worksheets')}</Link>
               </li>
+              <li>
+                <Link to="/template">{t('footer.templates')}</Link>
+              </li>
+              <li>
+                <Link to="/wizard">{t('footer.wizard')}</Link>
+              </li>
             </ul>
           </div>
           <div className="col-12 col-md-3">

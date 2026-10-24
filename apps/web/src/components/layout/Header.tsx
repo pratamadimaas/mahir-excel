@@ -35,16 +35,17 @@ export function Header() {
   const NAV = user
     ? [
         { to: '/belajar', label: t('nav.learn') },
+        { to: '/jalur', label: t('nav.paths') },
         { to: '/latihan', label: t('nav.practice') },
         { to: '/shortcut', label: t('nav.shortcuts') },
         { to: '/worksheet', label: t('nav.worksheets') },
         { to: '/template', label: t('nav.templates') },
-        { to: '/wizard', label: t('nav.wizard') },
         { to: '/sprint', label: t('nav.sprint') },
         { to: '/program', label: t('nav.program') },
         ...(user.premium ? [] : [{ to: '/premium', label: t('nav.premium') }]),
       ]
     : [
+        { to: '/jalur', label: t('nav.paths') },
         { to: '/#belajar', label: t('nav.learn'), hash: true },
         { to: '/#harga', label: t('nav.pricing'), hash: true },
         { to: '/#faq', label: t('nav.faq'), hash: true },

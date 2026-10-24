@@ -183,3 +183,29 @@ export interface ProgressReport {
   weakest: string[];
   recommendations: { slug: string; title: string; topic: string; topicTitle: string; difficulty: Difficulty; reason: string }[];
 }
+
+export interface PathSummary {
+  slug: string;
+  title: string;
+  tagline: string;
+  forWho: string;
+  lessons: number;
+  minutes: number;
+  exercises: number;
+  lessonSlugs?: string[];
+}
+
+export interface PathDetail extends PathSummary {
+  outcomes: string[];
+  premiumExtras: string[];
+  steps: {
+    slug: string;
+    title: string;
+    summary: string;
+    minutes: number;
+    moduleTitle: string;
+    exerciseCount: number;
+    publicLesson: boolean;
+  }[];
+  templates: { slug: string; title: string; description: string; free: boolean }[];
+}

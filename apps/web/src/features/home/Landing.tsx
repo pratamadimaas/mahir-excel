@@ -270,6 +270,9 @@ function Audience() {
         <p className="xl-l-lead mb-0">
           Belum yakin level kamu? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>: 12 pertanyaan, sekitar 3 menit, tanpa akun.
         </p>
+        <p className="xl-l-lead mb-0">
+          Sudah tahu tujuanmu? Pilih <Link to="/jalur">jalur belajar</Link> untuk admin, usaha kecil, atau keuangan dasar.
+        </p>
       </div>
       <dl className="xl-l-limits">
         {AUDIENCE.map((a) => (

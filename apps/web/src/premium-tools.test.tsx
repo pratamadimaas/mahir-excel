@@ -6,7 +6,7 @@ import { Sheet, isError, parseFormula, traceFormula } from '@excellab/spreadshee
 import { AnswerCompare } from './components/spreadsheet/AnswerCompare';
 import { FormulaDebugger } from './components/spreadsheet/FormulaDebugger';
 import { GOALS, SAMPLE_CELLS, crit, defaultsOf, lit, validateFields } from './features/wizard/goals';
-import { SIGNED_IN, STUDENT, mockApi, renderApp } from './testutil';
+import { EMPTY_PROGRESS, SIGNED_IN, STUDENT, mockApi, renderApp } from './testutil';
 
 const PREMIUM_USER = { ...STUDENT, premium: true };
 const premiumSession = { ...SIGNED_IN, 'GET /auth/me': { user: PREMIUM_USER, csrfToken: 'tok' } };
@@ -206,7 +206,7 @@ describe('halaman Template', () => {
   const CHEATS = [{ slug: 'rumus-dasar', title: 'Rumus Dasar', summary: 's', lessons: 5 }];
 
   it('pengunjung: diajak masuk untuk mengunduh', async () => {
-    mockApi({ 'GET /auth/me': { status: 401, body: { error: { code: 'UNAUTHENTICATED', message: 'x' } } }, 'GET /templates': TEMPLATES });
+    mockApi({ 'GET /auth/me': () => ({ status: 401, body: { error: { code: 'UNAUTHENTICATED', message: 'x' } } }), 'GET /templates': TEMPLATES });
     renderApp('/template');
     expect(await screen.findByText('Laporan Penjualan')).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: 'Masuk untuk mengunduh' })).toHaveLength(2);
@@ -254,5 +254,59 @@ describe('halaman Laporan kemajuan', () => {
     expect(screen.getByText('3 / 10')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Total pengeluaran bulanan' })).toHaveAttribute('href', '/latihan/total-pengeluaran');
     expect(screen.getByText(/Topik yang paling perlu diperkuat/)).toHaveTextContent('Rumus Dasar');
+  });
+});
+
+describe('jalur belajar', () => {
+  const SUMMARY = [
+    { slug: 'perkantoran-admin', title: 'Admin dan Perkantoran', tagline: 'Merapikan data dan membuat rekap.', forWho: 'Untuk calon admin.', lessons: 3, minutes: 24, exercises: 4, lessonSlugs: ['sel-baris-kolom-rentang', 'fungsi-sum', 'fungsi-if'] },
+  ];
+  const DETAIL = {
+    ...SUMMARY[0],
+    outcomes: ['Merapikan daftar yang berantakan.'],
+    premiumExtras: ['Penelusur rumus dan wizard rumus lengkap.'],
+    steps: [
+      { slug: 'sel-baris-kolom-rentang', title: 'Sel, Baris, Kolom, dan Rentang', summary: 'Dasar Excel.', minutes: 8, moduleTitle: 'Mengenal Excel', exerciseCount: 1, publicLesson: true },
+      { slug: 'fungsi-sum', title: 'SUM: Menjumlahkan Angka', summary: 'Jumlahkan rentang.', minutes: 8, moduleTitle: 'Rumus Dasar', exerciseCount: 2, publicLesson: true },
+      { slug: 'fungsi-if', title: 'IF: Mengambil Keputusan', summary: 'Hasil berbeda.', minutes: 8, moduleTitle: 'Logika', exerciseCount: 1, publicLesson: true },
+    ],
+    templates: [{ slug: 'laporan-penjualan', title: 'Laporan Penjualan', description: 'Rekap harian.', free: true }],
+  };
+  const done = { ...EMPTY_PROGRESS, completedLessons: ['sel-baris-kolom-rentang'] };
+
+  it('pengunjung melihat daftar tanpa kemajuan dan ajakan daftar di rincian', async () => {
+    mockApi({ 'GET /auth/me': () => ({ status: 401, body: { error: { code: 'UNAUTHENTICATED', message: 'x' } } }), 'GET /paths': SUMMARY, 'GET /paths/perkantoran-admin': DETAIL });
+    const { unmount } = renderApp('/jalur');
+    expect(await screen.findByRole('heading', { level: 2, name: 'Admin dan Perkantoran' })).toBeInTheDocument();
+    expect(screen.getByText(/3 pelajaran · sekitar 24 menit · 4 latihan/)).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    unmount();
+    renderApp('/jalur/perkantoran-admin');
+    expect(await screen.findByRole('link', { name: 'Daftar gratis untuk mulai' })).toHaveAttribute('href', '/daftar');
+    expect(screen.getAllByText(/contoh terbuka/).length).toBe(3);
+  });
+
+  it('akun gratis: kemajuan dihitung dari pelajaran selesai, tombol lanjut menuju pelajaran berikutnya, Premium terkunci', async () => {
+    mockApi({ ...SIGNED_IN, 'GET /progress': { ...done }, 'GET /paths': SUMMARY, 'GET /paths/perkantoran-admin': DETAIL });
+    renderApp('/jalur/perkantoran-admin');
+    expect(await screen.findByText('1 dari 3 pelajaran selesai')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: /1 dari 3/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Lanjutkan: SUM: Menjumlahkan Angka/ })).toHaveAttribute('href', '/belajar/fungsi-sum');
+    expect(screen.getByText('Tambahan dengan Premium')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Lihat Premium' })).toHaveAttribute('href', '/premium');
+    expect(screen.getByRole('link', { name: 'Laporan Penjualan' })).toBeInTheDocument();
+  });
+
+  it('akun Premium melihat daftar manfaatnya, bukan kotak kunci', async () => {
+    mockApi({ ...premiumSession, 'GET /paths': SUMMARY, 'GET /paths/perkantoran-admin': DETAIL });
+    renderApp('/jalur/perkantoran-admin');
+    expect(await screen.findByText('Yang bisa kamu pakai sebagai Premium')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Lihat Premium' })).not.toBeInTheDocument();
+  });
+
+  it('jalur yang tidak ada menampilkan pesan, bukan halaman rusak', async () => {
+    mockApi({ ...SIGNED_IN, 'GET /paths/tidak-ada': () => ({ status: 404, body: { error: { code: 'NOT_FOUND', message: 'Jalur belajar tidak ditemukan.' } } }) });
+    renderApp('/jalur/tidak-ada');
+    expect(await screen.findByText('Jalur tidak ditemukan')).toBeInTheDocument();
   });
 });

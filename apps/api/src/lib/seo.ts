@@ -1,4 +1,4 @@
-import { PUBLIC_LESSON_SLUGS, exercises, lessons, worksheets } from '@excellab/shared';
+import { PUBLIC_LESSON_SLUGS, exercises, lessons, pathBySlug, worksheets } from '@excellab/shared';
 
 /**
  * SEO di sisi server untuk aplikasi satu halaman: judul, deskripsi, canonical, noindex, dan kode status 404 dihitung
@@ -29,6 +29,10 @@ const PUBLIC_PAGES: Record<string, Known> = {
   '/sprint': {
     title: 'Sprint 60 detik',
     description: 'Jawab soal Excel sebanyak mungkin dalam 60 detik dan bandingkan skormu di papan peringkat.',
+  },
+  '/jalur': {
+    title: 'Jalur belajar Excel: admin, jualan, keuangan',
+    description: 'Pilih jalur sesuai tujuanmu. Urutan pelajaran, latihan, dan template yang sudah dipilih untuk admin, usaha kecil, atau keuangan dasar.',
   },
   '/template': {
     title: 'Template Excel gratis dan siap pakai',
@@ -106,6 +110,13 @@ export function seoFor(rawPath: string): PageSeo {
     if (!l) return missing;
     // Hanya pelajaran contoh yang terbuka untuk umum; lainnya meminta login, jadi tidak diindeks.
     return { ...base, status: 200, title: `${l.title} | Mahir Excel`, description: l.summary, index: PUBLIC_LESSON_SLUGS.includes(l.slug) };
+  }
+
+  const jalur = /^\/jalur\/([^/]+)$/.exec(path);
+  if (jalur) {
+    const p = pathBySlug(jalur[1]!);
+    if (!p) return missing;
+    return { ...base, status: 200, title: `Jalur ${p.title} | Mahir Excel`, description: `${p.tagline} Urutan pelajaran, latihan, dan template yang sudah dipilih.`, index: true };
   }
 
   const latihan = /^\/latihan\/([^/]+)$/.exec(path);

@@ -13,6 +13,7 @@ const SECTIONS = new Set([
   'shortcut',
   'worksheet',
   'template',
+  'jalur',
   'wizard',
   'laporan',
   'tantangan',
