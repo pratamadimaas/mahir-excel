@@ -25,3 +25,5 @@ export type { PlacementLevel } from './content/placement';
 import { FUNCTION_NAMES } from '@excellab/spreadsheet-engine';
 /** Jumlah fungsi rumus yang didukung playground (dipakai untuk angka di beranda agar tidak pernah basi). */
 export const FUNCTION_COUNT = FUNCTION_NAMES.size;
+export { templates, isFreeTemplate } from './content/templates';
+export type { TemplateDef, TemplateCategory } from './content/templates';

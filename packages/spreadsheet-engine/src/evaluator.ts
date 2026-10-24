@@ -79,6 +79,17 @@ export class Sheet {
     return this.cellValue(key);
   }
 
+  /** Menghitung satu potongan rumus (dipakai penelusur langkah). Galat dikembalikan sebagai nilai. */
+  evaluateNode(node: Node): Value {
+    this.steps = 0;
+    try {
+      const r = this.evalNode(node);
+      return isRange(r) ? err('#VALUE!', 'Rumus menghasilkan rentang sel. Gunakan fungsi seperti SUM untuk meringkasnya.') : r;
+    } catch (x) {
+      return x instanceof FormulaError ? x.toValue() : err('#ERROR!', 'Terjadi kesalahan saat menghitung rumus.');
+    }
+  }
+
   /** Semua sel yang berisi data beserta nilainya. */
   evaluateAll(): Record<string, Value> {
     const out: Record<string, Value> = {};
@@ -166,6 +177,8 @@ export class Sheet {
       case 'num':
       case 'str':
       case 'bool':
+        return node.value;
+      case 'val':
         return node.value;
       case 'ref':
         return this.cellValue(addrToRef(node.addr));

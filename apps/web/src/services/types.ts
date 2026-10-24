@@ -154,3 +154,32 @@ export interface ProgramStatus {
   eligible?: boolean;
   claim?: { slot: number; code: string; claimedAt: string } | null;
 }
+
+export interface TemplateView {
+  slug: string;
+  title: string;
+  description: string;
+  category: 'Usaha' | 'Keuangan' | 'Acara' | 'Proyek';
+  free: boolean;
+  premiumOnly: boolean;
+  forWho: string;
+  sheets: string[];
+  formulas: string[];
+  note?: string;
+}
+
+export interface CheatsheetView {
+  slug: string;
+  title: string;
+  summary: string;
+  lessons: number;
+}
+
+export type TopicLevel = 'belum-mulai' | 'perlu-latihan' | 'lumayan' | 'kuat';
+
+export interface ProgressReport {
+  summary: { totalExercises: number; completed: number; attempts: number; accuracy: number | null; points: number; activeDays: number; streak: number; reviewPending: number };
+  topics: { topic: string; title: string; totalExercises: number; completed: number; attempts: number; correctAttempts: number; accuracy: number | null; level: TopicLevel }[];
+  weakest: string[];
+  recommendations: { slug: string; title: string; topic: string; topicTitle: string; difficulty: Difficulty; reason: string }[];
+}

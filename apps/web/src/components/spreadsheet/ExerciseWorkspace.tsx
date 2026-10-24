@@ -10,7 +10,9 @@ import { DIFFICULTY_LABELS, TOPIC_LABELS, type PublicExercise, type RevealResult
 import { ConfirmDialog, Status } from '../feedback/Feedback';
 import { Level } from '../learning/Bits';
 import { ReportExercise } from '../learning/ReportExercise';
+import { AnswerCompare } from './AnswerCompare';
 import { DataTools } from './DataTools';
+import { FormulaDebugger } from './FormulaDebugger';
 import { SpreadsheetGrid } from './SpreadsheetGrid';
 import { expandAll, referencedCells, useSheetModel } from './useSheetModel';
 
@@ -208,6 +210,8 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
             </p>
           </div>
         </details>
+
+        <FormulaDebugger raw={raw} sheet={sheet} premium={premium} />
       </aside>
 
       <div>
@@ -390,6 +394,7 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
                     ))}
                   </div>
                 )}
+                {solutionCells && <AnswerCompare base={exercise.cells} solution={solutionCells} mine={cells} premium={premium} />}
                 <div className="d-flex gap-2 flex-wrap mt-3">
                   {nextSlug && (
                     <Link className="btn btn-primary btn-sm" to={`/latihan/${nextSlug}`}>

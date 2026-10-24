@@ -5,6 +5,7 @@ import type { Ctx } from '../app';
 import { row, rows, run, withTransaction } from '../db/pool';
 import { notFound, parse } from '../middleware/errors';
 import { buildProgressView, touchLearningDay } from '../lib/progress';
+import { buildReport } from '../lib/report';
 
 const slug = z.string().regex(/^[a-z0-9][a-z0-9-]{0,99}$/);
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -37,6 +38,11 @@ export function progressRoutes({ db, auth }: Ctx): Router {
 
   r.get('/', async (req, res) => {
     res.json({ data: await buildProgressView(db, req.user!.id) });
+  });
+
+  // Laporan kemajuan pribadi (Premium): topik terlemah dan rekomendasi latihan dari data yang sudah ada.
+  r.get('/report', auth.requirePremium, async (req, res) => {
+    res.json({ data: await buildReport(db, req.user!.id) });
   });
 
   // Menandai atau membatalkan penyelesaian pelajaran. Idempoten.

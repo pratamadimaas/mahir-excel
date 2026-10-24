@@ -84,6 +84,11 @@ export function ProgressPage() {
         </p>
       </header>
 
+      {user && (
+        <p>
+          <Link to="/laporan">Lihat laporan kemajuan pribadi</Link> (topik terlemah dan latihan yang disarankan).
+        </p>
+      )}
       <ImportBanner />
       {loading && <Loading label="Memuat progres akun…" />}
 

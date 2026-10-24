@@ -52,7 +52,9 @@ export type Node =
   | { type: 'unary'; op: '-' | '+'; arg: Node }
   | { type: 'percent'; arg: Node }
   | { type: 'binary'; op: string; left: Node; right: Node }
-  | { type: 'call'; name: string; args: Node[] };
+  | { type: 'call'; name: string; args: Node[] }
+  /** Nilai yang sudah dihitung (dipakai penelusur langkah demi langkah). */
+  | { type: 'val'; value: Value };
 
 export const LIMITS = {
   maxFormulaLength: 1000,

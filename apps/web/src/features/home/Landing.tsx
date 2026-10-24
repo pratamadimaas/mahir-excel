@@ -593,6 +593,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
             <li>Semua yang gratis</li>
             <li>Tombol “Lihat solusi” tanpa batas di setiap latihan</li>
             <li>7 worksheet lanjutan dan kunci jawaban semua worksheet</li>
+            <li>4 template lanjutan, penelusur rumus, wizard rumus, laporan kemajuan, dan contekan PDF</li>
             <li>Sertifikat PDF per modul dan untuk seluruh materi, bisa dicek lewat kode</li>
           </ul>
           {price && <p className="xl-l-price">{price}</p>}

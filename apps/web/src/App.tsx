@@ -19,6 +19,9 @@ import { CertificateVerifyPage, SharedProgressPage } from './features/progress/S
 import { ShortcutsPage } from './features/shortcuts/ShortcutsPage';
 import { AboutPage, NotFoundPage, PrivacyPage, TermsPage } from './features/StaticPages';
 import { WorksheetDetailPage, WorksheetsPage } from './features/worksheets/WorksheetPages';
+import { TemplatePage } from './features/templates/TemplatePage';
+import { ReportPage } from './features/progress/ReportPage';
+import { WizardPage } from './features/wizard/WizardPage';
 
 // Area admin jarang dipakai: dimuat terpisah agar bundel pengunjung tetap kecil.
 const AdminLayout = lazy(() => import('./features/admin/AdminPages').then((m) => ({ default: m.AdminLayout })));
@@ -69,10 +72,13 @@ export function AppRoutes() {
           <Route path="worksheet/:slug" element={<WorksheetDetailPage />} />
           <Route path="tantangan" element={<ChallengePage />} />
           <Route path="kemajuan" element={<ProgressPage />} />
+          <Route path="laporan" element={<ReportPage />} />
+          <Route path="wizard" element={<WizardPage />} />
         </Route>
         {/* Pelajaran contoh terbuka tanpa login; server menolak (401) pelajaran lain dan halaman menampilkan ajakan masuk. */}
         <Route path="belajar/:slug" element={<LessonPage />} />
         <Route path="tes-penempatan" element={<PlacementPage />} />
+        <Route path="template" element={<TemplatePage />} />
         <Route path="premium" element={<PremiumPage />} />
         <Route path="program" element={<ProgramPage />} />
         <Route path="sprint" element={<SprintPage />} />

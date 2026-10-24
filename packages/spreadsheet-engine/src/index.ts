@@ -7,3 +7,5 @@ export { formatValue, valueToPlain } from './format';
 export { FUNCTION_NAMES, FUNCTION_ARITY } from './functions-meta';
 export { buildMatcher } from './criteria';
 export { shiftFormula } from './fill';
+export { traceFormula } from './steps';
+export type { FormulaStep, FormulaTrace } from './steps';

@@ -804,3 +804,134 @@
   font-size: 0.8125rem;
   color: #5c4400;
 }
+
+/* ---- alat Premium: kunci, penelusur rumus, pembanding jawaban, template, laporan, wizard ---- */
+.xl-premium-lock {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px dashed var(--xl-border);
+  border-radius: var(--xl-radius);
+  background: var(--xl-bg-subtle);
+  font-size: 0.9rem;
+}
+.xl-premium-lock svg {
+  margin-top: 3px;
+  color: var(--xl-green-dark);
+}
+.xl-trace {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.xl-trace li {
+  padding: 8px 10px;
+  border-left: 3px solid var(--xl-green);
+  background: var(--xl-green-pale);
+  border-radius: 0 var(--xl-radius-sm) var(--xl-radius-sm) 0;
+  overflow-wrap: anywhere;
+}
+.xl-trace li.err {
+  border-left-color: var(--xl-error);
+  background: var(--xl-error-bg);
+}
+.xl-trace-expr {
+  font-family: var(--xl-mono);
+  font-size: 0.875rem;
+}
+.xl-trace-expr u {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--xl-green-dark);
+}
+.xl-compare .xl-diff th,
+.xl-compare .xl-diff td {
+  background: var(--xl-error-bg);
+}
+.xl-compare code {
+  font-size: 0.8125rem;
+}
+.xl-tpl-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.xl-tpl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-lg);
+  background: var(--xl-bg);
+}
+.xl-tpl-card h3 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+.xl-tpl-card .xl-tpl-foot {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.xl-chip {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--xl-green-light);
+  color: var(--xl-green-dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.xl-chip.premium {
+  background: var(--xl-warning-bg);
+  color: #5c4400;
+}
+.xl-report-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--xl-grid);
+  overflow: hidden;
+}
+.xl-report-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--xl-green);
+}
+.xl-report-bar.weak > span {
+  background: var(--xl-error);
+}
+.xl-wizard-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.xl-wizard-goal {
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  background: var(--xl-bg);
+  cursor: pointer;
+}
+.xl-wizard-goal[aria-pressed='true'] {
+  border-color: var(--xl-green);
+  background: var(--xl-green-pale);
+  box-shadow: inset 0 0 0 1px var(--xl-green);
+}
+.xl-wizard-result {
+  font-family: var(--xl-mono);
+  padding: 10px 12px;
+  background: var(--xl-green-pale);
+  border: 1px solid #a9d3b9;
+  border-radius: var(--xl-radius);
+  overflow-wrap: anywhere;
+}

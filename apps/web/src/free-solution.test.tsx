@@ -72,7 +72,7 @@ describe('solusi gratis seminggu sekali', () => {
     await user.click(await screen.findByRole('button', { name: 'Lihat solusi' }));
     expect(screen.queryByText(/memakai jatah/)).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Ya, tampilkan', hidden: true }));
-    expect(await screen.findByText('=SUM(B2:B3)')).toBeInTheDocument();
+    expect((await screen.findAllByText('=SUM(B2:B3)')).length).toBeGreaterThan(0); // juga muncul di tabel perbandingan Premium
     expect(fetchMock.mock.calls.some((c) => String(c[0]).includes('/solution-quota'))).toBe(false);
   });
 
