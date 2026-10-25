@@ -1,0 +1,5 @@
+# Disalin ke /etc/cron.d/mahir-excel di server. Waktu mengikuti zona waktu server.
+# Cadangan database harian pukul 03:15.
+15 3 * * * root bash /opt/mahir-excel/ops/backup-db.sh >> /var/log/mahir-excel-backup.log 2>&1
+# Pembersihan cache build setiap Minggu pukul 04:30.
+30 4 * * 0 root bash /opt/mahir-excel/ops/prune-docker.sh >> /var/log/mahir-excel-prune.log 2>&1

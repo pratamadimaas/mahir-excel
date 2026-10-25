@@ -130,6 +130,8 @@ describe('ringkasan admin: sumber, fitur, 404, dan Perintis', () => {
   });
 });
 
+const NO_PAYMENTS = { items: [], page: 1, pageSize: 20, total: 0, summary: { count: 0, amount: 0, months: 0, amount30: 0 } };
+
 describe('halaman Premium di admin', () => {
   const PREMIUM = {
     users: 50,
@@ -147,7 +149,7 @@ describe('halaman Premium di admin', () => {
   };
 
   it('menampilkan angka, yang segera habis, dan aktivasi terbaru', async () => {
-    mockApi({ ...base, 'GET /admin/stats/premium': PREMIUM });
+    mockApi({ ...base, 'GET /admin/stats/premium': PREMIUM, 'GET /admin/payments': NO_PAYMENTS });
     renderApp('/admin/premium');
     expect(await screen.findByText('Premium aktif')).toBeInTheDocument();
     expect(screen.getByText('10% dari 50 pengguna')).toBeInTheDocument();
@@ -162,7 +164,7 @@ describe('halaman Premium di admin', () => {
   });
 
   it('pembayaran online hanya muncul bila ada', async () => {
-    mockApi({ ...base, 'GET /admin/stats/premium': { ...PREMIUM, onlineOrders: 2, onlineRevenue: 58000, expiring: [], recent: [] } });
+    mockApi({ ...base, 'GET /admin/stats/premium': { ...PREMIUM, onlineOrders: 2, onlineRevenue: 58000, expiring: [], recent: [] }, 'GET /admin/payments': NO_PAYMENTS });
     renderApp('/admin/premium');
     expect(await screen.findByText('Pembayaran online')).toBeInTheDocument();
     expect(screen.getByText('Rp 58.000')).toBeInTheDocument();

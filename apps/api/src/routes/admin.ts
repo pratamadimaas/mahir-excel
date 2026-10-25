@@ -668,24 +668,212 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
     });
   });
 
+  // Perpanjang Premium N bulan dari sekarang atau dari akhir masa aktif; 0 mencabut. Mengembalikan akhir masa aktif (ISO) atau null.
+  const setPremiumMonths = async (adminId: number, userId: number, months: number): Promise<string | null> => {
+    if (months === 0) {
+      await run(db, 'UPDATE users SET premium_until = NULL WHERE id = ?', [userId]);
+    } else {
+      await run(
+        db,
+        'UPDATE users SET premium_until = DATE_ADD(GREATEST(COALESCE(premium_until, UTC_TIMESTAMP()), UTC_TIMESTAMP()), INTERVAL ? MONTH) WHERE id = ?',
+        [months, userId],
+      );
+    }
+    await audit(adminId, months === 0 ? 'premium-revoke' : `premium-${months}m`, 'users', userId);
+    const u = await row<{ premium_until: string | null }>(db, 'SELECT premium_until FROM users WHERE id = ?', [userId]);
+    return u?.premium_until ? new Date(`${u.premium_until.replace(' ', 'T')}Z`).toISOString() : null;
+  };
+
   // Aktivasi Premium manual (pembayaran di luar aplikasi): perpanjang N bulan dari sekarang atau dari akhir masa aktif; 0 mencabut.
   r.put('/users/:id/premium', async (req, res) => {
     const id = parse(z.coerce.number().int().positive(), req.params.id);
     const { months } = parse(z.object({ months: z.number().int().min(0).max(36) }), req.body);
     const exists = await row<{ id: number; role: string }>(db, 'SELECT id, role FROM users WHERE id = ?', [id]);
     if (!exists) throw notFound('Pengguna');
-    if (months === 0) {
-      await run(db, 'UPDATE users SET premium_until = NULL WHERE id = ?', [id]);
-    } else {
-      await run(
-        db,
-        'UPDATE users SET premium_until = DATE_ADD(GREATEST(COALESCE(premium_until, UTC_TIMESTAMP()), UTC_TIMESTAMP()), INTERVAL ? MONTH) WHERE id = ?',
-        [months, id],
-      );
+    res.json({ data: { premiumUntil: await setPremiumMonths(req.user!.id, id, months) } });
+  });
+
+  // ---------- Catatan pembayaran manual (buku kas kecil; angka nyata, bukan perkiraan) ----------
+  interface PaymentRow {
+    id: number;
+    user_id: number | null;
+    payer: string;
+    amount: number;
+    months: number;
+    paid_on: string;
+    note: string | null;
+    created_at: string;
+    email: string | null;
+  }
+  const paymentOut = (p: PaymentRow) => ({
+    id: Number(p.id),
+    payer: p.payer,
+    amount: Number(p.amount),
+    months: Number(p.months),
+    paidOn: String(p.paid_on).slice(0, 10),
+    note: p.note,
+    linkedEmail: p.email,
+    createdAt: new Date(`${String(p.created_at).replace(' ', 'T')}Z`).toISOString(),
+  });
+  const PAYMENT_SELECT = `SELECT p.id, p.user_id, p.payer, p.amount, p.months, p.paid_on, p.note, p.created_at, u.email
+    FROM manual_payments p LEFT JOIN users u ON u.id = p.user_id`;
+
+  r.get('/payments', async (req, res) => {
+    const q = parse(
+      z.object({ page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(20) }),
+      req.query,
+    );
+    const sum = await row<{ n: number; amount: number | null; months: number | null; amount30: number | null }>(
+      db,
+      `SELECT COUNT(*) AS n, SUM(amount) AS amount, SUM(months) AS months,
+         SUM(CASE WHEN paid_on >= ? THEN amount ELSE 0 END) AS amount30 FROM manual_payments`,
+      [jakartaDate(new Date(Date.now() - 29 * 86_400_000))],
+    );
+    const items = await rows<PaymentRow>(
+      db,
+      `${PAYMENT_SELECT} ORDER BY p.paid_on DESC, p.id DESC LIMIT ${Math.trunc(q.pageSize)} OFFSET ${Math.trunc((q.page - 1) * q.pageSize)}`,
+    );
+    res.json({
+      data: {
+        items: items.map(paymentOut),
+        page: q.page,
+        pageSize: q.pageSize,
+        total: Number(sum?.n ?? 0),
+        summary: { count: Number(sum?.n ?? 0), amount: Number(sum?.amount ?? 0), months: Number(sum?.months ?? 0), amount30: Number(sum?.amount30 ?? 0) },
+      },
+    });
+  });
+
+  r.post('/payments', async (req, res) => {
+    const body = parse(
+      z.object({
+        payer: z.string().trim().min(1).max(255),
+        amount: z.number().int().min(0).max(100_000_000),
+        months: z.number().int().min(0).max(36).default(0),
+        paidOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Tanggal harus berformat TTTT-BB-HH.'),
+        note: z.string().trim().max(255).optional(),
+        activate: z.boolean().default(false),
+      }),
+      req.body,
+    );
+    const parsed = new Date(`${body.paidOn}T00:00:00Z`);
+    if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== body.paidOn) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'Tanggal bayar tidak valid.');
     }
-    await audit(req.user!.id, months === 0 ? 'premium-revoke' : `premium-${months}m`, 'users', id);
-    const u = await row<{ premium_until: string | null }>(db, 'SELECT premium_until FROM users WHERE id = ?', [id]);
-    res.json({ data: { premiumUntil: u?.premium_until ? new Date(`${u.premium_until.replace(' ', 'T')}Z`).toISOString() : null } });
+    if (body.paidOn > jakartaDate(new Date())) throw new AppError(400, 'VALIDATION_ERROR', 'Tanggal bayar tidak boleh di masa depan.');
+    const user = await row<{ id: number }>(db, 'SELECT id FROM users WHERE email = ?', [body.payer.toLowerCase()]);
+    if (body.activate) {
+      if (!user) throw new AppError(400, 'VALIDATION_ERROR', 'Untuk mengaktifkan Premium, isi pembayar dengan email akun yang terdaftar.');
+      if (body.months < 1) throw new AppError(400, 'VALIDATION_ERROR', 'Isi lama Premium (bulan) untuk mengaktifkan.');
+    }
+    const result = await run(
+      db,
+      'INSERT INTO manual_payments (user_id, payer, amount, months, paid_on, note, created_by) VALUES (?,?,?,?,?,?,?)',
+      [user?.id ?? null, body.payer, body.amount, body.months, body.paidOn, body.note ?? null, req.user!.id],
+    );
+    const id = Number(result.insertId);
+    await audit(req.user!.id, 'payment-add', 'manual_payments', id);
+    if (body.activate && user) await setPremiumMonths(req.user!.id, user.id, body.months);
+    const created = await row<PaymentRow>(db, `${PAYMENT_SELECT} WHERE p.id = ?`, [id]);
+    res.status(201).json({ data: created ? paymentOut(created) : null });
+  });
+
+  // Pertumbuhan: corong akun (daftar sampai Premium) dan retensi per hari pendaftaran. Semua dari data akun, bukan pengunjung anonim.
+  r.get('/stats/growth', async (_req, res) => {
+    const one = async (sql: string, params: unknown[] = []): Promise<number> => Number((await row<{ n: number }>(db, sql, params))?.n ?? 0);
+    const registered = await one("SELECT COUNT(*) AS n FROM users WHERE role = 'user'");
+    const funnel = [
+      { key: 'registered', label: 'Mendaftar', count: registered },
+      {
+        key: 'tried',
+        label: 'Mencoba latihan',
+        count: await one("SELECT COUNT(DISTINCT a.user_id) AS n FROM exercise_attempts a JOIN users u ON u.id = a.user_id WHERE u.role = 'user'"),
+      },
+      {
+        key: 'solved1',
+        label: 'Menyelesaikan 1 latihan',
+        count: await one("SELECT COUNT(DISTINCT c.user_id) AS n FROM exercise_completions c JOIN users u ON u.id = c.user_id WHERE u.role = 'user'"),
+      },
+      {
+        key: 'solved5',
+        label: 'Menyelesaikan 5 latihan',
+        count: await one(
+          "SELECT COUNT(*) AS n FROM (SELECT c.user_id FROM exercise_completions c JOIN users u ON u.id = c.user_id WHERE u.role = 'user' GROUP BY c.user_id HAVING COUNT(*) >= 5) t",
+        ),
+      },
+      {
+        key: 'lesson',
+        label: 'Menyelesaikan 1 pelajaran',
+        count: await one("SELECT COUNT(DISTINCT p.user_id) AS n FROM lesson_progress p JOIN users u ON u.id = p.user_id WHERE u.role = 'user'"),
+      },
+      {
+        key: 'premium',
+        label: 'Premium aktif',
+        count: await one("SELECT COUNT(*) AS n FROM users WHERE role = 'user' AND premium_until > UTC_TIMESTAMP()"),
+      },
+    ];
+
+    // Retensi: "kembali" berarti mengerjakan latihan lagi pada hari sesudah mendaftar (kunjungan tanpa latihan tidak tercatat per akun).
+    const today = jakartaDate(new Date());
+    const shift = (day: string, n: number): string => new Date(Date.parse(`${day}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+    const from = shift(today, -21);
+    const [signups, activity] = await Promise.all([
+      rows<{ id: number; day: string }>(
+        db,
+        "SELECT id, DATE(created_at + INTERVAL 7 HOUR) AS day FROM users WHERE role = 'user' AND DATE(created_at + INTERVAL 7 HOUR) >= ?",
+        [from],
+      ),
+      rows<{ user_id: number; day: string }>(
+        db,
+        'SELECT user_id, DATE(created_at + INTERVAL 7 HOUR) AS day FROM exercise_attempts WHERE DATE(created_at + INTERVAL 7 HOUR) >= ? GROUP BY user_id, day',
+        [from],
+      ),
+    ]);
+    const active = new Map<number, Set<string>>();
+    for (const a of activity) {
+      const s = active.get(Number(a.user_id)) ?? new Set<string>();
+      s.add(String(a.day).slice(0, 10));
+      active.set(Number(a.user_id), s);
+    }
+    const byDay = new Map<string, number[]>();
+    for (const s of signups) {
+      const d = String(s.day).slice(0, 10);
+      byDay.set(d, [...(byDay.get(d) ?? []), Number(s.id)]);
+    }
+    const cohorts = [...byDay.entries()]
+      .sort((x, y) => (x[0] < y[0] ? 1 : -1))
+      .map(([day, ids]) => {
+        const comeBack = (lo: number, hi: number): number =>
+          ids.filter((id) => {
+            const days = active.get(id);
+            if (!days) return false;
+            for (let k = lo; k <= hi; k++) if (days.has(shift(day, k))) return true;
+            return false;
+          }).length;
+        // Hanya dihitung bila seluruh jendelanya sudah lewat (hari ini belum selesai).
+        return {
+          day,
+          signups: ids.length,
+          day1: shift(day, 1) < today ? comeBack(1, 1) : null,
+          week1: shift(day, 7) < today ? comeBack(1, 7) : null,
+        };
+      });
+    res.json({
+      data: {
+        funnel,
+        cohorts,
+        note: 'Corong menghitung akun, bukan pengunjung. "Kembali" berarti mengerjakan latihan lagi pada hari sesudah mendaftar; hari ini belum dihitung karena belum selesai, dan tanda "-" berarti jendelanya belum lewat.',
+      },
+    });
+  });
+
+  r.delete('/payments/:id', async (req, res) => {
+    const id = parse(z.coerce.number().int().positive(), req.params.id);
+    const exists = await row<{ id: number }>(db, 'SELECT id FROM manual_payments WHERE id = ?', [id]);
+    if (!exists) throw notFound('Catatan pembayaran');
+    await run(db, 'DELETE FROM manual_payments WHERE id = ?', [id]);
+    await audit(req.user!.id, 'payment-delete', 'manual_payments', id);
+    res.json({ data: { deleted: true } });
   });
 
   // Latihan yang paling sering gagal (percobaan akun + tanpa akun), sebagai bahan memperbaiki petunjuk dan penjelasan.
