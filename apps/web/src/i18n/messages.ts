@@ -46,7 +46,7 @@ export const id = {
 
   'footer.tagline': 'Belajar Excel. Langsung Praktik. Gratis.',
   'footer.disclaimer':
-    'Mahir Excel adalah proyek belajar independen dan tidak berafiliasi dengan Microsoft. “Excel” adalah merek dagang Microsoft Corporation.',
+    'Mahir Excel adalah proyek belajar independen dan tidak berafiliasi dengan Bimbel Excel lain.',
   'footer.learn': 'Belajar',
   'footer.academy': 'Akademi Excel',
   'footer.practice': 'Latihan',
@@ -67,7 +67,7 @@ export const id = {
 
   'hero.eyebrow': 'Mahir Excel · Belajar gratis',
   'hero.title': 'Excel bisa dipelajari. Mulai dari sini.',
-  'hero.lead': 'Dari rumus pertama sampai VLOOKUP, untuk pemula dan pekerja kantor. Latihan dinilai langsung di browser, gratis dengan akun.',
+  'hero.lead': 'Dari rumus pertama sampai Intermediate, untuk pemula dan pekerja kantor. Latihan dinilai langsung di excel browser bawaan Mahir Excel, Gratis.',
   'hero.start': 'Mulai belajar',
   'hero.try': 'Coba latihan',
   'hero.signup': 'Daftar gratis',

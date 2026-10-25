@@ -119,11 +119,11 @@ export const MODULE_OUTCOMES: Record<string, string> = {
 
 export const AUDIENCE: { title: string; text: string }[] = [
   {
-    title: 'Pemula yang masih takut Excel',
-    text: 'Mulai dari sel dan rentang, tanpa istilah yang melompat. Tes penempatan membantu memilih titik awal.',
+    title: 'Pemula yang mau belajar Excel',
+    text: 'Mulai dari sel dan column, dengan istilah sederhana. Tes penempatan membantu memilih titik awal.',
   },
   {
-    title: 'Pekerja kantor yang rumusnya masih tebak-tebakan',
+    title: 'Pekerja kantor yang mau naik level',
     text: 'Fungsi yang dipakai sehari-hari, dari SUM dan IF sampai VLOOKUP dan XLOOKUP, dengan latihan yang menunjukkan kenapa hasilnya salah.',
   },
   {
@@ -186,9 +186,5 @@ export const faqs = (functions: number | null): Faq[] => [
   {
     q: 'Bisa dipakai lewat HP?',
     a: 'Bisa dibuka dan dibaca di HP. Untuk mengetik rumus, keyboard komputer tetap lebih nyaman.',
-  },
-  {
-    q: 'Data saya dipakai untuk apa?',
-    a: 'Untuk menyimpan progres belajarmu. Tidak ada iklan dan tidak ada pelacak pihak ketiga. Rinciannya ada di halaman Privasi.',
   },
 ];

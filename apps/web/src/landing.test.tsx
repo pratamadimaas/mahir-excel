@@ -72,7 +72,7 @@ describe('beranda pengunjung', () => {
     for (const name of [
       /Coba sebelum daftar/,
       /Coba satu rumus sekarang/,
-      /Dari sel pertama sampai VLOOKUP/,
+      /Dari sel pertama sampai Intermediate/,
       /Baca satu pelajaran dulu/,
       /Selain pelajaran/,
       /Bukti belajar yang bisa diperiksa/,
@@ -94,7 +94,7 @@ describe('beranda pengunjung', () => {
   it('angka tidak dikarang bila server gagal: halaman tetap tampil tanpa jumlah', async () => {
     mockApi({ ...anon, 'GET /public/overview': () => ({ status: 500, body: { error: { code: 'INTERNAL_ERROR', message: 'x' } } }) });
     renderApp('/');
-    expect(await screen.findByRole('heading', { name: /Dari sel pertama sampai VLOOKUP/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Dari sel pertama sampai Intermediate/ })).toBeInTheDocument();
     expect(screen.queryByText(/pelajaran dan .* latihan, disusun/)).not.toBeInTheDocument();
     expect(screen.getByText(/Fungsinya terbatas/)).toBeInTheDocument();
   });
@@ -220,7 +220,7 @@ describe('susunan beranda yang baru', () => {
     mockApi(anon);
     renderApp('/');
     await screen.findByRole('heading', { name: /Untuk siapa Mahir Excel/ });
-    const order = [/Untuk siapa Mahir Excel/, /Dari sel pertama sampai VLOOKUP/, /Baca satu pelajaran dulu/, /Coba sebelum daftar/, /Selain pelajaran/, /Bukti belajar/, /Yang sebaiknya kamu tahu/, /Belajarnya gratis/];
+    const order = [/Untuk siapa Mahir Excel/, /Dari sel pertama sampai Intermediate/, /Baca satu pelajaran dulu/, /Coba sebelum daftar/, /Selain pelajaran/, /Bukti belajar/, /Yang sebaiknya kamu tahu/, /Belajarnya gratis/];
     const all = [...document.querySelectorAll('main h2')].map((h) => h.textContent ?? '');
     const positions = order.map((re) => all.findIndex((t) => re.test(t)));
     for (const p of positions) expect(p).toBeGreaterThanOrEqual(0);
@@ -322,7 +322,7 @@ describe('profil pembuat dan angka di beranda', () => {
   it('angka tidak muncul bila server gagal (tidak ada angka karangan)', async () => {
     mockApi({ ...anon, 'GET /public/overview': () => ({ status: 500, body: { error: { code: 'INTERNAL_ERROR', message: 'x' } } }) });
     renderApp('/');
-    await screen.findByRole('heading', { name: /Dari sel pertama sampai VLOOKUP/ });
+    await screen.findByRole('heading', { name: /Dari sel pertama sampai Intermediate/ });
     expect(screen.queryByText('fungsi rumus', { selector: 'dt' })).not.toBeInTheDocument();
   });
 

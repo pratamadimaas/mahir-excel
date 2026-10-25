@@ -51,7 +51,7 @@ export function AboutPage() {
 
       <h2>Siapa di baliknya</h2>
       <p>
-        Mahir Excel dibangun dan dirawat oleh seorang pengembang independen. Proyek ini tidak berafiliasi dengan Microsoft maupun lembaga
+        Mahir Excel dibangun dan dirawat oleh seorang programmer independen. Proyek ini tidak berafiliasi dengan Microsoft maupun lembaga
         lain mana pun, dan isinya tidak mewakili pandangan pihak mana pun selain pembuatnya.
       </p>
 
@@ -115,9 +115,6 @@ export function AboutPage() {
         ) : (
           'Ada saran atau laporan salah? Sampaikan lewat saluran tempat kamu menemukan Mahir Excel.'
         )}
-      </p>
-      <p className="xl-muted">
-        Mahir Excel tidak berafiliasi dengan Microsoft. Microsoft dan Excel adalah merek dagang Microsoft Corporation.
       </p>
     </div>
   );

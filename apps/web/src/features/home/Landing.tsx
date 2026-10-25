@@ -27,7 +27,7 @@ interface SampleLesson {
 
 const nf = new Intl.NumberFormat('id-ID');
 
-/* ---------- 1. Penyebab hasil aneh: kasus nyata yang bisa diperbaiki ---------- */
+
 function ErrorLab() {
   const [active, setActive] = useState(0);
   const [fixed, setFixed] = useState(false);
@@ -268,7 +268,7 @@ function Audience() {
       <div className="xl-l-side">
         <h2 id="l-siapa">Untuk siapa Mahir Excel.</h2>
         <p className="xl-l-lead mb-0">
-          Belum yakin level kamu? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>: 12 pertanyaan, sekitar 3 menit, tanpa akun.
+          Belum yakin dengan level kamu? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>: 12 pertanyaan, sekitar 3 menit, bisa diikuti walau tanpa akun.
         </p>
         <p className="xl-l-lead mb-0">
           Sudah tahu tujuanmu? Pilih <Link to="/jalur">jalur belajar</Link> untuk admin, usaha kecil, atau keuangan dasar.
@@ -339,7 +339,6 @@ function Certificates() {
           <li>
             Program Perintis memberi sertifikat gratis untuk pengguna pertama yang menyelesaikan syaratnya. <Link to="/program">Lihat syarat</Link>
           </li>
-          <li>Ini bukan sertifikasi Microsoft. Sertifikat menandakan kamu menyelesaikan materi di sini.</li>
         </ul>
       </div>
       <CertificatePreview />
@@ -353,7 +352,7 @@ function Curriculum({ overview }: { overview: Overview | null }) {
     <section id="belajar" className="xl-l-section xl-l-split" aria-labelledby="l-modul">
       <div className="xl-l-sticky">
         <h2 id="l-modul">
-          Dari sel pertama sampai <mark className="xl-l-mark">VLOOKUP</mark>.
+          Dari sel pertama sampai <mark className="xl-l-mark">Intermediate</mark>.
         </h2>
         <p className="xl-l-lead">
           {overview
@@ -530,10 +529,6 @@ function Limits({ functions }: { functions: number | null }) {
           <dt>Hanya berbahasa Indonesia</dt>
           <dd>Antarmuka punya versi English, tetapi pelajaran dan latihan ditulis dalam Bahasa Indonesia.</dd>
         </div>
-        <div>
-          <dt>Sertifikat bukan sertifikasi Microsoft</dt>
-          <dd>Sertifikat PDF menandakan kamu menyelesaikan materi di sini. Mahir Excel tidak berafiliasi dengan Microsoft.</dd>
-        </div>
       </dl>
     </section>
   );
@@ -546,7 +541,7 @@ function SampleLessons() {
   return (
     <section className="xl-l-section" aria-labelledby="l-contoh">
       <h2 id="l-contoh">Baca satu pelajaran dulu</h2>
-      <p className="xl-l-lead">Lima pelajaran contoh bisa dibaca tanpa daftar. Latihan dan progresnya ada setelah kamu masuk.</p>
+      <p className="xl-l-lead">Lima pelajaran contoh bisa dibaca tanpa daftar. Latihan dan progresnya ada setelah kamu login.</p>
       <ul className="xl-lesson-list">
         {list.data.map((l) => (
           <li key={l.slug}>
@@ -707,8 +702,7 @@ function Maker() {
         <div>
           <dt>Siapa di baliknya</dt>
           <dd>
-            Seorang pengembang independen yang membangun dan merawatnya sendiri. Mahir Excel tidak berafiliasi dengan Microsoft maupun
-            lembaga lain.
+            Seorang pengembang independen yang membangun dan merawatnya sendiri
           </dd>
         </div>
       </dl>
