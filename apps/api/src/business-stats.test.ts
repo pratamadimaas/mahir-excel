@@ -104,10 +104,41 @@ describe('sumber kunjungan, pemakaian fitur, dan alamat 404 di admin', () => {
     expect(nf['/ads.txt']).toBe(3);
   });
 
+  it('total sejak awal mencakup semua hari dan tidak lebih kecil dari angka 7 hari', async () => {
+    const u = await usage();
+    expect(u.total.visitors).toBeGreaterThanOrEqual(u.week.visitors);
+    expect(u.total.pageviews).toBeGreaterThanOrEqual(u.week.pageviews);
+    expect(u.total.visitors).toBeGreaterThan(0);
+    expect(u.total.since).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(u.note).toContain('jumlah total');
+  });
+
+  it('aktivitas harian berhalaman: terbaru di atas, berlanjut ke hari lama, dan batas halaman valid', async () => {
+    const u = await usage();
+    const first = u.total.firstDay as string;
+    expect(first).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    const p1 = (await admin.agent.get('/api/admin/stats/daily?page=1&pageSize=5')).body;
+    expect(p1.data).toHaveLength(Math.min(5, p1.meta.total));
+    expect(p1.data[0].day).toBe(u.today.day); // baris pertama adalah hari ini
+    for (let i = 1; i < p1.data.length; i++) expect(p1.data[i - 1].day > p1.data[i].day).toBe(true);
+    // hari ini sama dengan angka di ringkasan
+    expect(p1.data[0].visitors).toBe(u.today.visitors);
+    expect(p1.meta.pageSize).toBe(5);
+    // halaman terakhir berisi hari paling awal, halaman sesudahnya kosong
+    const lastPage = Math.ceil(p1.meta.total / 5);
+    const last = (await admin.agent.get(`/api/admin/stats/daily?page=${lastPage}&pageSize=5`)).body.data;
+    expect(last[last.length - 1].day).toBe(first);
+    const beyond = (await admin.agent.get(`/api/admin/stats/daily?page=${lastPage + 1}&pageSize=5`)).body;
+    expect(beyond.data).toEqual([]);
+    expect((await admin.agent.get('/api/admin/stats/daily?page=0')).status).toBe(400);
+    expect((await admin.agent.get('/api/admin/stats/daily?pageSize=500')).status).toBe(400);
+  });
+
   it('hanya admin yang boleh melihat statistik', async () => {
     const s = await registerUser(env.app);
     expect((await s.agent.get('/api/admin/stats/usage')).status).toBe(403);
     expect((await s.agent.get('/api/admin/stats/premium')).status).toBe(403);
+    expect((await s.agent.get('/api/admin/stats/daily')).status).toBe(403);
   });
 });
 

@@ -1,3 +1,4 @@
+import userEvent from '@testing-library/user-event';
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { EMPTY_PROGRESS, mockApi, renderApp } from './testutil';
@@ -57,6 +58,59 @@ describe('ringkasan admin: sumber, fitur, 404, dan Perintis', () => {
     expect(screen.getByText('Unduh contekan PDF: logika')).toBeInTheDocument();
     expect(screen.getByText('Laporan kemajuan dibuka')).toBeInTheDocument();
     expect(screen.getByText('/ads.txt')).toBeInTheDocument();
+  });
+
+  it('menampilkan total sejak awal berdampingan dengan angka 7 hari', async () => {
+    mockApi({
+      ...dashboard,
+      'GET /admin/stats/usage': { ...USAGE, total: { visitors: 1234, pageviews: 5678, since: '2026-09-01' } },
+      'GET /program/status': { enabled: false, open: false, quota: 100, taken: 0, remaining: 100, minExercises: 5 },
+    });
+    renderApp('/admin');
+    const label = await screen.findByText('Pengunjung total');
+    expect(label.parentElement).toHaveTextContent('1.234');
+    expect(label.parentElement).toHaveTextContent('sejak 1 Sep 2026');
+    expect(screen.getByText('Halaman dibuka (total)').parentElement).toHaveTextContent('5.678');
+    expect(screen.getByText('Percobaan latihan, akun (total)').parentElement).toHaveTextContent('100');
+  });
+
+  it('aktivitas harian berhalaman: halaman 1 dari data ringkasan, halaman lama dimuat sesuai permintaan', async () => {
+    const calls: string[] = [];
+    const older = Array.from({ length: 14 }, (_, i) => ({
+      day: `2026-09-${String(30 - i).padStart(2, '0')}`,
+      visitors: 3,
+      pageviews: 7,
+      newUsers: 0,
+      attempts: 0,
+      anonAttempts: 0,
+      anonCorrect: 0,
+    }));
+    mockApi({
+      ...dashboard,
+      // data pertama 29 hari sebelum hari terakhir di tabel (2026-10-24) -> 30 hari -> 3 halaman
+      'GET /admin/stats/usage': { ...USAGE, total: { visitors: 1, pageviews: 1, since: '2026-09-25', firstDay: '2026-09-25' } },
+      'GET /admin/stats/daily': (url: URL) => {
+        calls.push(url.search);
+        return { body: { data: older, meta: { page: 2, pageSize: 14, total: 30 } } };
+      },
+      'GET /program/status': { enabled: false, open: false, quota: 100, taken: 0, remaining: 100, minExercises: 5 },
+    });
+    renderApp('/admin');
+    expect(await screen.findByText(/Halaman 1 dari 3 \(30 hari\)/)).toBeInTheDocument();
+    expect(calls).toEqual([]); // halaman 1 tidak meminta data tambahan
+    await userEvent.click(screen.getByRole('button', { name: 'Lebih lama' }));
+    expect(await screen.findByText(/Halaman 2 dari 3/)).toBeInTheDocument();
+    expect(await screen.findByText(/30 Sep 2026/)).toBeInTheDocument();
+    expect(calls[0]).toContain('page=2');
+    expect(calls[0]).toContain('pageSize=14');
+    expect(screen.getByRole('button', { name: 'Lebih baru' })).toBeEnabled();
+  });
+
+  it('tanpa data awal dari server, tabel harian tetap satu halaman tanpa tombol', async () => {
+    mockApi({ ...dashboard, 'GET /program/status': { enabled: false, open: false, quota: 100, taken: 0, remaining: 100, minExercises: 5 } });
+    renderApp('/admin');
+    await screen.findByRole('table', { name: /Aktivitas harian/ });
+    expect(screen.queryByRole('button', { name: 'Lebih lama' })).not.toBeInTheDocument();
   });
 
   it('kartu Perintis menampilkan angka kuota ke admin walau belum ada klaim', async () => {

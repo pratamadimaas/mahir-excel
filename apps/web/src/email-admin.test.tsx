@@ -237,7 +237,7 @@ describe('admin: statistik dan pengguna', () => {
     expect(await screen.findByText('Budi (budi@example.com)')).toBeInTheDocument();
     expect(screen.getAllByText('Tanpa akun').length).toBeGreaterThan(0);
     expect(screen.getByText('Siap modul lanjutan (semua benar)')).toBeInTheDocument();
-    expect(screen.getByRole('table', { name: /Aktivitas harian 14 hari terakhir/ })).toBeInTheDocument();
+    expect(screen.getByRole('table', { name: /Aktivitas harian/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Pengguna' })).toHaveAttribute('href', '/admin/pengguna');
   });
 

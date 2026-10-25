@@ -404,6 +404,66 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
     });
   });
 
+  // Hari paling awal yang punya data apa pun (kunjungan, pendaftaran, percobaan latihan); bila belum ada, hari ini.
+  const earliestDay = async (): Promise<string> => {
+    const [a, b, c] = await Promise.all([
+      row<{ d: string | null }>(db, "SELECT MIN(day) AS d FROM daily_stats WHERE metric IN ('visitor', 'pageview')"),
+      row<{ d: string | null }>(db, 'SELECT MIN(DATE(created_at + INTERVAL 7 HOUR)) AS d FROM users'),
+      row<{ d: string | null }>(db, 'SELECT MIN(DATE(created_at + INTERVAL 7 HOUR)) AS d FROM exercise_attempts'),
+    ]);
+    const found = [a?.d, b?.d, c?.d].filter((d): d is string => !!d).map((d) => String(d).slice(0, 10));
+    return found.length ? found.sort()[0]! : jakartaDate(new Date());
+  };
+
+  // Aktivitas harian untuk daftar tanggal tertentu (urutan hasil mengikuti urutan tanggal).
+  const dailyFor = async (dates: string[]) => {
+    const lo = [...dates].sort()[0]!;
+    const hi = [...dates].sort().reverse()[0]!;
+    const [stats, signups, attempts] = await Promise.all([
+      rows<{ day: string; metric: string; total: number }>(
+        db,
+        "SELECT day, metric, SUM(total) AS total FROM daily_stats WHERE day BETWEEN ? AND ? AND metric IN ('visitor','pageview','anon_attempt','anon_correct') GROUP BY day, metric",
+        [lo, hi],
+      ),
+      rows<{ day: string; n: number }>(
+        db,
+        'SELECT DATE(created_at + INTERVAL 7 HOUR) AS day, COUNT(*) AS n FROM users WHERE DATE(created_at + INTERVAL 7 HOUR) BETWEEN ? AND ? GROUP BY day',
+        [lo, hi],
+      ),
+      rows<{ day: string; n: number }>(
+        db,
+        'SELECT DATE(created_at + INTERVAL 7 HOUR) AS day, COUNT(*) AS n FROM exercise_attempts WHERE DATE(created_at + INTERVAL 7 HOUR) BETWEEN ? AND ? GROUP BY day',
+        [lo, hi],
+      ),
+    ]);
+    const stat = (day: string, metric: string): number => Number(stats.find((x) => String(x.day).slice(0, 10) === day && x.metric === metric)?.total ?? 0);
+    const count = (list: { day: string; n: number }[], day: string): number => Number(list.find((x) => String(x.day).slice(0, 10) === day)?.n ?? 0);
+    return dates.map((day) => ({
+      day,
+      visitors: stat(day, 'visitor'),
+      pageviews: stat(day, 'pageview'),
+      newUsers: count(signups, day),
+      attempts: count(attempts, day),
+      anonAttempts: stat(day, 'anon_attempt'),
+      anonCorrect: stat(day, 'anon_correct'),
+    }));
+  };
+
+  // Aktivitas harian sejak data pertama, terbaru di atas, berhalaman (WIB).
+  r.get('/stats/daily', async (req, res) => {
+    const q = parse(
+      z.object({ page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(60).default(14) }),
+      req.query,
+    );
+    const today = jakartaDate(new Date());
+    const first = await earliestDay();
+    const totalDays = Math.max(1, Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${first}T00:00:00Z`)) / 86_400_000) + 1);
+    const start = (q.page - 1) * q.pageSize;
+    const count = Math.max(0, Math.min(q.pageSize, totalDays - start));
+    const dates = Array.from({ length: count }, (_, i) => jakartaDate(new Date(Date.now() - (start + i) * 86_400_000)));
+    res.json({ data: dates.length ? await dailyFor(dates) : [], meta: { page: q.page, pageSize: q.pageSize, total: totalDays } });
+  });
+
   // Statistik penggunaan 14 hari terakhir (WIB): kunjungan, halaman populer, pendaftaran, percobaan latihan.
   r.get('/stats/usage', async (_req, res) => {
     const days = Array.from({ length: 14 }, (_, i) => jakartaDate(new Date(Date.now() - (13 - i) * 86_400_000)));
@@ -455,9 +515,19 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
        FROM daily_stats a WHERE a.metric = 'anon_attempt' AND a.day >= ? GROUP BY a.item ORDER BY attempts DESC LIMIT 10`,
       [weekFrom, weekFrom],
     );
+    const allTime = await row<{ visitors: number | null; pageviews: number | null; since: string | null }>(
+      db,
+      "SELECT SUM(CASE WHEN metric = 'visitor' THEN total ELSE 0 END) AS visitors, SUM(CASE WHEN metric = 'pageview' THEN total ELSE 0 END) AS pageviews, MIN(CASE WHEN metric = 'visitor' THEN day END) AS since FROM daily_stats WHERE metric IN ('visitor', 'pageview')",
+    );
     res.json({
       data: {
         daily,
+        total: {
+          visitors: Number(allTime?.visitors ?? 0),
+          pageviews: Number(allTime?.pageviews ?? 0),
+          since: allTime?.since ? String(allTime.since).slice(0, 10) : null,
+          firstDay: await earliestDay(),
+        },
         week: {
           visitors: sum('visitors'),
           pageviews: sum('pageviews'),
@@ -472,7 +542,7 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
         features: features.map((f) => ({ feature: f.item, count: Number(f.total) })),
         notFound: notFound.map((n) => ({ path: n.item, hits: Number(n.total) })),
         anonymousExercises: anonTop.map((a) => ({ slug: a.item, attempts: Number(a.attempts), correct: Number(a.correct) })),
-        note: 'Pengunjung unik dihitung per hari tanpa cookie (hash harian acak). Jumlah 7 hari adalah penjumlahan pengunjung harian, bukan pengunjung unik 7 hari. Pengunjung dengan Do Not Track tidak dihitung.',
+        note: 'Pengunjung unik dihitung per hari tanpa cookie (hash harian acak). Jumlah 7 hari dan jumlah total adalah penjumlahan pengunjung harian, bukan pengunjung unik sepanjang periode. Pengunjung dengan Do Not Track tidak dihitung.',
       },
     });
   });
