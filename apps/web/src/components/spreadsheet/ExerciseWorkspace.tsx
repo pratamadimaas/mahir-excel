@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router';
 import { ArrowDownToLine, ArrowRight, ArrowRightToLine, Eye, Lightbulb, RotateCcw, Send } from 'lucide-react';
 import { FUNCTION_NAMES, addrToRef, expandRef, isFormula, parseCellRef, shiftFormula } from '@excellab/spreadsheet-engine';
@@ -13,6 +13,7 @@ import { ReportExercise } from '../learning/ReportExercise';
 import { AnswerCompare } from './AnswerCompare';
 import { DataTools } from './DataTools';
 import { FormulaDebugger } from './FormulaDebugger';
+import { cycleAbsolute } from './pointMode';
 import { SpreadsheetGrid } from './SpreadsheetGrid';
 import { expandAll, referencedCells, useSheetModel } from './useSheetModel';
 
@@ -50,6 +51,8 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
   const [notice, setNotice] = useState<string | null>(null);
   const [confirmReveal, setConfirmReveal] = useState(false);
   const [hiddenRows, setHiddenRows] = useState<Set<number> | null>(null);
+  const barRef = useRef<HTMLInputElement>(null);
+  const [barActive, setBarActive] = useState(false);
 
   const { sheet, getDisplay, getRaw } = useSheetModel(cells);
   const raw = getRaw(selected);
@@ -157,6 +160,27 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
     setNotice(null);
     setError(null);
     setSelected(exercise.targetCells[0] ?? 'A1');
+  };
+
+  const onBarKey = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter') {
+      // Selesai mengetik: simpan dan pindah ke sel di bawahnya, seperti Excel.
+      e.preventDefault();
+      const a = parseCellRef(selected);
+      const below = a && a.row + 1 < exercise.rows ? addrToRef({ col: a.col, row: a.row + 1 }) : selected;
+      e.currentTarget.blur();
+      setNotice(null);
+      setSelected(below);
+      requestAnimationFrame(() => document.querySelector<HTMLElement>(`td[data-ref="${below}"]`)?.focus());
+      return;
+    }
+    if (e.key !== 'F4') return;
+    e.preventDefault();
+    const el = e.currentTarget;
+    const r = cycleAbsolute(el.value, el.selectionStart ?? el.value.length);
+    if (!r) return;
+    setCell(selected, r.text);
+    requestAnimationFrame(() => el.setSelectionRange(r.caret, r.caret));
   };
 
   const kindLabel = isFormula(raw) ? 'Rumus' : raw === '' ? 'Kosong' : selDisplay.kind === 'num' ? 'Angka' : 'Teks';
@@ -279,9 +303,13 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
               fx
             </div>
             <input
+              ref={barRef}
               className="xl-formula-input"
               aria-label={`Isi sel ${selected}`}
               value={raw}
+              onFocus={() => setBarActive(true)}
+              onBlur={() => setBarActive(false)}
+              onKeyDown={onBarKey}
               disabled={!canEdit}
               spellCheck={false}
               autoComplete="off"
@@ -300,7 +328,7 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
                 <strong>{errDisplay.text}</strong> {errDisplay.title}
               </>
             ) : canEdit ? (
-              'Sel hijau muda boleh diisi. Tekan Enter atau ketik langsung. Ctrl+D menyalin dari sel di atas, Ctrl+R dari kiri.'
+              'Sel hijau muda boleh diisi. Tekan Enter atau ketik langsung. Setelah mengetik =, klik atau seret sel untuk memasukkan alamatnya, lalu tekan Enter untuk selesai. F4 mengunci ($). Ctrl+D menyalin dari sel di atas.'
             ) : (
               'Sel ini bagian dari soal dan tidak dapat diubah.'
             )}
@@ -327,6 +355,8 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
             filtered={!!hiddenRows}
             onFill={fillFromNeighbour}
             onFillDrag={fillLine}
+            barInput={barRef}
+            barActive={barActive}
           />
           <div className="xl-legend" aria-hidden="true">
             <span>

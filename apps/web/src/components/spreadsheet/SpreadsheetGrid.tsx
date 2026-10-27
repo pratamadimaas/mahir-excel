@@ -5,10 +5,13 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactElement,
+  type RefObject,
 } from 'react';
 import { indexToCol } from '@excellab/spreadsheet-engine';
+import { canPoint, cycleAbsolute, pointAt, rangeText, spanValid, type PointSpan } from './pointMode';
 
 export interface CellDisplay {
   text: string;
@@ -37,6 +40,12 @@ interface Props {
   onFill?: (kind: 'from-above' | 'from-left') => void;
   /** Seret gagang isi otomatis dari sel `from` sampai sel `to` (satu arah). */
   onFillDrag?: (from: string, to: string) => void;
+  /**
+   * Formula bar milik sel terpilih. Selama kolomnya berfokus dan kursor ada setelah operator,
+   * klik atau seret di grid menyisipkan alamat sel ke rumus di sana (mode tunjuk sel).
+   */
+  barInput?: RefObject<HTMLInputElement | null>;
+  barActive?: boolean;
 }
 
 const refOf = (c: number, r: number): string => `${indexToCol(c)}${r + 1}`;
@@ -63,7 +72,8 @@ interface CellProps {
   onFillEnd: (e: ReactPointerEvent<HTMLElement>) => void;
   editing: boolean;
   disabled: boolean;
-  onMouseDown: (ref: string) => void;
+  onMouseDown: (ref: string, e: ReactMouseEvent<HTMLElement>) => void;
+  onMouseEnter: (ref: string, e: ReactMouseEvent<HTMLElement>) => void;
   onDoubleClick: (ref: string) => void;
   onInput: (ref: string, v: string) => void;
   onEditKey: (e: KeyboardEvent<HTMLInputElement>, ref: string) => void;
@@ -92,7 +102,8 @@ const Cell = memo(function Cell(p: CellProps) {
       aria-readonly={!p.isEditable}
       aria-label={`${p.refName}${p.display.text ? `: ${p.display.text}` : ', kosong'}${p.isEditable ? ', dapat diisi' : ', hanya baca'}`}
       title={p.display.title}
-      onMouseDown={() => p.onMouseDown(p.refName)}
+      onMouseDown={(e) => p.onMouseDown(p.refName, e)}
+      onMouseEnter={(e) => p.onMouseEnter(p.refName, e)}
       onDoubleClick={() => p.onDoubleClick(p.refName)}
     >
       {p.editing ? (
@@ -140,8 +151,40 @@ export function SpreadsheetGrid(props: Props) {
   const original = useRef('');
   const wrapRef = useRef<HTMLDivElement>(null);
   const focusAfter = useRef(false);
+  // Mode tunjuk sel: alamat yang baru disisipkan, sel yang sedang ditunjuk, dan jangkar seretan.
+  const pointSpan = useRef<PointSpan | null>(null);
+  const pointCell = useRef<string | null>(null);
+  const pointDrag = useRef<string | null>(null);
+  const pointDown = useRef({ x: 0, y: 0 });
+  const { barInput, barActive } = props;
 
   const sel = parse(selected);
+
+  useEffect(() => {
+    const end = (): void => {
+      pointDrag.current = null;
+    };
+    window.addEventListener('mouseup', end);
+    return () => window.removeEventListener('mouseup', end);
+  }, []);
+
+  /** Kolom isian yang sedang menerima rumus: sel yang diedit, atau formula bar yang berfokus. */
+  const pointTarget = (): { el: HTMLInputElement; ref: string } | null => {
+    if (editing) {
+      const el = wrapRef.current?.querySelector<HTMLInputElement>('td input');
+      return el ? { el, ref: editing } : null;
+    }
+    if (barActive && barInput?.current && editable.has(selected) && !disabled) return { el: barInput.current, ref: selected };
+    return null;
+  };
+
+  const applyPoint = (t: { el: HTMLInputElement; ref: string }, text: string): void => {
+    const caret = t.el.selectionStart ?? t.el.value.length;
+    const r = pointAt(t.el.value, caret, text, pointSpan.current);
+    pointSpan.current = r.span;
+    onChange(t.ref, r.text);
+    requestAnimationFrame(() => t.el.setSelectionRange(r.caret, r.caret));
+  };
 
   const focusCell = useCallback((ref: string) => {
     requestAnimationFrame(() => {
@@ -257,6 +300,28 @@ export function SpreadsheetGrid(props: Props) {
 
   const onEditKey = (e: KeyboardEvent<HTMLInputElement>, ref: string): void => {
     const here = parse(ref);
+    const el = e.currentTarget;
+    const caret = el.selectionStart ?? el.value.length;
+    const arrows: Record<string, [number, number]> = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+    if (arrows[e.key] && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey && canPoint(el.value, caret, pointSpan.current)) {
+      // Panah memindahkan sel yang ditunjuk, bukan kursor teks.
+      e.preventDefault();
+      const base = spanValid(el.value, caret, pointSpan.current) && pointCell.current ? pointCell.current : ref;
+      const next = move(arrows[e.key]![0], arrows[e.key]![1], parse(base));
+      pointCell.current = next;
+      applyPoint({ el, ref }, next);
+      return;
+    }
+    if (e.key === 'F4') {
+      e.preventDefault();
+      const r = cycleAbsolute(el.value, caret);
+      if (r) {
+        pointSpan.current = null;
+        onChange(ref, r.text);
+        requestAnimationFrame(() => el.setSelectionRange(r.caret, r.caret));
+      }
+      return;
+    }
     if (e.key === 'Enter') {
       e.preventDefault();
       const next = move(0, e.shiftKey ? -1 : 1, here);
@@ -296,9 +361,29 @@ export function SpreadsheetGrid(props: Props) {
           onFillEnd={onFillEnd}
           editing={editing === ref}
           disabled={!!disabled}
-          onMouseDown={(x) => {
+          onMouseDown={(x, e) => {
+            const t = e.button === 0 ? pointTarget() : null;
+            if (t && t.ref !== x && canPoint(t.el.value, t.el.selectionStart ?? t.el.value.length, pointSpan.current)) {
+              e.preventDefault(); // kolom isian tetap berfokus
+              pointDrag.current = x;
+              pointDown.current = { x: e.clientX, y: e.clientY };
+              pointCell.current = x;
+              applyPoint(t, x);
+              return;
+            }
+            pointSpan.current = null;
             if (editing && editing !== x) setEditing(null);
             select(x, false);
+          }}
+          onMouseEnter={(x, e) => {
+            const anchor = pointDrag.current;
+            const t = anchor ? pointTarget() : null;
+            // Abaikan "masuk" yang terjadi karena tata letak bergeser di bawah kursor yang diam.
+            const moved = Math.hypot(e.clientX - pointDown.current.x, e.clientY - pointDown.current.y) >= 4;
+            if (anchor && t && moved) {
+              pointCell.current = x;
+              applyPoint(t, rangeText(anchor, x));
+            }
           }}
           onDoubleClick={(x) => startEdit(x)}
           onInput={onChange}

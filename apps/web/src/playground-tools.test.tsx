@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { shiftFormula } from '@excellab/spreadsheet-engine';
@@ -197,5 +197,111 @@ describe('isi otomatis (fill)', () => {
 
   it('shiftFormula konsisten dengan perilaku Excel pada rentang campuran', () => {
     expect(shiftFormula('=SUMIFS($C$2:$C$9,$A$2:$A$9,$E2,$B$2:$B$9,F$1)', 1, 1)).toBe('=SUMIFS($C$2:$C$9,$A$2:$A$9,$E3,$B$2:$B$9,G$1)');
+  });
+});
+
+describe('mode tunjuk sel', () => {
+  const bar = () => screen.getByRole('textbox', { name: /Isi sel B2/ });
+
+  it('klik sel setelah = di formula bar menyisipkan alamatnya dan sel terpilih tidak pindah', async () => {
+    mockApi({ ...base, 'GET /exercises/uji-isi': FILL_EX });
+    renderApp('/latihan/uji-isi');
+    await screen.findByRole('heading', { level: 1, name: FILL_EX.title });
+    await userEvent.click(cell(/^B2, kosong/));
+    await userEvent.type(bar(), '=');
+    await userEvent.click(cell(/^A2: 100/));
+    expect(bar()).toHaveValue('=A2');
+    expect(screen.getByTestId('namebox')).toHaveTextContent('B2');
+    await userEvent.type(bar(), '*');
+    await userEvent.click(cell(/^A3: 200/));
+    expect(bar()).toHaveValue('=A2*A3');
+    expect(cell(/^B2: 20.000/)).toBeInTheDocument();
+  });
+
+  it('klik kedua langsung mengganti alamat yang baru disisipkan', async () => {
+    mockApi({ ...base, 'GET /exercises/uji-isi': FILL_EX });
+    renderApp('/latihan/uji-isi');
+    await screen.findByRole('heading', { level: 1, name: FILL_EX.title });
+    await userEvent.click(cell(/^B2, kosong/));
+    await userEvent.type(bar(), '=SUM(');
+    await userEvent.click(cell(/^A2: 100/));
+    await userEvent.click(cell(/^A3: 200/));
+    expect(bar()).toHaveValue('=SUM(A3');
+  });
+
+  it('seret dari satu sel ke sel lain menyisipkan rentang', async () => {
+    mockApi({ ...base, 'GET /exercises/uji-isi': FILL_EX });
+    renderApp('/latihan/uji-isi');
+    await screen.findByRole('heading', { level: 1, name: FILL_EX.title });
+    await userEvent.click(cell(/^B2, kosong/));
+    await userEvent.type(bar(), '=SUM(');
+    fireEvent.mouseDown(cell(/^A2: 100/), { clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(cell(/^A3: 200/), { clientX: 10, clientY: 40 });
+    fireEvent.mouseEnter(cell(/^A4: 300/), { clientX: 10, clientY: 70 });
+    fireEvent.mouseUp(window);
+    expect(bar()).toHaveValue('=SUM(A2:A4');
+    await userEvent.type(bar(), ')');
+    expect(cell(/^B2: 600/)).toBeInTheDocument();
+  });
+
+  it('sel yang "masuk" karena tata letak bergeser di bawah kursor yang diam tidak memperluas rentang', async () => {
+    mockApi({ ...base, 'GET /exercises/uji-isi': FILL_EX });
+    renderApp('/latihan/uji-isi');
+    await screen.findByRole('heading', { level: 1, name: FILL_EX.title });
+    await userEvent.click(cell(/^B2, kosong/));
+    await userEvent.type(bar(), '=');
+    fireEvent.mouseDown(cell(/^A3: 200/), { clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(cell(/^A2: 100/), { clientX: 10, clientY: 10 });
+    fireEvent.mouseUp(window);
+    expect(bar()).toHaveValue('=A3');
+  });
+
+  it('di dalam sel: klik menyisipkan alamat, dan setelah operand klik biasa memindahkan sel', async () => {
+    mockApi({ ...base, 'GET /exercises/uji-isi': FILL_EX });
+    renderApp('/latihan/uji-isi');
+    await screen.findByRole('heading', { level: 1, name: FILL_EX.title });
+    await userEvent.dblClick(cell(/^B2, kosong/));
+    const inCell = () => document.querySelector<HTMLInputElement>('td[data-ref="B2"] input')!;
+    await userEvent.type(inCell(), '=');
+    await userEvent.click(cell(/^A2: 100/));
+    expect(inCell()).toHaveValue('=A2');
+    await userEvent.keyboard('{Enter}');
+    expect(cell(/^B2: 100/)).toBeInTheDocument();
+  });
+
+  it('Enter di formula bar menyelesaikan rumus dan pindah ke sel di bawahnya', async () => {
+    mockApi({ ...base, 'GET /exercises/uji-isi': FILL_EX });
+    renderApp('/latihan/uji-isi');
+    await screen.findByRole('heading', { level: 1, name: FILL_EX.title });
+    await userEvent.click(cell(/^B2, kosong/));
+    await userEvent.type(bar(), '=');
+    await userEvent.click(cell(/^A2: 100/));
+    await userEvent.keyboard('{Enter}');
+    expect(cell(/^B2: 100/)).toBeInTheDocument();
+    expect(screen.getByTestId('namebox')).toHaveTextContent('B3');
+    await userEvent.click(cell(/^B4, kosong/)); // klik biasa setelah selesai tidak menyentuh rumus B2
+    expect(cell(/^B2: 100/)).toBeInTheDocument();
+  });
+
+  it('F4 mengunci referensi di kursor', async () => {
+    mockApi({ ...base, 'GET /exercises/uji-isi': FILL_EX });
+    renderApp('/latihan/uji-isi');
+    await screen.findByRole('heading', { level: 1, name: FILL_EX.title });
+    await userEvent.click(cell(/^B2, kosong/));
+    await userEvent.type(bar(), '=A2*E1');
+    await userEvent.keyboard('{F4}');
+    expect(bar()).toHaveValue('=A2*$E$1');
+    await userEvent.keyboard('{F4}');
+    expect(bar()).toHaveValue('=A2*E$1');
+  });
+
+  it('tanpa operator di depan, klik sel tetap memindahkan sel terpilih', async () => {
+    mockApi({ ...base, 'GET /exercises/uji-isi': FILL_EX });
+    renderApp('/latihan/uji-isi');
+    await screen.findByRole('heading', { level: 1, name: FILL_EX.title });
+    await userEvent.click(cell(/^B2, kosong/));
+    await userEvent.type(bar(), '=A2');
+    await userEvent.click(cell(/^B3, kosong/));
+    expect(screen.getByTestId('namebox')).toHaveTextContent('B3');
   });
 });
