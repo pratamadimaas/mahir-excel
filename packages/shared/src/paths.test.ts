@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { lessons, paths, templates } from './index';
 
 describe('jalur belajar', () => {
-  it('slug unik dan tiga jalur awal ada', () => {
+  it('slug unik dan jalur yang diharapkan ada', () => {
     expect(new Set(paths.map((p) => p.slug)).size).toBe(paths.length);
-    expect(paths.map((p) => p.slug)).toEqual(['perkantoran-admin', 'jualan-usaha', 'keuangan-dasar']);
+    expect(paths.map((p) => p.slug)).toEqual(['perkantoran-admin', 'admin-hrd', 'jualan-usaha', 'keuangan-dasar']);
   });
 
   it.each(paths.map((p) => [p.slug, p] as const))('%s: semua slug ada, tidak berulang, dan urutan di tiap modul mengikuti kurikulum', (_slug, p) => {
@@ -29,6 +29,7 @@ describe('jalur belajar', () => {
 
   it('teks tidak menjanjikan pekerjaan, gaji, atau sertifikasi resmi', () => {
     const text = JSON.stringify(paths.map(({ lessons: _l, templates: _t, ...rest }) => rest)).toLowerCase();
-    for (const bad of ['dijamin', 'pasti diterima', 'gaji', 'bersertifikat resmi']) expect(text).not.toContain(bad);
+    // Jalur HRD wajar membahas data penggajian; yang dilarang adalah janji tentang penghasilan pembaca.
+    for (const bad of ['dijamin', 'pasti diterima', 'gaji tinggi', 'gaji besar', 'bergaji', 'bersertifikat resmi']) expect(text).not.toContain(bad);
   });
 });

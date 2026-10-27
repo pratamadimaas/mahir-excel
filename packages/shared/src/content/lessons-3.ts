@@ -615,21 +615,22 @@ export const lessonsPart3: LessonDef[] = [
   {
     slug: 'pivottable-grafik',
     moduleSlug: 'rapi-dan-aman',
-    title: 'PivotTable dan Grafik: Meringkas Data',
-    summary: 'Pahami cara kerja PivotTable dan bangun ringkasan setara dengan SUMIFS.',
+    title: 'PivotTable: Membuat Ringkasan Pertama',
+    summary: 'Pahami area Rows, Columns, dan Values, dan bangun ringkasan setara dengan SUMIFS.',
     minutes: 14,
     sortOrder: 3,
     content: {
       objectives: [
         'Menjelaskan area Rows, Columns, dan Values pada PivotTable.',
+        'Membuat PivotTable lewat Insert > PivotTable dan menyegarkannya dengan Refresh.',
         'Membangun tabel ringkasan setara PivotTable dengan SUMIFS dan referensi campuran.',
-        'Memilih jenis grafik yang sesuai dengan pertanyaan yang dijawab.',
       ],
       sections: [
         {
           heading: 'Apa itu PivotTable',
           paragraphs: [
-            'PivotTable meringkas data mentah tanpa rumus: pilih kolom untuk baris (misalnya Wilayah), kolom (Kategori), dan nilai yang dijumlahkan (Penjualan). Buat lewat Insert > PivotTable, lalu seret kolom ke area yang diinginkan. Bila data sumber berubah, klik Refresh.',
+            'PivotTable meringkas data mentah tanpa rumus: pilih kolom untuk baris (misalnya Wilayah), kolom (Kategori), dan nilai yang dijumlahkan (Penjualan).',
+            'Langkahnya: blok seluruh tabel (atau klik satu sel di dalamnya), buka tab Insert, pilih PivotTable, lalu klik OK. Di panel PivotTable Fields, seret Wilayah ke Rows, Kategori ke Columns, dan Penjualan ke Values. Bila data sumber berubah, klik kanan PivotTable lalu pilih Refresh.',
             'Kelebihannya cepat dan mudah diubah susunannya. Kekurangannya: tidak otomatis menyesuaikan tanpa Refresh, dan susunannya tidak bisa dibuat serumit rumus buatan sendiri.',
           ],
         },
@@ -640,9 +641,9 @@ export const lessonsPart3: LessonDef[] = [
           ],
         },
         {
-          heading: 'Memilih grafik',
+          heading: 'Langkah berikutnya',
           paragraphs: [
-            'Grafik kolom membandingkan nilai antar kategori. Grafik garis menunjukkan tren dari waktu ke waktu. Grafik pai hanya untuk proporsi dari sedikit kategori (maksimal sekitar lima). Beri judul, label sumbu, dan mulai sumbu nilai dari nol agar perbandingan tidak menipu.',
+            'Pelajaran lanjutan membahas cara mengganti jumlah menjadi hitung atau persen, mengelompokkan tanggal, memakai Slicer, dan membuat grafik dari PivotTable.',
           ],
         },
       ],
@@ -683,10 +684,10 @@ export const lessonsPart3: LessonDef[] = [
           title: 'Sumber data berspasi/berisi sel kosong',
           detail: 'Judul kolom harus unik dan tidak kosong, dan tidak boleh ada baris kosong di tengah data.',
         },
-        { title: 'Grafik pai untuk banyak kategori', detail: 'Lebih dari lima irisan sulit dibaca. Pakai grafik batang.' },
+        { title: 'Ada baris total atau sel gabungan di data', detail: 'Baris total ikut terhitung sebagai data dan sel gabungan membuat kolom tidak terbaca. Hapus keduanya dari sumber.' },
       ],
       playgroundNote:
-        'Playground tidak memiliki PivotTable dan grafik. Latihan memintamu membangun ringkasan yang sama dengan SUMIFS, yang juga cara memahami apa yang dilakukan PivotTable.',
+        'Playground tidak memiliki PivotTable. Latihan memintamu membangun ringkasan yang sama dengan SUMIFS, yang juga cara memahami apa yang dilakukan PivotTable.',
       quiz: [
         {
           question: 'Pada F$1, tanda $ berarti…',

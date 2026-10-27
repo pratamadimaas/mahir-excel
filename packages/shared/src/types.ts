@@ -9,6 +9,8 @@ export interface ModuleDef {
 }
 
 export interface LessonContent {
+  /** Pelajaran berupa langkah di menu Excel yang tidak bisa disimulasikan di playground, jadi tanpa latihan; dinilai lewat kuis. */
+  guide?: boolean;
   objectives: string[];
   sections: { heading: string; paragraphs: string[] }[];
   syntax?: { signature: string; params: { name: string; description: string }[]; notes?: string[] };

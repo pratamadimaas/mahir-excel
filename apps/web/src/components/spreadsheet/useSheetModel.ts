@@ -3,8 +3,8 @@ import { Sheet, expandRef, extractReferences, formatValue, isError, isFormula } 
 import type { CellDisplay } from './SpreadsheetGrid';
 
 /** Menghitung sheet dari isi mentah sel dan menyediakan tampilan per sel. */
-export function useSheetModel(cells: Record<string, string>) {
-  const sheet = useMemo(() => new Sheet(cells), [cells]);
+export function useSheetModel(cells: Record<string, string>, hiddenRows?: ReadonlySet<number> | null) {
+  const sheet = useMemo(() => new Sheet(cells, hiddenRows ? { hiddenRows } : {}), [cells, hiddenRows]);
 
   const getDisplay = useCallback(
     (ref: string): CellDisplay => {

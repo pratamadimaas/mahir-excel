@@ -108,6 +108,7 @@ export const TRY_EXPECTED = 300000;
 /** Hasil nyata tiap modul, dalam kalimat sehari-hari. Dicek tes agar setiap modul punya satu. */
 export const MODULE_OUTCOMES: Record<string, string> = {
   'mengenal-excel': 'Memahami workbook, sel, dan rentang, lalu memasukkan data dengan format yang benar.',
+  'persiapan-tes-kerja': 'Menghapus data ganda, membuat Table, memakai Paste Special dan Flash Fill, menyiapkan cetakan, dan menghitung total yang mengikuti filter.',
   'mengolah-data': 'Merapikan tabel yang berantakan: urutkan, saring, dan temukan data yang tidak konsisten.',
   'rumus-dasar': 'Menjumlahkan dan merata-ratakan data dengan rumus, bukan kalkulator.',
   logika: 'Membuat Excel mengambil keputusan, misalnya lulus atau remedial, lunas atau belum.',
@@ -169,7 +170,7 @@ export interface Faq {
 export const faqs = (functions: number | null): Faq[] => [
   {
     q: 'Benar-benar gratis?',
-    a: 'Untuk belajar, ya. Semua pelajaran, latihan, shortcut, jalur belajar, 2 template, dan 3 worksheet pertama gratis. Premium menambah solusi langsung tanpa batas di latihan, 4 template dan 7 worksheet lanjutan beserta kunci jawabannya, penelusur rumus, wizard rumus lengkap, laporan kemajuan, contekan PDF, dan sertifikat PDF.',
+    a: 'Untuk belajar, ya. Semua pelajaran, latihan, shortcut, jalur belajar, 2 template, dan 3 worksheet pertama gratis. Premium menambah solusi langsung tanpa batas di latihan, 4 template dan 8 worksheet lanjutan beserta kunci jawabannya, penelusur rumus, wizard rumus lengkap, laporan kemajuan, contekan PDF, dan sertifikat PDF.',
   },
   {
     q: 'Kenapa harus daftar dulu?',

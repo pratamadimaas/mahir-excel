@@ -49,4 +49,10 @@ export const modules: ModuleDef[] = [
     summary: 'Aturan Data Validation dan Conditional Formatting, serta meringkas data seperti PivotTable.',
     sortOrder: 8,
   },
+  {
+    slug: 'persiapan-tes-kerja',
+    title: 'Persiapan Tes Kerja Admin',
+    summary: 'Fitur yang sering muncul di tes kerja: hapus data ganda, Table (Ctrl+T), Paste Special, Flash Fill, cetak, dan SUBTOTAL.',
+    sortOrder: 9,
+  },
 ];

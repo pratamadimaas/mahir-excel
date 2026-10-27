@@ -90,7 +90,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-merapikan-data-penjualan',
     'mengolah-data',
-    3,
+    4,
     'Merapikan Data Penjualan',
     'Perbaiki angka berbentuk teks dan penulisan kota yang beragam, lalu hitung hasil filter.',
     [
@@ -203,7 +203,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-laporan-penjualan',
     'fungsi-bersyarat',
-    4,
+    5,
     'Laporan Penjualan',
     'Ringkas data transaksi dengan SUM, SUMIF, COUNTIF, SUMIFS, dan COUNTIF.',
     [
@@ -280,7 +280,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-data-pelanggan',
     'teks-tanggal',
-    6,
+    7,
     'Merapikan Data Pelanggan',
     'Rapikan nama, seragamkan kode, dan ambil tahun pendaftaran dari tanggal.',
     [
@@ -316,7 +316,7 @@ export const lessonsPart4: LessonDef[] = [
   project(
     'proyek-dashboard-ringkas',
     'rapi-dan-aman',
-    4,
+    7,
     'Dashboard Stok Ringkas',
     'Tandai barang yang perlu restok dan ringkas penjualan per kategori.',
     [

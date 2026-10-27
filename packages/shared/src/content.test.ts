@@ -12,12 +12,13 @@ import {
   toPublicExercise,
   validateSubmission,
   worksheets,
+  PLACEMENT_TIERS,
 } from './index';
 
 describe('integritas konten', () => {
-  it('memiliki minimal 29 pelajaran lengkap di 8 modul', () => {
+  it('memiliki minimal 29 pelajaran lengkap di 9 modul', () => {
     expect(lessons.length).toBeGreaterThanOrEqual(29);
-    expect(modules).toHaveLength(8);
+    expect(modules).toHaveLength(9);
     for (const l of lessons) {
       expect(modules.some((m) => m.slug === l.moduleSlug)).toBe(true);
       expect(l.content.objectives.length).toBeGreaterThan(0);
@@ -25,8 +26,14 @@ describe('integritas konten', () => {
       expect(l.content.mistakes.length).toBeGreaterThan(0);
       expect(l.content.quiz.length).toBeGreaterThan(0);
       for (const q of l.content.quiz) expect(q.options[q.answerIndex]).toBeDefined();
-      expect(exercises.some((e) => e.lessonSlug === l.slug)).toBe(true);
+      // Pelajaran bertanda guide berisi langkah di menu Excel dan tidak punya latihan playground; yang lain wajib punya.
+      expect(exercises.some((e) => e.lessonSlug === l.slug) || l.content.guide === true, l.slug).toBe(true);
     }
+  });
+
+  it('pelajaran guide tidak punya latihan, dan setiap modul punya pelajaran', () => {
+    for (const l of lessons.filter((x) => x.content.guide)) expect(exercises.some((e) => e.lessonSlug === l.slug), l.slug).toBe(false);
+    for (const m of modules) expect(lessons.some((l) => l.moduleSlug === m.slug), m.slug).toBe(true);
   });
 
   it('slug unik', () => {
@@ -36,9 +43,9 @@ describe('integritas konten', () => {
     }
   });
 
-  it('memiliki minimal 40 pintasan dan 10 worksheet', () => {
+  it('memiliki minimal 40 pintasan dan 11 worksheet', () => {
     expect(shortcuts.length).toBeGreaterThanOrEqual(40);
-    expect(worksheets).toHaveLength(10);
+    expect(worksheets).toHaveLength(11);
   });
 
   it('latihan terkait pelajaran yang ada, dengan petunjuk progresif', () => {
@@ -189,7 +196,8 @@ describe('tes penempatan', () => {
       expect(q.options[q.answerIndex]).toBeDefined();
       expect(q.explanation.length).toBeGreaterThan(5);
     }
-    expect(new Set(placementQuestions.map((q) => q.module)).size).toBe(modules.length);
+    // Modul tambahan (Persiapan Tes Kerja) sengaja tidak masuk tes penempatan.
+    expect(new Set(placementQuestions.map((q) => q.module)).size).toBe(PLACEMENT_TIERS.flatMap((t) => t.modules).length);
   });
 
   it('evaluasi: semua benar -> tidak ada modul awal; salah di tengah -> mulai dari modul itu', async () => {

@@ -10,6 +10,7 @@ import {
   type ReactElement,
   type RefObject,
 } from 'react';
+import { ChevronDown, Funnel } from 'lucide-react';
 import { indexToCol } from '@excellab/spreadsheet-engine';
 import { canPoint, cycleAbsolute, pointAt, rangeText, spanValid, type PointSpan } from './pointMode';
 
@@ -46,6 +47,21 @@ interface Props {
    */
   barInput?: RefObject<HTMLInputElement | null>;
   barActive?: boolean;
+  /** Panah filter di baris judul tabel (nomor baris mulai 1) untuk kolom-kolom `cols` (indeks mulai 0). */
+  filterHeader?: {
+    topRow: number;
+    cols: ReadonlySet<number>;
+    active: ReadonlySet<number>;
+    openCol: number | null;
+    onOpen: (col: number, button: HTMLElement) => void;
+  };
+}
+
+interface FilterBtn {
+  active: boolean;
+  open: boolean;
+  label: string;
+  onOpen: (button: HTMLElement) => void;
 }
 
 const refOf = (c: number, r: number): string => `${indexToCol(c)}${r + 1}`;
@@ -66,6 +82,7 @@ interface CellProps {
   isTarget: boolean;
   isRef: boolean;
   fillPreview: boolean;
+  filterBtn: FilterBtn | null;
   showHandle: boolean;
   onFillStart: (ref: string, e: ReactPointerEvent<HTMLElement>) => void;
   onFillMove: (e: ReactPointerEvent<HTMLElement>) => void;
@@ -89,6 +106,7 @@ const Cell = memo(function Cell(p: CellProps) {
     p.isRef ? 'ref' : '',
     p.isTarget ? 'target' : '',
     p.fillPreview ? 'fill-preview' : '',
+    p.filterBtn ? 'has-filter' : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -122,6 +140,26 @@ const Cell = memo(function Cell(p: CellProps) {
       ) : (
         <>
           {p.display.text}
+          {p.filterBtn && (
+            <button
+              type="button"
+              className={`xl-filter-btn${p.filterBtn.active ? ' on' : ''}`}
+              aria-label={`Filter kolom ${p.filterBtn.label}${p.filterBtn.active ? ' (aktif)' : ''}`}
+              aria-haspopup="dialog"
+              aria-expanded={p.filterBtn.open}
+              tabIndex={-1}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                p.filterBtn!.onOpen(e.currentTarget);
+              }}
+            >
+              {p.filterBtn.active ? <Funnel aria-hidden="true" size={12} /> : <ChevronDown aria-hidden="true" size={12} />}
+            </button>
+          )}
           {p.showHandle && (
             <span
               className="xl-fill-handle"
@@ -156,7 +194,7 @@ export function SpreadsheetGrid(props: Props) {
   const pointCell = useRef<string | null>(null);
   const pointDrag = useRef<string | null>(null);
   const pointDown = useRef({ x: 0, y: 0 });
-  const { barInput, barActive } = props;
+  const { barInput, barActive, filterHeader: fh } = props;
 
   const sel = parse(selected);
 
@@ -355,6 +393,16 @@ export function SpreadsheetGrid(props: Props) {
           isTarget={!!props.targets?.has(ref)}
           isRef={!!props.highlights?.has(ref)}
           fillPreview={inPreview(ref)}
+          filterBtn={
+            fh && r + 1 === fh.topRow && fh.cols.has(c)
+              ? {
+                  active: fh.active.has(c),
+                  open: fh.openCol === c,
+                  label: props.getDisplay(ref).text || indexToCol(c),
+                  onOpen: (btn) => fh.onOpen(c, btn),
+                }
+              : null
+          }
           showHandle={ref === selected && !!onFillDrag && editing !== ref && props.getRaw(ref) !== ''}
           onFillStart={onFillStart}
           onFillMove={onFillMove}

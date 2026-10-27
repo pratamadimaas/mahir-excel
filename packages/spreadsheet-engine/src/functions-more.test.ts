@@ -25,7 +25,7 @@ describe('fungsi baru terdaftar', () => {
   it('semua 20 fungsi ada dan jumlah fungsi 53', () => {
     const names = ['AVERAGEIF', 'ROUNDUP', 'ROUNDDOWN', 'MEDIAN', 'LARGE', 'SMALL', 'RANK', 'SUMPRODUCT', 'IFS', 'SWITCH', 'SUBSTITUTE', 'FIND', 'CONCAT', 'TEXTJOIN', 'TEXT', 'NOW', 'DATEDIF', 'EOMONTH', 'NETWORKDAYS', 'HLOOKUP'];
     for (const f of names) expect(FUNCTION_NAMES.has(f), f).toBe(true);
-    expect(FUNCTION_NAMES.size).toBe(33 + names.length);
+    expect(FUNCTION_NAMES.size).toBe(33 + names.length + 13); // 13 fungsi tes kerja: lihat functions-admin.test.ts
   });
 });
 

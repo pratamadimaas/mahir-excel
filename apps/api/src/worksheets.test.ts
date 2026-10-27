@@ -23,8 +23,8 @@ const load = async (file: string): Promise<ExcelJS.Workbook> => {
 describe('workbook worksheet', () => {
   it('membuat 10 file latihan + 10 file kunci', () => {
     const files = fs.readdirSync(dir);
-    expect(files.filter((f) => f.endsWith('-kunci.xlsx'))).toHaveLength(10);
-    expect(files.filter((f) => f.endsWith('.xlsx') && !f.endsWith('-kunci.xlsx'))).toHaveLength(10);
+    expect(files.filter((f) => f.endsWith('-kunci.xlsx'))).toHaveLength(11);
+    expect(files.filter((f) => f.endsWith('.xlsx') && !f.endsWith('-kunci.xlsx'))).toHaveLength(11);
     for (const w of worksheets) {
       expect(files).toContain(`${w.slug}.xlsx`);
       expect(files).toContain(`${w.slug}-kunci.xlsx`);

@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { ArrowDownAZ, ArrowUpZA, Filter, FilterX } from 'lucide-react';
+import { ArrowDownAZ, ArrowUpZA } from 'lucide-react';
 import { indexToCol, type Value } from '@excellab/spreadsheet-engine';
 import type { ExerciseTools } from '@excellab/shared';
-import { FILTER_LABELS, type FilterOp, filterRows, parseDataRange, sortRows } from './dataOps';
+import { parseDataRange, sortRows } from './dataOps';
 
 interface Props {
   tools: ExerciseTools;
@@ -10,18 +10,13 @@ interface Props {
   valueOf: (ref: string) => Value;
   headerText: (ref: string) => string;
   onCells: (next: Record<string, string>) => void;
-  onHidden: (rows: Set<number> | null) => void;
   disabled?: boolean;
 }
 
-/** Panel Urutkan dan Filter seperti tab Data di Excel; bekerja pada rentang yang ditentukan latihan. */
-export function DataTools({ tools, cells, valueOf, headerText, onCells, onHidden, disabled }: Props) {
+/** Panel Urutkan seperti tab Data di Excel; bekerja pada rentang yang ditentukan latihan. Filter ada di panah judul kolom. */
+export function DataTools({ tools, cells, valueOf, headerText, onCells, disabled }: Props) {
   const sortRange = useMemo(() => (tools.sort ? parseDataRange(tools.sort.range) : null), [tools.sort]);
-  const filterRange = useMemo(() => (tools.filter ? parseDataRange(tools.filter.range) : null), [tools.filter]);
   const [sortCol, setSortCol] = useState(0);
-  const [filterCol, setFilterCol] = useState(0);
-  const [op, setOp] = useState<FilterOp>('sama');
-  const [text, setText] = useState('');
   const [status, setStatus] = useState<string | null>(null);
 
   const columnsOf = (r: { top: number; left: number; right: number }): { offset: number; label: string }[] =>
@@ -38,26 +33,8 @@ export function DataTools({ tools, cells, valueOf, headerText, onCells, onHidden
     );
   };
 
-  const apply = (): void => {
-    if (!filterRange) return;
-    const r = filterRows(filterRange, filterCol, op, text, valueOf);
-    if (text.trim() === '') {
-      onHidden(null);
-      setStatus(null);
-      return;
-    }
-    onHidden(r.hidden);
-    setStatus(`${r.visible} dari ${r.total} baris ditemukan.`);
-  };
-
-  const clear = (): void => {
-    onHidden(null);
-    setText('');
-    setStatus('Filter dihapus.');
-  };
-
   return (
-    <div className="xl-datatools" role="group" aria-label="Alat data: urutkan dan filter">
+    <div className="xl-datatools" role="group" aria-label="Alat data: urutkan">
       {sortRange && (
         <fieldset>
           <legend>Urutkan</legend>
@@ -82,60 +59,6 @@ export function DataTools({ tools, cells, valueOf, headerText, onCells, onHidden
           </button>
           <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => doSort('desc')} disabled={disabled}>
             <ArrowUpZA className="xl-icon" aria-hidden="true" /> Turun
-          </button>
-        </fieldset>
-      )}
-      {filterRange && (
-        <fieldset>
-          <legend>Filter</legend>
-          <div>
-            <label htmlFor="filter-col">Kolom</label>
-            <select
-              id="filter-col"
-              className="form-select"
-              value={filterCol}
-              onChange={(e) => setFilterCol(Number(e.target.value))}
-              disabled={disabled}
-            >
-              {columnsOf(filterRange).map((c) => (
-                <option key={c.offset} value={c.offset}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="filter-op">Syarat</label>
-            <select
-              id="filter-op"
-              className="form-select"
-              value={op}
-              onChange={(e) => setOp(e.target.value as FilterOp)}
-              disabled={disabled}
-            >
-              {(Object.keys(FILTER_LABELS) as FilterOp[]).map((k) => (
-                <option key={k} value={k}>
-                  {FILTER_LABELS[k]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="filter-text">Nilai</label>
-            <input
-              id="filter-text"
-              className="form-control"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && apply()}
-              disabled={disabled}
-            />
-          </div>
-          <button type="button" className="btn btn-outline-secondary btn-sm" onClick={apply} disabled={disabled}>
-            <Filter className="xl-icon" aria-hidden="true" /> Terapkan
-          </button>
-          <button type="button" className="btn btn-outline-secondary btn-sm" onClick={clear} disabled={disabled}>
-            <FilterX className="xl-icon" aria-hidden="true" /> Hapus filter
           </button>
         </fieldset>
       )}

@@ -58,7 +58,7 @@ describe('jalur belajar', () => {
   it('daftar dan rincian terbuka tanpa login, dihitung dari kurikulum', async () => {
     const list = await request(env.app).get('/api/paths');
     expect(list.status).toBe(200);
-    expect(list.body.data.map((p: { slug: string }) => p.slug)).toEqual(['perkantoran-admin', 'jualan-usaha', 'keuangan-dasar']);
+    expect(list.body.data.map((p: { slug: string }) => p.slug)).toEqual(['perkantoran-admin', 'admin-hrd', 'jualan-usaha', 'keuangan-dasar']);
     const admin = list.body.data[0];
     expect(admin.lessons).toBeGreaterThanOrEqual(8);
     expect(admin.minutes).toBeGreaterThan(admin.lessons);

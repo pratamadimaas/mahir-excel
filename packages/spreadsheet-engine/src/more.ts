@@ -1,5 +1,5 @@
 import type { ExtraCtx } from './extra';
-import { type Range, clean, compare, err, toBool, toNumber, toText, typeRank } from './helpers';
+import { NUMERIC_TEXT, type Range, clean, compare, err, toBool, toNumber, toText, typeRank } from './helpers';
 import { type ErrorValue, type Node, type Scalar, type Value, isError } from './types';
 
 /** Fungsi tambahan: statistik, logika bertingkat, teks, tanggal, dan pencarian mendatar. Mengembalikan galat sebagai nilai. */
@@ -429,6 +429,61 @@ export function callMore(name: string, args: Node[], ctx: ExtraCtx): Value | und
         if (dow !== 0 && dow !== 6 && !holidays.has(d)) count++;
       }
       return s <= e ? count : -count;
+    }
+
+    case 'ISBLANK':
+      return ctx.scalar(args[0]!) === null;
+    case 'ISNUMBER':
+      return typeof ctx.scalar(args[0]!) === 'number';
+    case 'ISTEXT':
+      return typeof ctx.scalar(args[0]!) === 'string';
+    case 'VALUE': {
+      const v = ctx.scalar(args[0]!);
+      if (isError(v)) return v;
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string' && NUMERIC_TEXT.test(v)) return Number(v);
+      if (v === null) return 0;
+      return err('#VALUE!', `VALUE: "${String(v)}" tidak bisa diubah menjadi angka.`);
+    }
+    case 'ABS': {
+      const n = num(0);
+      return isError(n) ? n : Math.abs(n);
+    }
+    case 'INT': {
+      const n = num(0);
+      return isError(n) ? n : Math.floor(n);
+    }
+    case 'MOD': {
+      const n = num(0);
+      const d = num(1);
+      if (isError(n)) return n;
+      if (isError(d)) return d;
+      if (d === 0) return err('#DIV/0!', 'MOD: pembagi tidak boleh nol.');
+      return clean(n - d * Math.floor(n / d));
+    }
+    case 'EDATE': {
+      const start = dateArg(0);
+      const months = num(1);
+      if (isError(start)) return start;
+      if (isError(months)) return months;
+      const d = new Date((start - EPOCH_OFFSET) * DAY_MS);
+      const total = d.getUTCFullYear() * 12 + d.getUTCMonth() + Math.trunc(months);
+      const y = Math.floor(total / 12);
+      const m = total - y * 12;
+      const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+      const serial = Math.floor(Date.UTC(y, m, Math.min(d.getUTCDate(), last)) / DAY_MS) + EPOCH_OFFSET;
+      return serial < 1 || serial > MAX_SERIAL ? err('#NUM!', 'EDATE: hasil tanggal di luar rentang yang didukung.') : serial;
+    }
+    case 'WEEKDAY': {
+      const n = dateArg(0);
+      if (isError(n)) return n;
+      const type = args[1] ? num(1) : 1;
+      if (isError(type)) return type;
+      const dow = new Date((n - EPOCH_OFFSET) * DAY_MS).getUTCDay(); // 0 = Minggu
+      if (type === 1) return dow + 1;
+      if (type === 2) return ((dow + 6) % 7) + 1;
+      if (type === 3) return (dow + 6) % 7;
+      return err('#NUM!', 'WEEKDAY: jenis hanya mendukung 1 (Minggu=1), 2 (Senin=1), atau 3 (Senin=0).');
     }
 
     case 'HLOOKUP': {

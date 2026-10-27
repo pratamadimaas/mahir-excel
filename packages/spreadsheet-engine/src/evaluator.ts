@@ -31,6 +31,8 @@ export interface SheetOptions {
   maxSteps?: number;
   /** Waktu "sekarang" untuk TODAY(); bawaan jam sistem. Dipakai tes agar deterministik. */
   now?: Date | (() => Date);
+  /** Nomor baris (mulai 1) yang disembunyikan filter. SUBTOTAL mengabaikan sel di baris ini, seperti Excel. */
+  hiddenRows?: ReadonlySet<number>;
 }
 
 /**
@@ -46,9 +48,11 @@ export class Sheet {
   private depth = 0;
   private readonly maxSteps: number;
   private readonly nowFn: () => Date;
+  private readonly hiddenRows: ReadonlySet<number>;
 
   constructor(cells: Cells = {}, opts: SheetOptions = {}) {
     this.maxSteps = opts.maxSteps ?? LIMITS.maxEvalSteps;
+    this.hiddenRows = opts.hiddenRows ?? new Set();
     const n = opts.now;
     this.nowFn = typeof n === 'function' ? n : n ? () => n : () => new Date();
     for (const [k, v] of Object.entries(cells)) {
@@ -288,7 +292,16 @@ export class Sheet {
       case 'SUMIF':
       case 'SUMIFS':
       case 'AVERAGEIF':
+      case 'MAXIFS':
+      case 'MINIFS':
         return this.conditional(name, args);
+      case 'SUBTOTAL':
+        return this.subtotal(args);
+      case 'COUNTBLANK': {
+        const r = this.rangeArg(args[0]!, name, 'rentang');
+        if (isError(r)) return r;
+        return r.values.filter((v) => v === null || v === '').length;
+      }
     }
     const extra = callExtra(name, args, this.extraCtx());
     if (extra !== undefined) return extra;
@@ -385,8 +398,8 @@ export class Sheet {
     const pairs: Array<{ range: Range; crit: Scalar }> = [];
     let pairStart = 0;
 
-    if (name === 'SUMIFS') {
-      const s = this.rangeArg(args[0]!, name, 'rentang jumlah');
+    if (name === 'SUMIFS' || name === 'MAXIFS' || name === 'MINIFS') {
+      const s = this.rangeArg(args[0]!, name, name === 'SUMIFS' ? 'rentang jumlah' : 'rentang nilai');
       if (isError(s)) return s;
       sumRange = s;
       pairStart = 1;
@@ -434,6 +447,7 @@ export class Sheet {
     let count = 0;
     let sum = 0;
     let numCount = 0;
+    const picked: number[] = [];
     for (let i = 0; i < base.values.length; i++) {
       let ok = true;
       for (let k = 0; k < pairs.length; k++) {
@@ -451,6 +465,7 @@ export class Sheet {
         if (typeof sv === 'number') {
           sum += sv;
           numCount++;
+          picked.push(sv);
         }
       }
     }
@@ -459,7 +474,69 @@ export class Sheet {
         ? err('#DIV/0!', 'AVERAGEIF tidak menemukan angka yang memenuhi syarat, sehingga tidak bisa dihitung rata-ratanya.')
         : clean(sum / numCount);
     }
+    if (name === 'MAXIFS' || name === 'MINIFS') {
+      if (picked.length === 0) return 0;
+      return name === 'MAXIFS' ? Math.max(...picked) : Math.min(...picked);
+    }
     return name === 'COUNTIF' || name === 'COUNTIFS' ? count : clean(sum);
+  }
+
+  /** SUBTOTAL: seperti SUM/AVERAGE/dst., tetapi melewati baris yang disembunyikan filter dan sel SUBTOTAL lain. */
+  private subtotal(args: Node[]): Value {
+    const code = toNumber(this.scalar(args[0]!), 'SUBTOTAL');
+    if (isError(code)) return code;
+    const fn = Math.trunc(code);
+    const base = fn >= 101 ? fn - 100 : fn;
+    if (!((fn >= 1 && fn <= 11) || (fn >= 101 && fn <= 111))) {
+      return err('#VALUE!', `SUBTOTAL: nomor fungsi ${fn} tidak valid. Pakai 1 sampai 11, atau 101 sampai 111.`);
+    }
+    if (![1, 2, 3, 4, 5, 6, 9].includes(base)) {
+      return err(
+        '#VALUE!',
+        `SUBTOTAL: nomor fungsi ${fn} belum didukung di playground. Pakai 1 (rata-rata), 2 (hitung angka), 3 (hitung isi), 4 (maks), 5 (min), 6 (kali), atau 9 (jumlah).`,
+      );
+    }
+    const nums: number[] = [];
+    let filled = 0;
+    for (const a of args.slice(1)) {
+      if (a.type !== 'ref' && a.type !== 'range') {
+        return err('#VALUE!', 'SUBTOTAL: argumen setelah nomor fungsi harus berupa referensi sel atau rentang, misalnya B2:B10.');
+      }
+      const from = a.type === 'ref' ? a.addr : a.from;
+      const to = a.type === 'ref' ? a.addr : a.to;
+      this.tick((to.row - from.row + 1) * (to.col - from.col + 1));
+      for (let r = from.row; r <= to.row; r++) {
+        if (this.hiddenRows.has(r + 1)) continue;
+        for (let c = from.col; c <= to.col; c++) {
+          const key = addrToRef({ col: c, row: r });
+          const raw = this.raw.get(key);
+          if (raw !== undefined && isFormula(raw) && /\bSUBTOTAL\s*\(/i.test(raw)) continue; // SUBTOTAL bersarang tidak ikut dihitung
+          const v = this.cellValue(key);
+          if (v !== null) filled++;
+          if (base === 3) continue;
+          if (isError(v)) return v;
+          if (typeof v === 'number') nums.push(v);
+        }
+      }
+    }
+    switch (base) {
+      case 1:
+        return nums.length === 0
+          ? err('#DIV/0!', 'SUBTOTAL: tidak ada angka yang terlihat untuk dirata-ratakan.')
+          : clean(nums.reduce((s, n) => s + n, 0) / nums.length);
+      case 2:
+        return nums.length;
+      case 3:
+        return filled;
+      case 4:
+        return nums.length === 0 ? 0 : Math.max(...nums);
+      case 5:
+        return nums.length === 0 ? 0 : Math.min(...nums);
+      case 6:
+        return nums.length === 0 ? 0 : clean(nums.reduce((p, n) => p * n, 1));
+      default:
+        return clean(nums.reduce((s, n) => s + n, 0));
+    }
   }
 
   private evalRangeResized(node: Node, rows: number, cols: number): Range | ErrorValue {

@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { Link } from 'react-router';
-import { ArrowDownToLine, ArrowRight, ArrowRightToLine, Eye, Lightbulb, RotateCcw, Send } from 'lucide-react';
-import { FUNCTION_NAMES, addrToRef, expandRef, isFormula, parseCellRef, shiftFormula } from '@excellab/spreadsheet-engine';
+import { ArrowDownToLine, ArrowRight, ArrowRightToLine, Eye, FileSpreadsheet, Funnel, Lightbulb, RotateCcw, Send, Upload } from 'lucide-react';
+import { FUNCTION_NAMES, addrToRef, expandRef, indexToCol, isFormula, parseCellRef, shiftFormula } from '@excellab/spreadsheet-engine';
 import { useAuth } from '../../app/AuthContext';
 import { useProgress } from '../../app/ProgressContext';
 import { useAsync } from '../../hooks/useAsync';
@@ -12,7 +12,10 @@ import { Level } from '../learning/Bits';
 import { ReportExercise } from '../learning/ReportExercise';
 import { AnswerCompare } from './AnswerCompare';
 import { DataTools } from './DataTools';
+import { currentRegion, distinctTexts, hiddenByFilters, parseDataRange } from './dataOps';
+import { FilterMenu } from './FilterMenu';
 import { FormulaDebugger } from './FormulaDebugger';
+import { AnswerFileError, buildExerciseFile, readAnswerFile } from './excelFile';
 import { cycleAbsolute } from './pointMode';
 import { SpreadsheetGrid } from './SpreadsheetGrid';
 import { expandAll, referencedCells, useSheetModel } from './useSheetModel';
@@ -51,10 +54,21 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
   const [notice, setNotice] = useState<string | null>(null);
   const [confirmReveal, setConfirmReveal] = useState(false);
   const [hiddenRows, setHiddenRows] = useState<Set<number> | null>(null);
+  // Filter daftar centang: indeks kolom mutlak -> nilai yang boleh tampil.
+  const [colFilters, setColFilters] = useState<Record<number, string[]>>({});
+  const [openFilter, setOpenFilter] = useState<{ col: number; anchor: HTMLElement } | null>(null);
+  const tableRange = useMemo(
+    () => (exercise.tools?.filter ? parseDataRange(exercise.tools.filter.range) : currentRegion(exercise.cells, exercise.rows, exercise.cols)),
+    [exercise],
+  );
+  const [filterOn, setFilterOn] = useState(!!exercise.tools?.filter);
   const barRef = useRef<HTMLInputElement>(null);
   const [barActive, setBarActive] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [excelBusy, setExcelBusy] = useState(false);
+  const [excelNote, setExcelNote] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
 
-  const { sheet, getDisplay, getRaw } = useSheetModel(cells);
+  const { sheet, getDisplay, getRaw } = useSheetModel(cells, hiddenRows);
   const raw = getRaw(selected);
   const selDisplay = getDisplay(selected);
   const highlights = useMemo(() => referencedCells(raw), [raw]);
@@ -73,12 +87,12 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
     });
   };
 
-  const submit = async (): Promise<void> => {
+  const submit = async (source: Record<string, string> = cells): Promise<void> => {
     setBusy(true);
     setError(null);
     try {
       const body: Record<string, string> = {};
-      for (const e of exercise.editable) for (const ref of expandRef(e)) body[ref] = cells[ref] ?? '';
+      for (const e of exercise.editable) for (const ref of expandRef(e)) body[ref] = source[ref] ?? '';
       const res = await api.post<SubmitResult>(`/exercises/${exercise.slug}/submit${q}`, { cells: body });
       setResult(res);
       setAwarded(await recordSubmission(exercise.slug, exercise.points, res));
@@ -153,8 +167,88 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
     fillLine(selected, addrToRef(end));
   };
 
-  const reset = (): void => {
+  // --- mode Excel: unduh berkas soal, kerjakan di Excel, unggah untuk dinilai ---
+  const downloadExcel = async (): Promise<void> => {
+    setExcelBusy(true);
+    try {
+      const bytes = await buildExerciseFile(exercise);
+      const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mahir-excel-${exercise.slug}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      setExcelNote({
+        tone: 'info',
+        text: 'File terunduh. Buka di Excel (klik Enable Editing kalau diminta), isi sel hijau, simpan, lalu klik “Unggah jawaban” di sini.',
+      });
+    } catch {
+      setExcelNote({ tone: 'error', text: 'Gagal membuat file Excel. Coba lagi, atau kerjakan langsung di sini.' });
+    } finally {
+      setExcelBusy(false);
+    }
+  };
+
+  const uploadExcel = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // supaya file yang sama bisa dipilih lagi
+    if (!file) return;
+    if (!/\.xlsx$/i.test(file.name)) {
+      setExcelNote({ tone: 'error', text: 'Pilih file berformat .xlsx, yaitu file yang diunduh dari halaman ini.' });
+      return;
+    }
+    setExcelBusy(true);
+    setExcelNote(null);
+    try {
+      const parsed = await readAnswerFile(file, exercise);
+      const next = { ...exercise.cells };
+      for (const [ref, raw] of Object.entries(parsed.answers)) if (raw !== '') next[ref] = raw;
+      clearFilters();
+      setCells(next);
+      setResult(null);
+      setNotice(null);
+      const notes: string[] = [];
+      if (parsed.otherExercise) notes.push(`File ini dibuat untuk latihan lain (${parsed.otherExercise}); hasilnya mungkin tidak cocok.`);
+      if (parsed.changed.length) {
+        const shown = parsed.changed.slice(0, 6).join(', ');
+        notes.push(`Data soal di ${shown}${parsed.changed.length > 6 ? ' dan lainnya' : ''} berbeda dari aslinya. Penilaian memakai data asli.`);
+      }
+      setExcelNote(notes.length ? { tone: 'info', text: notes.join(' ') } : null);
+      await submit(next);
+    } catch (err) {
+      setExcelNote({ tone: 'error', text: err instanceof AnswerFileError ? err.message : 'Berkas tidak bisa dibaca. Simpan ulang dari Excel sebagai .xlsx lalu coba lagi.' });
+    } finally {
+      setExcelBusy(false);
+    }
+  };
+
+  const clearFilters = (): void => {
+    setColFilters({});
     setHiddenRows(null);
+    setOpenFilter(null);
+  };
+
+  const applyFilter = (col: number, next: Set<string> | null): void => {
+    if (!tableRange) return;
+    const all = { ...colFilters };
+    if (next === null) delete all[col];
+    else all[col] = [...next];
+    setColFilters(all);
+    const map = new Map(Object.entries(all).map(([c, v]) => [Number(c), new Set(v)]));
+    setHiddenRows(map.size === 0 ? null : hiddenByFilters(tableRange, map, (ref) => getDisplay(ref).text));
+    setOpenFilter(null);
+  };
+
+  const toggleFilter = (): void => {
+    if (filterOn) clearFilters();
+    setFilterOn(!filterOn);
+  };
+
+  const reset = (): void => {
+    clearFilters();
+    setFilterOn(!!exercise.tools?.filter);
     setCells(exercise.cells);
     setResult(null);
     setNotice(null);
@@ -241,7 +335,7 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
       <div>
         <div className="xl-workspace">
           <div className="xl-toolbar" role="toolbar" aria-label="Aksi latihan">
-            <button type="button" className="btn btn-primary btn-sm" onClick={submit} disabled={busy}>
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => void submit()} disabled={busy}>
               <Send className="xl-icon" aria-hidden="true" /> {busy ? 'Memeriksa…' : 'Periksa jawaban'}
             </button>
             <button
@@ -274,23 +368,54 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
             >
               <ArrowRightToLine className="xl-icon" aria-hidden="true" /> Isi ke kanan
             </button>
+            {tableRange && (
+              <button
+                type="button"
+                className={`btn btn-sm ${filterOn ? 'btn-secondary' : 'btn-outline-secondary'}`}
+                onClick={toggleFilter}
+                aria-pressed={filterOn}
+                title="Tampilkan panah filter di judul kolom tabel, seperti Data > Filter di Excel."
+              >
+                <Funnel className="xl-icon" aria-hidden="true" /> Filter
+              </button>
+            )}
+            <span className="xl-toolbar-sep" aria-hidden="true" />
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              onClick={downloadExcel}
+              disabled={busy || excelBusy}
+              title="Unduh soal ini sebagai file .xlsx untuk dikerjakan di Microsoft Excel, lalu unggah kembali untuk dinilai."
+            >
+              <FileSpreadsheet className="xl-icon" aria-hidden="true" /> Kerjakan di Excel
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              onClick={() => fileRef.current?.click()}
+              disabled={busy || excelBusy}
+              title="Pilih file .xlsx hasil pengerjaanmu di Excel. Isinya dinilai sama seperti jawaban di sini."
+            >
+              <Upload className="xl-icon" aria-hidden="true" /> Unggah jawaban
+            </button>
+            <input ref={fileRef} type="file" hidden accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Pilih file jawaban .xlsx" onChange={uploadExcel} />
             <span className="xl-toolbar-spacer" />
             <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setConfirmReveal(true)} disabled={busy}>
               <Eye className="xl-icon" aria-hidden="true" /> {!premium && !unlockedHere && quotaOpen ? 'Lihat solusi (gratis minggu ini)' : 'Lihat solusi'}
             </button>
           </div>
 
-          {exercise.tools && (
+          {exercise.tools?.sort && (
             <DataTools
               tools={exercise.tools}
               cells={cells}
               valueOf={(ref) => sheet.getValue(ref)}
               headerText={(ref) => getDisplay(ref).text}
               onCells={(next) => {
+                clearFilters(); // baris berpindah, jadi filter lama tidak berlaku lagi
                 setCells(next);
                 setNotice(null);
               }}
-              onHidden={setHiddenRows}
               disabled={busy}
             />
           )}
@@ -334,6 +459,11 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
             )}
           </div>
 
+          {tableRange && filterOn && hiddenRows && (
+            <div className="xl-filter-status px-2 py-1" role="status" aria-live="polite">
+              {tableRange.bottom - tableRange.top - hiddenRows.size} dari {tableRange.bottom - tableRange.top} baris ditemukan.
+            </div>
+          )}
           <SpreadsheetGrid
             label={`Lembar kerja latihan: ${exercise.title}`}
             rows={exercise.rows}
@@ -357,7 +487,28 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
             onFillDrag={fillLine}
             barInput={barRef}
             barActive={barActive}
+            filterHeader={
+              tableRange && filterOn
+                ? {
+                    topRow: tableRange.top,
+                    cols: new Set(Array.from({ length: tableRange.right - tableRange.left + 1 }, (_, i) => tableRange.left + i)),
+                    active: new Set(Object.keys(colFilters).map(Number)),
+                    openCol: openFilter?.col ?? null,
+                    onOpen: (col, anchor) => setOpenFilter((cur) => (cur?.col === col ? null : { col, anchor })),
+                  }
+                : undefined
+            }
           />
+          {tableRange && filterOn && openFilter && (
+            <FilterMenu
+              anchor={openFilter.anchor}
+              label={getDisplay(`${indexToCol(openFilter.col)}${tableRange.top}`).text || indexToCol(openFilter.col)}
+              values={distinctTexts(tableRange, openFilter.col, (ref) => getDisplay(ref).text)}
+              selected={colFilters[openFilter.col] ? new Set(colFilters[openFilter.col]) : null}
+              onApply={(next) => applyFilter(openFilter.col, next)}
+              onClose={() => setOpenFilter(null)}
+            />
+          )}
           <div className="xl-legend" aria-hidden="true">
             <span>
               <i className="xl-swatch edit" /> Boleh diisi
@@ -372,6 +523,11 @@ export function ExerciseWorkspace({ exercise, nextSlug, preview }: Props) {
         </div>
 
         <div className="mt-3" aria-live="polite" data-testid="feedback">
+          {excelNote && (
+            <div className="mb-2">
+              <Status tone={excelNote.tone}>{excelNote.text}</Status>
+            </div>
+          )}
           {error && (
             <Status tone="error" live>
               {error}

@@ -136,7 +136,7 @@ describe('bagikan progres', () => {
     expect(pub.body.data.displayName).toBe('Sari Berbagi');
     expect(pub.body.data.totalPoints).toBe(10);
     expect(pub.body.data.lessons.done).toBe(1);
-    expect(pub.body.data.modules.length).toBe(8);
+    expect(pub.body.data.modules.length).toBe(9);
     expect(JSON.stringify(pub.body)).not.toContain(s.email);
 
     const off = await s.agent.delete('/api/progress/share').set('x-csrf-token', s.csrf);

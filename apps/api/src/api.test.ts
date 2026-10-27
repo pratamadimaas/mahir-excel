@@ -25,10 +25,10 @@ describe('health dan konten publik', () => {
     expect(r.body.data).toMatchObject({ status: 'ok', database: 'up' });
   });
 
-  it('GET /api/modules mengembalikan 8 modul dengan pelajaran', async () => {
+  it('GET /api/modules mengembalikan 9 modul dengan pelajaran', async () => {
     const r = await member.agent.get('/api/modules');
     expect(r.status).toBe(200);
-    expect(r.body.data).toHaveLength(8);
+    expect(r.body.data).toHaveLength(9);
     const total = r.body.data.reduce((n: number, m: { lessons: unknown[] }) => n + m.lessons.length, 0);
     expect(total).toBeGreaterThanOrEqual(10);
   });
@@ -557,7 +557,7 @@ describe('administrasi', () => {
 describe('unduhan worksheet', () => {
   it('daftar dan detail menyertakan ukuran file', async () => {
     const list = await member.agent.get('/api/worksheets');
-    expect(list.body.data).toHaveLength(10);
+    expect(list.body.data).toHaveLength(11);
     expect(list.body.data.every((w: { available: boolean; fileSize: number }) => w.available && w.fileSize > 1000)).toBe(true);
     const one = await member.agent.get('/api/worksheets/anggaran-bulanan');
     expect(one.body.data).toMatchObject({ fileType: 'xlsx', keyAvailable: true });

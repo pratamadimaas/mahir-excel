@@ -53,6 +53,19 @@ export const FUNCTION_ARITY: Record<string, { min: number; max: number }> = {
   EOMONTH: { min: 2, max: 2 },
   NETWORKDAYS: { min: 2, max: 3 },
   HLOOKUP: { min: 3, max: 4 },
+  SUBTOTAL: { min: 2, max: 64 },
+  COUNTBLANK: { min: 1, max: 1 },
+  MAXIFS: { min: 3, max: 64 },
+  MINIFS: { min: 3, max: 64 },
+  ISBLANK: { min: 1, max: 1 },
+  ISNUMBER: { min: 1, max: 1 },
+  ISTEXT: { min: 1, max: 1 },
+  VALUE: { min: 1, max: 1 },
+  ABS: { min: 1, max: 1 },
+  INT: { min: 1, max: 1 },
+  MOD: { min: 2, max: 2 },
+  EDATE: { min: 2, max: 2 },
+  WEEKDAY: { min: 1, max: 2 },
 };
 
 export const FUNCTION_NAMES: ReadonlySet<string> = new Set(Object.keys(FUNCTION_ARITY));

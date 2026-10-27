@@ -235,7 +235,11 @@ export function LessonPage() {
           <section aria-labelledby="praktik" className="xl-practice">
             <h2 id="praktik">Coba sekarang</h2>
             {l.exercises.length === 0 ? (
-              <p className="xl-muted">Belum ada latihan untuk pelajaran ini.</p>
+              <p className="xl-muted">
+                {c.guide
+                  ? 'Pelajaran ini berupa langkah di menu Excel, jadi tidak ada latihan di playground. Coba langsung di Excel-mu, lalu cek pemahamanmu lewat kuis di bawah.'
+                  : 'Belum ada latihan untuk pelajaran ini.'}
+              </p>
             ) : (
               <ul className="xl-exercise-links">
                 {l.exercises.map((e) => {

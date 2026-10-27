@@ -356,8 +356,8 @@ function Curriculum({ overview }: { overview: Overview | null }) {
         </h2>
         <p className="xl-l-lead">
           {overview
-            ? `${overview.counts.lessons} pelajaran dan ${overview.counts.exercises} latihan, disusun berurutan. Tiap modul ditutup dengan proyek kecil.`
-            : 'Pelajaran dan latihan disusun berurutan. Tiap modul ditutup dengan proyek kecil.'}
+            ? `${overview.counts.lessons} pelajaran dan ${overview.counts.exercises} latihan, disusun berurutan. Delapan modul inti ditutup dengan proyek kecil, dan satu modul tambahan menyiapkanmu untuk tes kerja admin.`
+            : 'Pelajaran dan latihan disusun berurutan. Delapan modul inti ditutup dengan proyek kecil, dan satu modul tambahan menyiapkanmu untuk tes kerja admin.'}
         </p>
         <p className="mb-0">
           Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>, paling banyak 16 pertanyaan sekitar 4 menit.
@@ -590,7 +590,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
           <ul>
             <li>Semua yang gratis</li>
             <li>Tombol “Lihat solusi” tanpa batas di setiap latihan</li>
-            <li>7 worksheet lanjutan dan kunci jawaban semua worksheet</li>
+            <li>8 worksheet lanjutan dan kunci jawaban semua worksheet</li>
             <li>4 template lanjutan, penelusur rumus, wizard rumus, laporan kemajuan, dan contekan PDF</li>
             <li>Sertifikat PDF per modul dan untuk seluruh materi, bisa dicek lewat kode</li>
           </ul>

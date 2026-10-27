@@ -123,6 +123,10 @@ export const TOPIC_LABELS: Record<string, string> = {
   'rumus-dasar': 'Rumus Dasar',
   logika: 'Logika',
   'fungsi-bersyarat': 'Fungsi Bersyarat',
+  'fungsi-pencarian': 'Fungsi Pencarian',
+  'teks-tanggal': 'Teks dan Tanggal',
+  'rapi-dan-aman': 'Rapi, Aman, dan Ringkas',
+  'persiapan-tes-kerja': 'Persiapan Tes Kerja Admin',
 };
 
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = { mudah: 'Mudah', sedang: 'Sedang', sulit: 'Sulit' };

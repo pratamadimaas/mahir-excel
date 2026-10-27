@@ -1,4 +1,4 @@
-import { buildMatcher, indexToCol, isError, parseCellRef, shiftFormula, type Value } from '@excellab/spreadsheet-engine';
+import { indexToCol, isError, parseCellRef, shiftFormula, type Value } from '@excellab/spreadsheet-engine';
 
 /** Rentang data untuk sort/filter. `top` adalah baris judul; data dimulai di baris top + 1 (semua 1-based, kolom 0-based). */
 export interface DataRange {
@@ -71,32 +71,63 @@ export function sortRows(
   return next;
 }
 
-export type FilterOp = 'sama' | 'berisi' | 'lebih-besar' | 'lebih-kecil';
+/**
+ * Area tabel otomatis seperti "current region" di Excel: blok sel berisi yang saling bersambung dari sel berisi paling
+ * kiri-atas. Baris pertama dianggap judul. Null bila tidak ada tabel yang layak disaring (minimal judul dan dua baris data).
+ */
+export function currentRegion(cells: Record<string, string>, rows: number, cols: number): DataRange | null {
+  const filled = new Set<string>();
+  for (const [k, v] of Object.entries(cells)) {
+    const a = parseCellRef(k);
+    if (a && v !== '' && a.row < rows && a.col < cols) filled.add(`${a.col},${a.row}`);
+  }
+  let start: { col: number; row: number } | null = null;
+  for (let r = 0; r < rows && !start; r++) for (let c = 0; c < cols; c++) if (filled.has(`${c},${r}`)) { start = { col: c, row: r }; break; }
+  if (!start) return null;
+  const seen = new Set([`${start.col},${start.row}`]);
+  const queue = [start];
+  let minC = start.col, maxC = start.col, minR = start.row, maxR = start.row;
+  while (queue.length) {
+    const cur = queue.pop()!;
+    for (let dc = -1; dc <= 1; dc++) {
+      for (let dr = -1; dr <= 1; dr++) {
+        const key = `${cur.col + dc},${cur.row + dr}`;
+        if (seen.has(key) || !filled.has(key)) continue;
+        seen.add(key);
+        queue.push({ col: cur.col + dc, row: cur.row + dr });
+        minC = Math.min(minC, cur.col + dc); maxC = Math.max(maxC, cur.col + dc);
+        minR = Math.min(minR, cur.row + dr); maxR = Math.max(maxR, cur.row + dr);
+      }
+    }
+  }
+  if (maxR - minR < 2) return null;
+  return { top: minR + 1, bottom: maxR + 1, left: minC, right: maxC };
+}
 
-export const FILTER_LABELS: Record<FilterOp, string> = {
-  sama: 'sama dengan',
-  berisi: 'berisi',
-  'lebih-besar': 'lebih besar dari',
-  'lebih-kecil': 'lebih kecil dari',
-};
+/** Nilai unik (sebagai teks tampilan) di satu kolom data, urut alami. Sel kosong menjadi teks kosong. */
+export function distinctTexts(range: DataRange, col: number, textOf: (cellRef: string) => string): string[] {
+  const set = new Set<string>();
+  for (let r = range.top + 1; r <= range.bottom; r++) set.add(textOf(ref(col, r)));
+  return [...set].sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base', numeric: true }));
+}
 
-/** Baris mana yang disembunyikan oleh filter (nomor baris 1-based) serta jumlah baris yang tampil. */
-export function filterRows(
+/**
+ * Baris yang disembunyikan (nomor baris 1-based) oleh filter daftar centang. `filters` memetakan indeks kolom
+ * mutlak ke nilai teks yang boleh tampil; sebuah baris tampil hanya bila lolos di semua kolom yang difilter.
+ */
+export function hiddenByFilters(
   range: DataRange,
-  columnOffset: number,
-  op: FilterOp,
-  text: string,
-  valueOf: (cellRef: string) => Value,
-): { hidden: Set<number>; visible: number; total: number } {
-  const total = range.bottom - range.top;
-  const value = text.trim();
-  if (value === '') return { hidden: new Set(), visible: total, total };
-  const criteria = op === 'sama' ? `=${value}` : op === 'berisi' ? `=*${value}*` : op === 'lebih-besar' ? `>${value}` : `<${value}`;
-  const matches = buildMatcher(criteria);
+  filters: ReadonlyMap<number, ReadonlySet<string>>,
+  textOf: (cellRef: string) => string,
+): Set<number> {
   const hidden = new Set<number>();
   for (let r = range.top + 1; r <= range.bottom; r++) {
-    const v = valueOf(ref(range.left + columnOffset, r));
-    if (isError(v) || !matches(v)) hidden.add(r);
+    for (const [col, allowed] of filters) {
+      if (!allowed.has(textOf(ref(col, r)))) {
+        hidden.add(r);
+        break;
+      }
+    }
   }
-  return { hidden, visible: total - hidden.size, total };
+  return hidden;
 }

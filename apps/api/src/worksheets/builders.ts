@@ -314,6 +314,50 @@ const plans: Record<string, () => Plan> = {
     ]);
   },
 
+  'gaji-lembur': () => {
+    const staff: [string, string, number, number][] = [
+      ['Ani', 'Admin', 5000000, 8],
+      ['Budi', 'Gudang', 4000000, 12],
+      ['Citra', 'Admin', 5500000, 2],
+      ['Dedi', 'Gudang', 4200000, 15],
+      ['Eka', 'Marketing', 6000000, 5],
+      ['Fajar', 'Marketing', 6500000, 10],
+      ['Gita', 'Admin', 5200000, 6],
+      ['Hadi', 'Gudang', 3900000, 20],
+    ];
+    const allowance: [string, number][] = [
+      ['Admin', 300000],
+      ['Gudang', 250000],
+      ['Marketing', 400000],
+    ];
+    const rows = staff.map(([n, d, g, j], i) => {
+      const r = i + 2;
+      return [n, d, g, j, f(`D${r}*$J$1`), f(`VLOOKUP(B${r},$I$4:$J$6,2,FALSE)`), f(`C${r}+E${r}+F${r}`)];
+    });
+    return standard([
+      {
+        name: 'Latihan',
+        cells: {
+          ...table(['Nama', 'Divisi', 'Gaji Pokok', 'Jam Lembur', 'Upah Lembur', 'Tunjangan', 'Total Gaji'], rows),
+          I1: 'Tarif lembur per jam',
+          J1: 25000,
+          ...table(['Divisi', 'Tunjangan'], allowance, 3, 8),
+          I8: 'Total gaji semua karyawan',
+          J8: f('SUM(G2:G9)'),
+          I9: 'Gaji pokok tertinggi di Gudang',
+          J9: f('MAXIFS(C2:C9,B2:B9,"Gudang")'),
+          I10: 'Karyawan lembur lebih dari 10 jam',
+          J10: f('COUNTIF(D2:D9,">10")'),
+        },
+        headers: ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'I3', 'J3'],
+        answers: [...range('E', 2, 9), ...range('F', 2, 9), ...range('G', 2, 9), 'J8', 'J9', 'J10'],
+        widths: [12, 12, 14, 12, 14, 14, 14, 3, 34, 14],
+        formats: { 'C2:C9': RP, 'E2:G9': RP, 'J1': RP, 'J4:J6': RP, 'J8:J9': RP },
+        freezeHeader: true,
+      },
+    ]);
+  },
+
   'latihan-lookup': () => {
     const price: [string, string, number][] = [
       ['BRS', 'Beras 5 kg', 68000],

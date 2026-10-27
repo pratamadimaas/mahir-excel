@@ -145,4 +145,19 @@ export const worksheets: WorksheetDef[] = [
     ],
     sortOrder: 10,
   },
+  {
+    slug: 'gaji-lembur',
+    title: 'Gaji dan Lembur Karyawan',
+    description: 'Hitung upah lembur, tunjangan per divisi, dan total gaji, seperti soal tes admin HRD.',
+    objective: 'Menggabungkan referensi absolut, VLOOKUP, SUM, MAXIFS, dan COUNTIF dalam satu rekap gaji.',
+    difficulty: 'sulit',
+    skills: ['Referensi absolut', 'VLOOKUP', 'SUM', 'MAXIFS', 'COUNTIF'],
+    instructions: [
+      'Hitung Upah Lembur = Jam Lembur x tarif lembur per jam. Kunci sel tarif dengan $.',
+      'Ambil Tunjangan tiap karyawan dari tabel tunjangan per divisi dengan VLOOKUP (pencocokan persis).',
+      'Hitung Total Gaji = Gaji Pokok + Upah Lembur + Tunjangan.',
+      'Hitung total gaji semua karyawan, gaji pokok tertinggi di divisi Gudang (MAXIFS), dan jumlah karyawan yang lembur lebih dari 10 jam.',
+    ],
+    sortOrder: 11,
+  },
 ];
