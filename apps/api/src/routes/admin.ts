@@ -1,6 +1,14 @@
 import { Router, type Response } from 'express';
 import { z, type ZodType } from 'zod';
-import { jakartaDate, solutionCells, validateSubmission, type ExerciseDef } from '@excellab/shared';
+import {
+  evaluatePlacement,
+  jakartaDate,
+  placementQuestions,
+  solutionCells,
+  validateSubmission,
+  type ExerciseDef,
+  type PlacementLevel,
+} from '@excellab/shared';
 import type { Ctx } from '../app';
 import { row, rows, run, type Db } from '../db/pool';
 import { AppError, notFound, parse } from '../middleware/errors';
@@ -943,8 +951,14 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
     res.json({ data: { id, hidden } });
   });
 
-  // Hasil tes penempatan (terbuka tanpa akun): ringkasan, sebaran modul awal yang disarankan, dan 50 hasil terbaru.
-  r.get('/stats/placement', async (_req, res) => {
+  // Hasil tes penempatan (terbuka tanpa akun): ringkasan, sebaran tingkat, soal tersulit, akurasi per modul, tren mingguan, dan 50 hasil terbaru.
+  // Tingkat dihitung ulang dari jawaban yang tersimpan, jadi hasil versi lama (12 soal) ikut dinilai dengan aturan yang sama.
+  const PLACEMENT_SAMPLE = 5000;
+  r.get('/stats/placement', async (req, res) => {
+    const filter = parse(
+      z.object({ level: z.enum(['Pemula', 'Menengah', 'Mahir']).optional(), account: z.literal('1').optional() }),
+      req.query,
+    );
     const sum = await row<{ n: number; avg: number | null; with_account: number | null }>(
       db,
       'SELECT COUNT(*) AS n, AVG(score) AS avg, SUM(user_id IS NOT NULL) AS with_account FROM placement_results',
@@ -953,33 +967,107 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
       db,
       'SELECT start_module, COUNT(*) AS n FROM placement_results GROUP BY start_module ORDER BY n DESC',
     );
-    const recent = await rows<{
+    const latest = await rows<{
       id: number;
+      user_id: number | null;
       score: number;
       total: number;
       start_module: string | null;
+      answers: unknown;
+      version: number;
       created_at: string;
       display_name: string | null;
       email: string | null;
     }>(
       db,
-      `SELECT p.id, p.score, p.total, p.start_module, p.created_at, u.display_name, u.email
-       FROM placement_results p LEFT JOIN users u ON u.id = p.user_id ORDER BY p.id DESC LIMIT 50`,
+      `SELECT p.id, p.user_id, p.score, p.total, p.start_module, p.answers, p.version, p.created_at, u.display_name, u.email
+       FROM placement_results p LEFT JOIN users u ON u.id = p.user_id ORDER BY p.id DESC LIMIT ${PLACEMENT_SAMPLE}`,
     );
+
+    const levels: Record<PlacementLevel, number> = { Pemula: 0, Menengah: 0, Mahir: 0 };
+    const perQuestion = new Map<string, { asked: number; wrong: number }>();
+    const perModuleAcc = new Map<string, { correct: number; total: number }>();
+    const weeks = new Map<string, { count: number; pct: number }>();
+    let legacy = 0;
+    const listed: {
+      id: number;
+      score: number;
+      total: number;
+      level: PlacementLevel | null;
+      legacy: boolean;
+      startModule: string | null;
+      at: string;
+      user: { displayName: string | null; email: string } | null;
+    }[] = [];
+    let matching = 0;
+
+    for (const p of latest) {
+      const raw = typeof p.answers === 'string' ? (JSON.parse(p.answers) as Record<string, number>) : ((p.answers ?? {}) as Record<string, number>);
+      const asked = placementQuestions.filter((q) => Number.isInteger(raw[q.id]));
+      const result = asked.length > 0 ? evaluatePlacement(raw, asked) : null;
+      const isLegacy = Number(p.version) < 2;
+      if (isLegacy) legacy++;
+      if (result) {
+        levels[result.level]++;
+        for (const q of asked) {
+          const cur = perQuestion.get(q.id) ?? { asked: 0, wrong: 0 };
+          cur.asked++;
+          if (raw[q.id] !== q.answerIndex) cur.wrong++;
+          perQuestion.set(q.id, cur);
+        }
+        for (const m of result.perModule) {
+          const cur = perModuleAcc.get(m.module) ?? { correct: 0, total: 0 };
+          cur.correct += m.correct;
+          cur.total += m.total;
+          perModuleAcc.set(m.module, cur);
+        }
+      }
+      const ms = new Date(`${p.created_at.replace(' ', 'T')}Z`).getTime();
+      const wib = new Date(ms + 7 * 3_600_000);
+      const monday = new Date(wib.getTime() - ((wib.getUTCDay() + 6) % 7) * 86_400_000).toISOString().slice(0, 10);
+      const wk = weeks.get(monday) ?? { count: 0, pct: 0 };
+      wk.count++;
+      wk.pct += p.total > 0 ? p.score / p.total : 0;
+      weeks.set(monday, wk);
+
+      const level = result?.level ?? null;
+      if ((filter.level && level !== filter.level) || (filter.account && p.user_id === null)) continue;
+      matching++;
+      if (listed.length < 50) {
+        listed.push({
+          id: p.id,
+          score: p.score,
+          total: p.total,
+          level,
+          legacy: isLegacy,
+          startModule: p.start_module,
+          at: new Date(ms).toISOString(),
+          user: p.email ? { displayName: p.display_name, email: p.email } : null,
+        });
+      }
+    }
+
+    const questionOf = new Map(placementQuestions.map((q) => [q.id, q]));
     res.json({
       data: {
         total: Number(sum?.n ?? 0),
         averageScore: sum?.avg === null || sum?.avg === undefined ? null : Math.round(Number(sum.avg) * 10) / 10,
         withAccount: Number(sum?.with_account ?? 0),
         byStartModule: byModule.map((m) => ({ module: m.start_module, count: Number(m.n) })),
-        recent: recent.map((p) => ({
-          id: p.id,
-          score: p.score,
-          total: p.total,
-          startModule: p.start_module,
-          at: new Date(`${p.created_at.replace(' ', 'T')}Z`).toISOString(),
-          user: p.email ? { displayName: p.display_name, email: p.email } : null,
-        })),
+        sampled: latest.length,
+        legacy,
+        levels,
+        hardest: [...perQuestion.entries()]
+          .map(([id, v]) => ({ id, question: questionOf.get(id)?.question ?? id, module: questionOf.get(id)?.module ?? '', asked: v.asked, wrong: v.wrong }))
+          .sort((a, b) => b.wrong / b.asked - a.wrong / a.asked || b.asked - a.asked)
+          .slice(0, 8),
+        moduleAccuracy: [...perModuleAcc.entries()].map(([module, v]) => ({ module, correct: v.correct, total: v.total })),
+        weekly: [...weeks.entries()]
+          .sort(([a], [b]) => (a < b ? 1 : -1))
+          .slice(0, 8)
+          .map(([week, v]) => ({ week, count: v.count, avgPercent: Math.round((v.pct / v.count) * 100) })),
+        matching,
+        recent: listed,
       },
     });
   });

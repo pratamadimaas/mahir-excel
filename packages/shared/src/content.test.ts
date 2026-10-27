@@ -211,6 +211,60 @@ describe('tes penempatan', () => {
     expect(evaluatePlacement({}).score).toBe(0);
     expect(evaluatePlacement({}).startModule).toBe('mengenal-excel');
   });
+
+  it('tiap tingkat punya cukup soal dan urutan tampil naik dari Pemula ke Mahir', async () => {
+    const { placementQuestions, placementOrdered, placementTierOf, PLACEMENT_TIERS } = await import('./index');
+    expect(placementOrdered).toHaveLength(placementQuestions.length);
+    for (const t of PLACEMENT_TIERS) {
+      expect(placementOrdered.filter((q) => placementTierOf(q.module) === t.level).length).toBeGreaterThanOrEqual(5);
+    }
+    const order = placementOrdered.map((q) => PLACEMENT_TIERS.findIndex((t) => t.level === placementTierOf(q.module)));
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  it('alur: semua benar menampilkan semua soal; salah beruntun menghentikan tes di tingkat itu', async () => {
+    const { placementQuestions, placementOrdered, placementProgress, evaluatePlacement } = await import('./index');
+    const correct = Object.fromEntries(placementQuestions.map((q) => [q.id, q.answerIndex]));
+    const full = placementProgress(correct);
+    expect(full.next).toBeNull();
+    expect(full.asked).toHaveLength(placementQuestions.length);
+    expect(evaluatePlacement(correct, full.asked).level).toBe('Mahir');
+
+    // Soal pertama kosong: itu yang berikutnya.
+    expect(placementProgress({}).next?.id).toBe(placementOrdered[0]!.id);
+
+    // Tiga salah di tingkat Pemula (lima soal, perlu tiga benar) membuat tes berhenti di soal ketiga.
+    const wrong3: Record<string, number> = {};
+    for (const q of placementOrdered.slice(0, 3)) wrong3[q.id] = (q.answerIndex + 1) % 4;
+    const stopped = placementProgress(wrong3);
+    expect(stopped.next).toBeNull();
+    expect(stopped.asked).toHaveLength(3);
+    const r = evaluatePlacement(wrong3, stopped.asked);
+    expect(r.level).toBe('Pemula');
+    expect(r.tiers.map((t) => t.level)).toEqual(['Pemula']);
+
+    // Dua salah masih bisa lulus, jadi tes berlanjut ke soal berikutnya.
+    const wrong2: Record<string, number> = {};
+    for (const q of placementOrdered.slice(0, 2)) wrong2[q.id] = (q.answerIndex + 1) % 4;
+    for (const q of placementOrdered.slice(2, 5)) wrong2[q.id] = q.answerIndex;
+    expect(placementProgress(wrong2).next?.id).toBe(placementOrdered[5]!.id);
+  });
+
+  it('tingkat dari akurasi per tingkat: satu salah di awal tidak menurunkan penguasa yang kuat', async () => {
+    const { placementQuestions, evaluatePlacement } = await import('./index');
+    const correct = Object.fromEntries(placementQuestions.map((q) => [q.id, q.answerIndex]));
+    const oneSlip = evaluatePlacement({ ...correct, p1: (correct.p1! + 1) % 4 });
+    expect(oneSlip.startModule).toBe('mengenal-excel'); // saran modul tetap menunjuk soal yang salah
+    expect(oneSlip.level).toBe('Mahir'); // tetapi tingkatnya tetap Mahir
+    const failMid = evaluatePlacement({
+      ...correct,
+      p6: (correct.p6! + 1) % 4,
+      p7: (correct.p7! + 1) % 4,
+      p8: (correct.p8! + 1) % 4,
+    });
+    expect(failMid.level).toBe('Menengah');
+    expect(failMid.tiers.find((t) => t.level === 'Menengah')?.passed).toBe(false);
+  });
 });
 
 describe('jadwal ulang', () => {

@@ -142,11 +142,17 @@ test.describe('tes penempatan (tanpa akun)', () => {
   test('memberi saran modul dan skornya tersimpan di server', async ({ page }) => {
     const saved = page.waitForResponse((r) => r.url().endsWith('/api/placement') && r.request().method() === 'POST');
     await page.goto('/tes-penempatan');
-    await page.locator('#p1-1').check();
-    await page.locator('#p2-1').check();
-    await page.locator('#p3-0').check(); // salah: filter menghapus
-    for (const id of ['p4-1', 'p5-1', 'p6-1', 'p7-1', 'p8-1', 'p9-2', 'p10-1', 'p11-0', 'p12-1']) await page.locator(`#${id}`).check();
-    await page.getByRole('button', { name: 'Lihat hasil' }).click();
+    // Satu soal per layar, urut dari Pemula sampai Mahir. p3 sengaja salah (filter menghapus).
+    const picks: [string, number][] = [
+      ['p1', 1], ['p2', 1], ['p3', 0], ['p4', 1], ['p5', 1],
+      ['p6', 1], ['p7', 1], ['p8', 1], ['p9', 2], ['p10', 1], ['p16', 1],
+      ['p11', 0], ['p12', 1], ['p13', 1], ['p14', 1], ['p15', 0],
+    ];
+    for (const [id, idx] of picks) {
+      await page.locator(`#${id}-${idx}`).check();
+      await page.getByRole('button', { name: /^(Lanjut|Lihat hasil)$/ }).click();
+    }
+    await expect(page.getByRole('heading', { name: 'Mahir' })).toBeVisible();
     await expect(page.getByText(/Saran: mulai dari modul/)).toBeVisible();
     expect((await saved).status()).toBe(201);
     await expect(page.getByText('Skormu sudah tersimpan.')).toBeVisible();

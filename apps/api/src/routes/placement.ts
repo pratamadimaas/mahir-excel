@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
-import { evaluatePlacement, placementQuestions } from '@excellab/shared';
+import { evaluatePlacement, placementProgress, placementQuestions } from '@excellab/shared';
 import type { Ctx } from '../app';
 import { run } from '../db/pool';
 import { errorBody, parse } from '../middleware/errors';
@@ -29,16 +29,21 @@ export function placementRoutes({ db, config }: Ctx): Router {
 
   r.post('/placement', limiter, async (req, res) => {
     const { answers } = parse(body, req.body);
+    // Hanya pertanyaan yang sah dan pilihan yang ada yang dipakai; sisanya dibuang.
+    const valid: Record<string, number> = {};
     for (const q of placementQuestions) {
       const a = answers[q.id];
-      if (a === undefined || a >= q.options.length) {
-        res.status(400).json(errorBody('VALIDATION_ERROR', 'Semua pertanyaan harus dijawab dengan pilihan yang valid.'));
-        return;
-      }
+      if (a !== undefined && a < q.options.length) valid[q.id] = a;
     }
-    const clean = Object.fromEntries(placementQuestions.map((q) => [q.id, answers[q.id]!]));
-    const result = evaluatePlacement(clean);
-    await run(db, 'INSERT INTO placement_results (user_id, score, total, start_module, per_module, answers) VALUES (?,?,?,?,?,?)', [
+    // Tes harus tuntas menurut alurnya: semua pertanyaan sampai tes selesai (lulus semua tingkat, atau berhenti di tingkat yang tidak lulus).
+    const { asked, next } = placementProgress(valid);
+    if (next) {
+      res.status(400).json(errorBody('VALIDATION_ERROR', 'Tes belum selesai. Jawab pertanyaan berikutnya, atau muat ulang halaman bila tes sudah diperbarui.'));
+      return;
+    }
+    const clean = Object.fromEntries(asked.map((q) => [q.id, valid[q.id]!]));
+    const result = evaluatePlacement(clean, asked);
+    await run(db, 'INSERT INTO placement_results (user_id, score, total, start_module, per_module, answers, version) VALUES (?,?,?,?,?,?,2)', [
       req.user?.id ?? null,
       result.score,
       result.total,
@@ -46,7 +51,9 @@ export function placementRoutes({ db, config }: Ctx): Router {
       JSON.stringify(result.perModule),
       JSON.stringify(clean),
     ]);
-    res.status(201).json({ data: { saved: true, score: result.score, total: result.total, startModule: result.startModule } });
+    res.status(201).json({
+      data: { saved: true, score: result.score, total: result.total, startModule: result.startModule, level: result.level },
+    });
   });
 
   return r;

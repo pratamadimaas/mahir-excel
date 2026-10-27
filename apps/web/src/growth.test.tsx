@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { placementQuestions } from '@excellab/shared';
+import { placementOrdered } from '@excellab/shared';
 import { EMPTY_PROGRESS, MODULES, STUDENT, mockApi, renderApp } from './testutil';
 
 // jsdom tidak punya canvas, jadi gambar QR diganti gambar kecil; yang diuji adalah alurnya, bukan pustaka QR.
@@ -209,26 +209,29 @@ describe('halaman Premium', () => {
 });
 
 describe('bagikan hasil tes penempatan', () => {
+  // Menjawab soal yang sedang tampil satu per satu sampai tes selesai; `wrong` berisi id soal yang dijawab salah.
   const answerAll = async (wrong: string[] = []): Promise<void> => {
-    for (const q of placementQuestions) {
+    for (let i = 0; i < 40; i++) {
+      const q = placementOrdered.find((x) => document.getElementById(`${x.id}-0`));
+      if (!q) break;
       const idx = wrong.includes(q.id) ? (q.answerIndex + 1) % q.options.length : q.answerIndex;
       await userEvent.click(document.getElementById(`${q.id}-${idx}`)!);
+      await userEvent.click(screen.getByRole('button', { name: /^(Lanjut|Lihat hasil)$/ }));
     }
-    await userEvent.click(screen.getByRole('button', { name: 'Lihat hasil' }));
   };
 
   it('menampilkan level dan tautan WhatsApp berisi skor dan level, tanpa nama', async () => {
     mockApi({ ...base, ...ANON });
     renderApp('/tes-penempatan');
-    await screen.findByRole('button', { name: 'Lihat hasil' });
-    await answerAll(['p6']); // salah di modul logika -> Menengah
+    await screen.findByRole('button', { name: 'Lanjut' });
+    await answerAll(['p6', 'p7', 'p8']); // tiga salah di tingkat Menengah -> tes berhenti, level Menengah
+    expect(await screen.findByRole('heading', { name: 'Menengah' })).toBeInTheDocument();
     const panel = await screen.findByLabelText('Bagikan hasil');
-    expect(within(panel).getByText(/Level kamu: Menengah/)).toBeInTheDocument();
     const wa = within(panel).getByRole('link', { name: 'Bagikan ke WhatsApp' });
     const href = wa.getAttribute('href')!;
     expect(href.startsWith('https://wa.me/?text=')).toBe(true);
     const text = decodeURIComponent(href.replace('https://wa.me/?text=', ''));
-    expect(text).toContain(`${placementQuestions.length - 1}/${placementQuestions.length}`);
+    expect(text).toContain('5/8'); // 5 soal Pemula benar dari 8 soal yang dijawab
     expect(text).toContain('level Menengah');
     expect(text).toContain('/tes-penempatan');
     expect(wa).toHaveAttribute('rel', 'noopener noreferrer');
@@ -239,9 +242,9 @@ describe('bagikan hasil tes penempatan', () => {
     vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
     mockApi({ ...base, ...ANON });
     renderApp('/tes-penempatan');
-    await screen.findByRole('button', { name: 'Lihat hasil' });
+    await screen.findByRole('button', { name: 'Lanjut' });
     await answerAll();
-    expect(await screen.findByText(/Level kamu: Mahir/)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Mahir' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Salin teks' }));
     expect(writeText).toHaveBeenCalledOnce();
     expect(writeText.mock.calls[0]![0]).toContain('level Mahir');

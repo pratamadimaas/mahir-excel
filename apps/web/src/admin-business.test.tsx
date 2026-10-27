@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { EMPTY_PROGRESS, mockApi, renderApp } from './testutil';
 
@@ -111,6 +111,38 @@ describe('ringkasan admin: sumber, fitur, 404, dan Perintis', () => {
     renderApp('/admin');
     await screen.findByRole('table', { name: /Aktivitas harian/ });
     expect(screen.queryByRole('button', { name: 'Lebih lama' })).not.toBeInTheDocument();
+  });
+
+  it('hasil tes penempatan: saringan tingkat dan akun diteruskan ke server', async () => {
+    const calls: string[] = [];
+    const detail = {
+      total: 40,
+      averageScore: 7,
+      withAccount: 10,
+      sampled: 40,
+      legacy: 0,
+      levels: { Pemula: 10, Menengah: 20, Mahir: 10 },
+      hardest: [],
+      moduleAccuracy: [],
+      weekly: [],
+      matching: 0,
+      recent: [],
+    };
+    mockApi({
+      ...dashboard,
+      'GET /admin/stats/placement': (url: URL) => {
+        calls.push(url.search);
+        return { body: { data: detail } };
+      },
+      'GET /program/status': { enabled: false, open: false, quota: 100, taken: 0, remaining: 100, minExercises: 5 },
+    });
+    renderApp('/admin');
+    expect(await screen.findByText('Sebaran tingkat')).toBeInTheDocument();
+    expect(screen.getByText('50% dari 40 hasil')).toBeInTheDocument(); // Menengah 20 dari 40
+    await userEvent.selectOptions(screen.getByLabelText('Tingkat'), 'Menengah');
+    await waitFor(() => expect(calls.some((c) => c.includes('level=Menengah'))).toBe(true));
+    await userEvent.click(screen.getByLabelText('Hanya yang punya akun'));
+    await waitFor(() => expect(calls.some((c) => c.includes('level=Menengah') && c.includes('account=1'))).toBe(true));
   });
 
   it('kartu Perintis menampilkan angka kuota ke admin walau belum ada klaim', async () => {

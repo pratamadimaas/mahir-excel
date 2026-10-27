@@ -210,16 +210,21 @@ describe('admin: statistik dan pengguna', () => {
         total: 3,
         averageScore: 9.5,
         withAccount: 1,
-        byStartModule: [
-          { module: 'logika', count: 2 },
-          { module: null, count: 1 },
-        ],
+        sampled: 3,
+        legacy: 1,
+        levels: { Pemula: 1, Menengah: 1, Mahir: 1 },
+        hardest: [{ id: 'p9', question: 'Pada SUMIFS, argumen yang ditulis paling awal adalah…', module: 'fungsi-bersyarat', asked: 3, wrong: 2 }],
+        moduleAccuracy: [{ module: 'logika', correct: 4, total: 6 }],
+        weekly: [{ week: '2026-10-12', count: 3, avgPercent: 72 }],
+        matching: 2,
         recent: [
-          { id: 3, score: 11, total: 12, startModule: 'logika', at: '2026-10-18T03:00:00.000Z', user: null },
+          { id: 3, score: 11, total: 12, level: 'Mahir', legacy: true, startModule: 'logika', at: '2026-10-18T03:00:00.000Z', user: null },
           {
             id: 2,
-            score: 12,
-            total: 12,
+            score: 3,
+            total: 5,
+            level: 'Pemula',
+            legacy: false,
             startModule: null,
             at: '2026-10-17T03:00:00.000Z',
             user: { displayName: 'Budi', email: 'budi@example.com' },
@@ -236,7 +241,10 @@ describe('admin: statistik dan pengguna', () => {
     expect(await screen.findByRole('heading', { name: 'Tes penempatan' })).toBeInTheDocument();
     expect(await screen.findByText('Budi (budi@example.com)')).toBeInTheDocument();
     expect(screen.getAllByText('Tanpa akun').length).toBeGreaterThan(0);
-    expect(screen.getByText('Siap modul lanjutan (semua benar)')).toBeInTheDocument();
+    expect(screen.getByText('Sebaran tingkat')).toBeInTheDocument();
+    expect(screen.getByText('Soal yang paling sering salah')).toBeInTheDocument();
+    expect(screen.getByText('67% (2 dari 3)')).toBeInTheDocument();
+    expect(screen.getByText('(lama)')).toBeInTheDocument();
     expect(screen.getByRole('table', { name: /Aktivitas harian/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Pengguna' })).toHaveAttribute('href', '/admin/pengguna');
   });

@@ -108,11 +108,94 @@ export const placementQuestions: PlacementQuestion[] = [
     answerIndex: 1,
     explanation: 'Format diterapkan pada sel yang rumus aturannya menghasilkan TRUE.',
   },
+  {
+    id: 'p13',
+    module: 'teks-tanggal',
+    question: 'Apa hasil =MID("INV-2025-007";5;4)?',
+    options: ['INV-', '2025', '-200', '2025-'],
+    answerIndex: 1,
+    explanation: 'MID mulai dari karakter ke-5 dan mengambil 4 karakter: 2025.',
+  },
+  {
+    id: 'p14',
+    module: 'teks-tanggal',
+    question: 'Di Excel, tanggal sebenarnya disimpan sebagai…',
+    options: ['Teks biasa', 'Angka seri (hitungan hari)', 'Gambar', 'Rumus'],
+    answerIndex: 1,
+    explanation: 'Tanggal adalah angka seri, itulah sebabnya tanggal bisa dikurangkan untuk mendapat selisih hari.',
+  },
+  {
+    id: 'p15',
+    module: 'rapi-dan-aman',
+    question: 'Data Validation berupa daftar pilihan dipakai untuk…',
+    options: ['Membatasi isian sel hanya pada pilihan yang diizinkan', 'Menyembunyikan sel yang kosong', 'Mengurutkan isi sel', 'Menyalin rumus ke sel lain'],
+    answerIndex: 0,
+    explanation: 'Daftar pilihan membuat sel hanya menerima nilai yang kamu izinkan, sehingga salah ketik berkurang.',
+  },
+  {
+    id: 'p16',
+    module: 'fungsi-pencarian',
+    question: 'VLOOKUP hanya mencari ke kanan dari kolom kunci. Fungsi yang bisa mengambil nilai di kiri kolom kunci adalah…',
+    options: ['SUMIF', 'XLOOKUP', 'ROUND', 'COUNT'],
+    answerIndex: 1,
+    explanation: 'XLOOKUP memisahkan kolom yang dicari dan kolom hasil, sehingga hasil boleh berada di sebelah kiri.',
+  },
 ];
+
+export type PlacementLevel = 'Pemula' | 'Menengah' | 'Mahir';
+
+/** Tingkat tiap modul. Urutan array adalah urutan tampil di tes (dari gampang ke sulit). */
+export const PLACEMENT_TIERS: { level: PlacementLevel; modules: string[] }[] = [
+  { level: 'Pemula', modules: ['mengenal-excel', 'mengolah-data', 'rumus-dasar'] },
+  { level: 'Menengah', modules: ['logika', 'fungsi-bersyarat', 'fungsi-pencarian'] },
+  { level: 'Mahir', modules: ['teks-tanggal', 'rapi-dan-aman'] },
+];
+
+/** Satu tingkat dianggap lulus bila minimal 60% jawabannya benar. */
+const passNeeded = (n: number): number => Math.ceil((n * 3) / 5);
+
+export function placementTierOf(module: string): PlacementLevel {
+  return PLACEMENT_TIERS.find((t) => t.modules.includes(module))?.level ?? 'Pemula';
+}
+
+/** Pertanyaan menurut urutan tampil: per tingkat, urutan di daftar sumber dipertahankan. */
+export const placementOrdered: PlacementQuestion[] = PLACEMENT_TIERS.flatMap((t) =>
+  placementQuestions.filter((q) => placementTierOf(q.module) === t.level),
+);
+
+export interface PlacementProgress {
+  /** Pertanyaan yang sudah dijawab sesuai alur tes. */
+  asked: PlacementQuestion[];
+  /** Pertanyaan berikutnya; null bila tes selesai. */
+  next: PlacementQuestion | null;
+}
+
+/**
+ * Alur tes: pertanyaan muncul per tingkat. Begitu satu tingkat tidak mungkin lagi lulus (terlalu banyak salah),
+ * tes berhenti, supaya pemula tidak dihadapkan pada soal yang pasti belum dikuasai.
+ */
+export function placementProgress(answers: Record<string, number>): PlacementProgress {
+  const asked: PlacementQuestion[] = [];
+  for (const tier of PLACEMENT_TIERS) {
+    const qs = placementOrdered.filter((q) => placementTierOf(q.module) === tier.level);
+    const maxWrong = qs.length - passNeeded(qs.length);
+    let wrong = 0;
+    for (const q of qs) {
+      const a = answers[q.id];
+      if (a === undefined) return { asked, next: q };
+      asked.push(q);
+      if (a !== q.answerIndex && ++wrong > maxWrong) return { asked, next: null };
+    }
+  }
+  return { asked, next: null };
+}
 
 export interface PlacementResult {
   score: number;
   total: number;
+  /** Tingkat kemampuan dari akurasi per tingkat: tingkat pertama yang tidak lulus; Mahir bila semua tingkat lulus. */
+  level: PlacementLevel;
+  tiers: { level: PlacementLevel; correct: number; total: number; passed: boolean }[];
   perModule: { module: string; correct: number; total: number }[];
   /** Modul pertama (urutan kurikulum) yang belum dikuasai penuh; null bila semua benar. */
   startModule: string | null;
@@ -136,13 +219,19 @@ export function evaluatePlacement(answers: Record<string, number>, questions: Pl
   }
   const perModule = modules.filter((m) => perMap.has(m.slug)).map((m) => ({ module: m.slug, ...perMap.get(m.slug)! }));
   const first = perModule.find((m) => m.correct < m.total);
-  return { score, total: questions.length, perModule, startModule: first?.module ?? null, missed };
+  const tiers = PLACEMENT_TIERS.map((t) => {
+    const mine = perModule.filter((m) => t.modules.includes(m.module));
+    const correct = mine.reduce((n, m) => n + m.correct, 0);
+    const total = mine.reduce((n, m) => n + m.total, 0);
+    return { level: t.level, correct, total, passed: correct >= passNeeded(total) };
+  }).filter((t) => t.total > 0);
+  const level = tiers.find((t) => !t.passed)?.level ?? 'Mahir';
+  return { score, total: questions.length, level, tiers, perModule, startModule: first?.module ?? null, missed };
 }
 
-export type PlacementLevel = 'Pemula' | 'Menengah' | 'Mahir';
-
-/** Label singkat untuk dibagikan: berdasarkan modul pertama yang belum dikuasai (null = semua benar = Mahir). */
-export function placementLevel(result: Pick<PlacementResult, 'startModule'>): PlacementLevel {
+/** Label tingkat: dari hasil tes bila ada (akurasi per tingkat), atau dari modul pertama yang belum dikuasai untuk hasil versi lama. */
+export function placementLevel(result: Pick<PlacementResult, 'startModule'> & Partial<Pick<PlacementResult, 'level'>>): PlacementLevel {
+  if (result.level) return result.level;
   if (result.startModule === null) return 'Mahir';
   const idx = modules.findIndex((m) => m.slug === result.startModule);
   if (idx <= 2) return 'Pemula'; // Mengenal Excel, Mengolah Data, Rumus Dasar (juga bila tidak dikenal)

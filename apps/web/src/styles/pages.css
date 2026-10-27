@@ -935,3 +935,96 @@
   border-radius: var(--xl-radius);
   overflow-wrap: anywhere;
 }
+
+/* ---------- Tes penempatan bertingkat ---------- */
+.xl-pt-tiers {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+.xl-pt-tier {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--xl-text-muted);
+  background: #fff;
+}
+.xl-pt-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--xl-grid);
+  font-size: 0.7rem;
+  line-height: 1;
+  color: #fff;
+  flex: none;
+}
+.xl-pt-tier.now {
+  color: var(--xl-green-dark);
+  border-color: var(--xl-green);
+  background: var(--xl-green-pale);
+}
+.xl-pt-tier.now .xl-pt-dot {
+  border-color: var(--xl-green);
+}
+.xl-pt-tier.done {
+  color: var(--xl-green-dark);
+}
+.xl-pt-tier.done .xl-pt-dot {
+  background: var(--xl-green);
+  border-color: var(--xl-green);
+}
+.xl-pt-level {
+  padding: 18px 20px;
+  border: 1px solid var(--xl-green);
+  border-radius: var(--xl-radius);
+  background: var(--xl-green-pale);
+  margin-bottom: 12px;
+}
+.xl-pt-level h2 {
+  font-size: clamp(1.75rem, 1.3rem + 2vw, 2.25rem);
+  color: var(--xl-green-dark);
+}
+.xl-pt-summary {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+  display: grid;
+  gap: 6px;
+}
+.xl-pt-summary li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+  font-size: 0.9rem;
+}
+.xl-pt-summary li.ok span {
+  color: var(--xl-green-dark);
+}
+.xl-pt-summary li.skip {
+  color: var(--xl-text-muted);
+  background: var(--xl-bg-subtle);
+}
+@media (max-width: 479px) {
+  .xl-pt-tiers {
+    gap: 6px;
+  }
+  .xl-pt-tier {
+    padding: 8px;
+    font-size: 0.8125rem;
+    gap: 6px;
+  }
+}

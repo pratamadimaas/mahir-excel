@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { exercises, placementQuestions, solutionCells } from '@excellab/shared';
+import { exercises, placementOrdered, placementQuestions, solutionCells } from '@excellab/shared';
 import { row, rows, run } from './db/pool';
 import { grantPremium, loginAdmin, registerUser, setupTestEnv, type Session, type TestEnv } from './testutil';
 
@@ -461,6 +461,50 @@ describe('tes penempatan (terbuka tanpa akun, skor disimpan di server)', () => {
     expect((await request(env.app).post('/api/placement').send({})).status).toBe(400);
     const after = await row<{ n: number }>(env.db, 'SELECT COUNT(*) AS n FROM placement_results');
     expect(Number(after!.n)).toBe(Number(before!.n));
+  });
+
+  it('tes berhenti lebih awal: tiga salah di tingkat Pemula cukup untuk dikirim, level Pemula, versi 2', async () => {
+    const wrong = Object.fromEntries(placementOrdered.slice(0, 3).map((q) => [q.id, (q.answerIndex + 1) % q.options.length]));
+    const r = await request(env.app)
+      .post('/api/placement')
+      .send({ answers: { ...wrong, p13: 0 } }); // jawaban di luar alur dibuang
+    expect(r.status).toBe(201);
+    expect(r.body.data).toMatchObject({ saved: true, score: 0, total: 3, level: 'Pemula' });
+    const saved = await row<{ version: number; answers: unknown }>(env.db, 'SELECT version, answers FROM placement_results ORDER BY id DESC LIMIT 1');
+    expect(Number(saved?.version)).toBe(2);
+    const stored = typeof saved?.answers === 'string' ? JSON.parse(saved.answers) : saved?.answers;
+    expect(Object.keys(stored as object).sort()).toEqual(Object.keys(wrong).sort());
+    // Dua jawaban saja belum cukup: tes belum selesai.
+    const two = Object.fromEntries(Object.entries(wrong).slice(0, 2));
+    expect((await request(env.app).post('/api/placement').send({ answers: two })).status).toBe(400);
+  });
+
+  it('admin: sebaran tingkat, soal tersulit, akurasi modul, tren mingguan, dan saringan', async () => {
+    await request(env.app).post('/api/placement').send({ answers: correct() });
+    // Hasil versi lama: 12 soal pertama dijawab benar semua, tanpa soal baru.
+    const legacy = Object.fromEntries(placementQuestions.slice(0, 12).map((q) => [q.id, q.answerIndex]));
+    await run(env.db, 'INSERT INTO placement_results (user_id, score, total, start_module, per_module, answers, version) VALUES (NULL,12,12,NULL,?,?,1)', [
+      JSON.stringify([]),
+      JSON.stringify(legacy),
+    ]);
+    const admin = await loginAdmin(env.app);
+    const r = await admin.agent.get('/api/admin/stats/placement');
+    expect(r.status).toBe(200);
+    const d = r.body.data;
+    expect(d.levels.Pemula + d.levels.Menengah + d.levels.Mahir).toBeGreaterThanOrEqual(4);
+    expect(d.levels.Pemula).toBeGreaterThanOrEqual(1); // hasil berhenti-awal dari tes di atas
+    expect(d.legacy).toBeGreaterThanOrEqual(1);
+    expect(d.hardest.length).toBeGreaterThan(0);
+    expect(d.hardest[0]).toMatchObject({ id: expect.any(String), asked: expect.any(Number), wrong: expect.any(Number) });
+    expect(d.moduleAccuracy.length).toBeGreaterThan(0);
+    expect(d.weekly[0]).toMatchObject({ count: expect.any(Number), avgPercent: expect.any(Number) });
+    expect(d.recent.some((p: { legacy: boolean; level: string | null }) => p.legacy && p.level !== null)).toBe(true);
+
+    const onlyPemula = await admin.agent.get('/api/admin/stats/placement?level=Pemula');
+    expect(onlyPemula.body.data.recent.every((p: { level: string }) => p.level === 'Pemula')).toBe(true);
+    const onlyAccount = await admin.agent.get('/api/admin/stats/placement?account=1');
+    expect(onlyAccount.body.data.recent.every((p: { user: unknown }) => p.user !== null)).toBe(true);
+    expect((await admin.agent.get('/api/admin/stats/placement?level=Dewa')).status).toBe(400);
   });
 
   it('admin melihat ringkasan dan hasil terbaru; pengguna biasa dan anonim tidak', async () => {

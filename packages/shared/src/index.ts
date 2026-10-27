@@ -21,8 +21,8 @@ export const exercises = [...baseExercises, ...moreExercises, ...lanjutanExercis
 export { placementQuestions, evaluatePlacement } from './content/placement';
 export type { PlacementQuestion, PlacementResult } from './content/placement';
 export { PUBLIC_LESSON_SLUGS, isPublicLesson, FREE_WORKSHEET_SLUGS, isFreeWorksheet } from './content/public';
-export { placementLevel } from './content/placement';
-export type { PlacementLevel } from './content/placement';
+export { placementLevel, placementProgress, placementOrdered, placementTierOf, PLACEMENT_TIERS } from './content/placement';
+export type { PlacementLevel, PlacementProgress } from './content/placement';
 
 import { FUNCTION_NAMES } from '@excellab/spreadsheet-engine';
 /** Jumlah fungsi rumus yang didukung playground (dipakai untuk angka di beranda agar tidak pernah basi). */

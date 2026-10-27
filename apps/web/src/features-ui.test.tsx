@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, type vi } from 'vitest';
-import { placementQuestions } from '@excellab/shared';
+import { placementOrdered, placementQuestions } from '@excellab/shared';
 import { MODULES, SIGNED_IN, mockApi, renderApp } from './testutil';
 
 const ME_NONE = { user: null, csrfToken: null };
@@ -37,31 +37,45 @@ const bodyOf = (fetchMock: ReturnType<typeof vi.fn>, path: string): Record<strin
 };
 
 describe('tes penempatan', () => {
-  const answerAll = async (wrong: string[] = []): Promise<void> => {
-    for (const q of placementQuestions) {
+  // Menjawab soal yang sedang tampil satu per satu sampai tes selesai; `wrong` berisi id soal yang sengaja dijawab salah.
+  const runTest = async (wrong: string[] = [], maxSteps = 40): Promise<number> => {
+    let steps = 0;
+    while (steps < maxSteps) {
+      const q = placementOrdered.find((x) => document.getElementById(`${x.id}-0`));
+      if (!q) break;
       const idx = wrong.includes(q.id) ? (q.answerIndex + 1) % q.options.length : q.answerIndex;
       await userEvent.click(document.getElementById(`${q.id}-${idx}`)!);
+      const btn = screen.getByRole('button', { name: /^(Lanjut|Lihat hasil)$/ });
+      await userEvent.click(btn);
+      steps++;
     }
+    return steps;
   };
 
-  it('tombol hasil nonaktif sampai semua pertanyaan dijawab', async () => {
+  it('satu soal per layar: Lanjut nonaktif sampai ada pilihan, Kembali membuka soal sebelumnya', async () => {
     mockApi({ ...base, 'GET /auth/me': ME_NONE });
     renderApp('/tes-penempatan');
-    const btn = await screen.findByRole('button', { name: 'Lihat hasil' });
-    expect(btn).toBeDisabled();
-    expect(screen.getByText(`0 dari ${placementQuestions.length} terjawab`)).toBeInTheDocument();
+    const next = await screen.findByRole('button', { name: 'Lanjut' });
+    expect(next).toBeDisabled();
+    expect(screen.getByText(/Pemula: soal 1 dari 5/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Kembali' })).toBeDisabled();
+    // Hanya soal yang sedang tampil yang ada di layar.
+    expect(document.getElementById('p2-0')).toBeNull();
     await userEvent.click(document.getElementById('p1-1')!);
-    expect(screen.getByText(`1 dari ${placementQuestions.length} terjawab`)).toBeInTheDocument();
-    expect(btn).toBeDisabled();
+    expect(next).toBeEnabled();
+    await userEvent.click(next);
+    expect(await screen.findByText(/Pemula: soal 2 dari 5/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Kembali' }));
+    expect(await screen.findByText(/Pemula: soal 1 dari 5/)).toBeInTheDocument();
   });
 
-  it('semua benar -> siap modul lanjutan; hasil disimpan lokal dan dikirim ke server tanpa akun', async () => {
+  it('semua benar -> level Mahir, siap modul lanjutan; hasil disimpan lokal dan dikirim ke server tanpa akun', async () => {
     const fetchMock = mockApi({ ...base, 'GET /auth/me': ME_NONE });
     renderApp('/tes-penempatan');
-    await screen.findByRole('button', { name: 'Lihat hasil' });
-    await answerAll();
-    await userEvent.click(screen.getByRole('button', { name: 'Lihat hasil' }));
-    expect(await screen.findByText(`Skormu ${placementQuestions.length} dari ${placementQuestions.length}`)).toBeInTheDocument();
+    await screen.findByRole('button', { name: 'Lanjut' });
+    expect(await runTest()).toBe(placementQuestions.length);
+    expect(await screen.findByText(`Skormu ${placementQuestions.length} dari ${placementQuestions.length} pertanyaan yang kamu jawab.`)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Mahir' })).toBeInTheDocument();
     expect(screen.getByText('Semua jawaban benar.')).toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem('excellab.placement.v1')!).answers.p1).toBe(1);
     expect(await screen.findByText('Skormu sudah tersimpan.')).toBeInTheDocument();
@@ -71,6 +85,19 @@ describe('tes penempatan', () => {
     expect(screen.getByRole('link', { name: 'Daftar gratis' })).toHaveAttribute('href', '/daftar');
   });
 
+  it('berhenti lebih awal: tiga salah di tingkat Pemula langsung menampilkan hasil Pemula', async () => {
+    const fetchMock = mockApi({ ...base, 'GET /auth/me': ME_NONE });
+    renderApp('/tes-penempatan');
+    await screen.findByRole('button', { name: 'Lanjut' });
+    const first3 = placementOrdered.slice(0, 3).map((q) => q.id);
+    expect(await runTest(first3)).toBe(3);
+    expect(await screen.findByRole('heading', { name: 'Pemula' })).toBeInTheDocument();
+    expect(screen.getByText('0/3 benar, belum lulus')).toBeInTheDocument();
+    expect(screen.getAllByText('tidak diuji')).toHaveLength(2);
+    const sent = bodyOf(fetchMock, '/placement') as { answers: Record<string, number> };
+    expect(Object.keys(sent.answers)).toHaveLength(3);
+  });
+
   it('skor yang gagal dikirim tetap menampilkan hasil dan memberi tahu', async () => {
     mockApi({
       ...base,
@@ -78,9 +105,8 @@ describe('tes penempatan', () => {
       'POST /placement': () => ({ status: 500, body: { error: { code: 'INTERNAL_ERROR', message: 'x' } } }),
     });
     renderApp('/tes-penempatan');
-    await screen.findByRole('button', { name: 'Lihat hasil' });
-    await answerAll();
-    await userEvent.click(screen.getByRole('button', { name: 'Lihat hasil' }));
+    await screen.findByRole('button', { name: 'Lanjut' });
+    await runTest();
     expect(await screen.findByText(/Skormu belum berhasil dicatat/)).toBeInTheDocument();
     expect(screen.getByText('Semua jawaban benar.')).toBeInTheDocument();
   });
@@ -98,9 +124,8 @@ describe('tes penempatan', () => {
     ];
     mockApi({ ...base, ...SIGNED_IN, 'GET /modules': modules });
     renderApp('/tes-penempatan');
-    await screen.findByRole('button', { name: 'Lihat hasil' });
-    await answerAll(['p6']);
-    await userEvent.click(screen.getByRole('button', { name: 'Lihat hasil' }));
+    await screen.findByRole('button', { name: 'Lanjut' });
+    await runTest(['p6']);
     expect(await screen.findByText(/Saran: mulai dari modul “Logika”/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Mulai: IF: Mengambil Keputusan/ })).toHaveAttribute('href', '/belajar/fungsi-if');
     expect(screen.getByText('Pembahasan jawaban yang belum tepat')).toBeInTheDocument();
@@ -115,7 +140,16 @@ describe('tes penempatan', () => {
     const answers = Object.fromEntries(placementQuestions.map((q) => [q.id, q.answerIndex]));
     localStorage.setItem('excellab.placement.v1', JSON.stringify({ answers, at: new Date().toISOString() }));
     renderApp('/belajar');
-    expect(await screen.findByText(/siap ke modul lanjutan/)).toBeInTheDocument();
+    expect(await screen.findByText(/Siap ke modul lanjutan/)).toBeInTheDocument();
+    expect(screen.getByText(/Level tesmu: Mahir/)).toBeInTheDocument();
+  });
+
+  it('hasil lama yang belum menjawab soal baru tidak dianggap selesai: Akademi mengajak mengulang tes', async () => {
+    const old = Object.fromEntries(placementQuestions.slice(0, 12).map((q) => [q.id, q.answerIndex]));
+    localStorage.setItem('excellab.placement.v1', JSON.stringify({ answers: old, at: new Date().toISOString() }));
+    mockApi({ ...base, ...SIGNED_IN });
+    renderApp('/belajar');
+    expect(await screen.findByRole('link', { name: /Ikuti tes penempatan/ })).toHaveAttribute('href', '/tes-penempatan');
   });
 });
 

@@ -1,6 +1,9 @@
 /* Gaya global Mahir Excel: dasar, shell aplikasi, dan komponen umum. */
-html {
-  scroll-behavior: smooth;
+/* Gulir halus hanya untuk mouse. Di layar sentuh (termasuk browser dalam aplikasi Threads/IG) gulir halus membuat halaman panjang terasa tersendat. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 body {
   font-size: 15px;
@@ -8,7 +11,13 @@ body {
   color: var(--xl-text);
   background: var(--xl-bg);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* clip memotong luapan ke samping tanpa membuat body menjadi wadah gulir sendiri (overflow-x: hidden membuat gulir tersangkut di sebagian WebView). */
+  overflow-x: clip;
+}
+@supports not (overflow-x: clip) {
+  body {
+    overflow-x: hidden;
+  }
 }
 h1,
 h2,

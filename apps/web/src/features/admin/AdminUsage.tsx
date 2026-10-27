@@ -3,6 +3,7 @@ import { EmptyState, ErrorState, Loading, Status } from '../../components/feedba
 import { useAsync } from '../../hooks/useAsync';
 import { api, apiUrl, errorMessage } from '../../services/api';
 import type { ProgramStatus } from '../../services/types';
+import { PlacementSection } from './AdminPlacement';
 
 interface Stats {
   users: number;
@@ -117,8 +118,7 @@ function DailyTable({ usage }: { usage: Usage }) {
                 <th scope="col">Pengunjung</th>
                 <th scope="col">Halaman dibuka</th>
                 <th scope="col">Pendaftar baru</th>
-                <th scope="col">Percobaan (akun)</th>
-                <th scope="col">Percobaan (tanpa akun)</th>
+                <th scope="col">Percobaan latihan</th>
               </tr>
             </thead>
             <tbody>
@@ -134,7 +134,6 @@ function DailyTable({ usage }: { usage: Usage }) {
                   <td>{nf.format(d.pageviews)}</td>
                   <td>{nf.format(d.newUsers)}</td>
                   <td>{nf.format(d.attempts)}</td>
-                  <td>{nf.format(d.anonAttempts)}</td>
                 </tr>
               ))}
             </tbody>
@@ -401,66 +400,7 @@ export function AdminDashboard() {
         </>
       )}
 
-      <h2 className="h5 mt-4">Tes penempatan</h2>
-      {placement.error && <ErrorState message={placement.error} onRetry={placement.reload} />}
-      {placement.data && placement.data.total === 0 && <EmptyState title="Belum ada yang mengikuti tes penempatan" />}
-      {placement.data && placement.data.total > 0 && (
-        <>
-          <p className="mb-2">
-            <strong>{nf.format(placement.data.total)}</strong> hasil, rata-rata skor <strong>{placement.data.averageScore}</strong>.
-          </p>
-          <div className="row g-4">
-            <div className="col-12 col-lg-5">
-              <div className="xl-table-wrap">
-                <table className="xl-table">
-                  <caption className="visually-hidden">Modul awal yang disarankan</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Modul awal yang disarankan</th>
-                      <th scope="col">Jumlah</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {placement.data.byStartModule.map((m) => (
-                      <tr key={m.module ?? 'semua'}>
-                        <td>{m.module ? <code>{m.module}</code> : 'Siap modul lanjutan (semua benar)'}</td>
-                        <td>{nf.format(m.count)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="col-12 col-lg-7">
-              <div className="xl-table-wrap">
-                <table className="xl-table">
-                  <caption className="visually-hidden">Hasil tes penempatan terbaru</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Waktu</th>
-                      <th scope="col">Skor</th>
-                      <th scope="col">Modul awal</th>
-                      <th scope="col">Peserta</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {placement.data.recent.map((p) => (
-                      <tr key={p.id}>
-                        <td className="text-nowrap">{fmtDateTime(p.at)}</td>
-                        <td>
-                          {p.score}/{p.total}
-                        </td>
-                        <td>{p.startModule ? <code>{p.startModule}</code> : '-'}</td>
-                        <td>{p.user ? `${p.user.displayName ?? ''} (${p.user.email})` : 'Tanpa akun'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      <PlacementSection />
       <p className="xl-small xl-muted mt-2">
         Tes penempatan terbuka tanpa akun; pengunjung tanpa akun tersimpan tanpa nama, IP, atau data perangkat. {stats.note}
       </p>

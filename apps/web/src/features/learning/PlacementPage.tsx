@@ -1,6 +1,15 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { evaluatePlacement, placementLevel, placementQuestions, type PlacementResult } from '@excellab/shared';
+import {
+  evaluatePlacement,
+  placementLevel,
+  placementOrdered,
+  placementProgress,
+  placementQuestions,
+  placementTierOf,
+  PLACEMENT_TIERS,
+  type PlacementResult,
+} from '@excellab/shared';
 import { useAuth } from '../../app/AuthContext';
 import { Status } from '../../components/feedback/Feedback';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -49,11 +58,17 @@ export function clearPlacement(): void {
   }
 }
 
+/** Hasil dari jawaban yang tuntas menurut alur tes; null bila tes belum selesai. */
+export function resultFromAnswers(answers: Record<string, number>): PlacementResult | null {
+  const { asked, next } = placementProgress(answers);
+  return asked.length > 0 && !next ? evaluatePlacement(answers, asked) : null;
+}
+
 /** Ringkasan hasil tes yang tersimpan, dipakai banner di halaman Akademi. */
 export function usePlacementResult(): PlacementResult | null {
   return useMemo(() => {
     const saved = loadPlacement();
-    return saved && Object.keys(saved.answers).length === placementQuestions.length ? evaluatePlacement(saved.answers) : null;
+    return saved ? resultFromAnswers(saved.answers) : null;
   }, []);
 }
 
@@ -80,9 +95,7 @@ function ShareResult({ result }: { result: PlacementResult }) {
 
   return (
     <div className="xl-panel xl-panel-body my-3" aria-label="Bagikan hasil">
-      <p className="mb-2">
-        <strong>Level kamu: {placementLevel(result)}.</strong> Ajak temanmu mencoba juga.
-      </p>
+      <p className="mb-2">Ajak temanmu mencoba juga.</p>
       <div className="d-flex flex-wrap gap-2">
         <a
           className="btn btn-success btn-sm"
@@ -110,32 +123,87 @@ function ShareResult({ result }: { result: PlacementResult }) {
   );
 }
 
+const LEVEL_NOTE: Record<string, string> = {
+  Pemula: 'Dasar-dasarnya masih perlu dikuatkan dulu. Tenang, justru di sini awal yang paling enak untuk belajar.',
+  Menengah: 'Dasarmu sudah kuat. Selanjutnya fungsi logika, bersyarat, dan pencarian yang paling berguna untuk kerjaan.',
+  Mahir: 'Dasar dan fungsi menengahmu sudah kuat. Tinggal mengasah teks, tanggal, dan merapikan data.',
+};
+
+/** Penanda tiga tingkat di atas soal: yang sudah dilewati, yang sedang dikerjakan, dan yang menunggu. */
+function TierSteps({ current, done }: { current: string | null; done: Set<string> }) {
+  return (
+    <ol className="xl-pt-tiers" aria-label="Tingkat tes">
+      {PLACEMENT_TIERS.map((t) => {
+        const state = done.has(t.level) ? 'done' : t.level === current ? 'now' : 'wait';
+        return (
+          <li key={t.level} className={`xl-pt-tier ${state}`} aria-current={state === 'now' ? 'step' : undefined}>
+            <span className="xl-pt-dot" aria-hidden="true">
+              {state === 'done' ? '✓' : ''}
+            </span>
+            {t.level}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 export function PlacementPage() {
   useDocumentTitle('Tes penempatan');
   const { modules } = useModules();
   const { user } = useAuth();
   const [saved, setSaved] = useState<'idle' | 'ok' | 'fail'>('idle');
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [pending, setPending] = useState<number | null>(null);
   const [result, setResult] = useState<PlacementResult | null>(null);
-  const answered = Object.keys(answers).length;
-  const total = placementQuestions.length;
 
-  const submit = (e: FormEvent): void => {
-    e.preventDefault();
-    if (answered < total) return;
-    savePlacement({ answers, at: new Date().toISOString() });
-    setResult(evaluatePlacement(answers));
+  const progress = placementProgress(answers);
+  const current = progress.next;
+  const tier = current ? placementTierOf(current.module) : null;
+  const tierQuestions = tier ? placementOrdered.filter((q) => placementTierOf(q.module) === tier) : [];
+  const posInTier = current ? tierQuestions.findIndex((q) => q.id === current.id) + 1 : 0;
+  const doneTiers = new Set<string>();
+  for (const t of PLACEMENT_TIERS) {
+    const qs = placementOrdered.filter((q) => placementTierOf(q.module) === t.level);
+    if (qs.length > 0 && qs.every((q) => answers[q.id] !== undefined)) doneTiers.add(t.level);
+  }
+
+  const advance = (): void => {
+    if (!current || pending === null) return;
+    const nextAnswers = { ...answers, [current.id]: pending };
+    const after = placementProgress(nextAnswers);
+    setPending(null);
+    if (after.next) {
+      setAnswers(nextAnswers);
+      return;
+    }
+    // Tes selesai: simpan hanya jawaban yang termasuk alur tes.
+    const clean = Object.fromEntries(after.asked.map((q) => [q.id, nextAnswers[q.id]!]));
+    setAnswers(clean);
+    savePlacement({ answers: clean, at: new Date().toISOString() });
+    setResult(evaluatePlacement(clean, after.asked));
     setSaved('idle');
     // Skor disimpan di server (tanpa nama/IP bila tidak masuk); hasil tetap tampil walau penyimpanan gagal.
     api
-      .post('/placement', { answers })
+      .post('/placement', { answers: clean })
       .then(() => setSaved('ok'))
       .catch(() => setSaved('fail'));
     window.scrollTo?.({ top: 0 });
   };
 
+  const back = (): void => {
+    const last = progress.asked[progress.asked.length - 1];
+    if (!last) return;
+    setAnswers((a) => {
+      const rest = { ...a };
+      delete rest[last.id];
+      return rest;
+    });
+    setPending(answers[last.id] ?? null);
+  };
+
   const startModule = result?.startModule ? modules?.find((m) => m.slug === result.startModule) : null;
-  const missed = placementQuestions.filter((q) => result?.missed.includes(q.id));
+  const missed = result ? placementQuestions.filter((q) => result.missed.includes(q.id)) : [];
 
   return (
     <div className="xl-page xl-page-narrow">
@@ -143,17 +211,35 @@ export function PlacementPage() {
         <p className="xl-eyebrow">Tes penempatan</p>
         <h1>Mulai dari mana?</h1>
         <p>
-          Jawab {total} pertanyaan singkat (sekitar 3 menit), lalu kami sarankan modul yang pas untuk mulai. Santai saja, ini bukan ujian
-          dan tidak ada nilai resmi.
+          Jawab satu per satu, paling banyak {placementQuestions.length} pertanyaan (sekitar 4 menit). Soal naik bertahap dari Pemula sampai Mahir, dan tes
+          berhenti lebih awal kalau soal berikutnya sudah terlalu jauh. Santai saja, ini bukan ujian dan tidak ada nilai resmi.
         </p>
         <p className="xl-small xl-muted">Tanpa perlu akun. Hasilnya dicatat tanpa nama supaya kami bisa membuat materi yang lebih pas.</p>
       </header>
 
       {result ? (
         <section aria-labelledby="hasil" aria-live="polite">
-          <h2 id="hasil">
-            Skormu {result.score} dari {result.total}
-          </h2>
+          <div className="xl-pt-level">
+            <p className="xl-eyebrow mb-1">Level kamu</p>
+            <h2 id="hasil" className="mb-1">
+              {result.level}
+            </h2>
+            <p className="mb-2">{LEVEL_NOTE[result.level]}</p>
+            <p className="xl-small xl-muted mb-0">
+              Skormu {result.score} dari {result.total} pertanyaan yang kamu jawab.
+            </p>
+          </div>
+          <ul className="xl-pt-summary" aria-label="Hasil per tingkat">
+            {PLACEMENT_TIERS.map((t) => {
+              const r = result.tiers.find((x) => x.level === t.level);
+              return (
+                <li key={t.level} className={r ? (r.passed ? 'ok' : 'no') : 'skip'}>
+                  <strong>{t.level}</strong>
+                  <span>{r ? `${r.correct}/${r.total} benar, ${r.passed ? 'lulus' : 'belum lulus'}` : 'tidak diuji'}</span>
+                </li>
+              );
+            })}
+          </ul>
           <ShareResult result={result} />
           {saved === 'ok' && (
             <p className="xl-small xl-muted" role="status">
@@ -229,44 +315,56 @@ export function PlacementPage() {
             onClick={() => {
               setResult(null);
               setAnswers({});
+              setPending(null);
             }}
           >
             Ulangi tes
           </button>
         </section>
       ) : (
-        <form onSubmit={submit} aria-label="Tes penempatan">
-          {placementQuestions.map((q, i) => (
-            <fieldset key={q.id} className="xl-quiz">
-              <legend className="h6">
-                {i + 1}. {q.question}
-              </legend>
-              {q.options.map((o, oi) => (
+        current && (
+          <form
+            aria-label="Tes penempatan"
+            onSubmit={(e) => {
+              e.preventDefault();
+              advance();
+            }}
+          >
+            <TierSteps current={tier} done={doneTiers} />
+            <p className="xl-small xl-muted mb-2" role="status">
+              {tier}: soal {posInTier} dari {tierQuestions.length}
+            </p>
+            <div className="xl-progress mb-3" aria-hidden="true">
+              <span style={{ width: `${(progress.asked.length / placementQuestions.length) * 100}%` }} />
+            </div>
+            <fieldset key={current.id} className="xl-quiz">
+              <legend className="h5">{current.question}</legend>
+              {current.options.map((o, oi) => (
                 <div className="form-check" key={oi}>
                   <input
                     className="form-check-input"
                     type="radio"
-                    name={q.id}
-                    id={`${q.id}-${oi}`}
-                    checked={answers[q.id] === oi}
-                    onChange={() => setAnswers((a) => ({ ...a, [q.id]: oi }))}
+                    name={current.id}
+                    id={`${current.id}-${oi}`}
+                    checked={pending === oi}
+                    onChange={() => setPending(oi)}
                   />
-                  <label className="form-check-label" htmlFor={`${q.id}-${oi}`}>
+                  <label className="form-check-label" htmlFor={`${current.id}-${oi}`}>
                     {o}
                   </label>
                 </div>
               ))}
             </fieldset>
-          ))}
-          <div className="d-flex align-items-center gap-3">
-            <button type="submit" className="btn btn-primary" disabled={answered < total}>
-              Lihat hasil
-            </button>
-            <span className="xl-small xl-muted" role="status">
-              {answered} dari {total} terjawab
-            </span>
-          </div>
-        </form>
+            <div className="d-flex align-items-center gap-2">
+              <button type="button" className="btn btn-outline-secondary" onClick={back} disabled={progress.asked.length === 0}>
+                Kembali
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={pending === null}>
+                {pending !== null && !placementProgress({ ...answers, [current.id]: pending }).next ? 'Lihat hasil' : 'Lanjut'}
+              </button>
+            </div>
+          </form>
+        )
       )}
     </div>
   );
@@ -283,12 +381,13 @@ export function PlacementBanner() {
     <p className="xl-small mt-3 mb-0">
       {result ? (
         <>
-          Hasil tes penempatanmu: {result.startModule === null ? 'siap ke modul lanjutan' : `mulai dari modul “${title}”`}.{' '}
+          Level tesmu: {result.level}.{' '}
+          {result.startModule === null ? 'Siap ke modul lanjutan.' : `Saran mulai dari modul “${title}”.`}{' '}
           <Link to="/tes-penempatan">Ulangi tes</Link>
         </>
       ) : (
         <>
-          Belum yakin mulai dari mana? <Link to="/tes-penempatan">Ikuti tes penempatan (sekitar 3 menit)</Link>.
+          Belum yakin mulai dari mana? <Link to="/tes-penempatan">Ikuti tes penempatan (sekitar 4 menit)</Link>.
         </>
       )}
     </p>

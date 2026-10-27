@@ -268,7 +268,7 @@ function Audience() {
       <div className="xl-l-side">
         <h2 id="l-siapa">Untuk siapa Mahir Excel.</h2>
         <p className="xl-l-lead mb-0">
-          Belum yakin dengan level kamu? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>: 12 pertanyaan, sekitar 3 menit, bisa diikuti walau tanpa akun.
+          Belum yakin dengan level kamu? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>: paling banyak 16 pertanyaan, sekitar 4 menit, hasilnya level Pemula, Menengah, atau Mahir. Bisa diikuti walau tanpa akun.
         </p>
         <p className="xl-l-lead mb-0">
           Sudah tahu tujuanmu? Pilih <Link to="/jalur">jalur belajar</Link> untuk admin, usaha kecil, atau keuangan dasar.
@@ -360,7 +360,7 @@ function Curriculum({ overview }: { overview: Overview | null }) {
             : 'Pelajaran dan latihan disusun berurutan. Tiap modul ditutup dengan proyek kecil.'}
         </p>
         <p className="mb-0">
-          Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>, 12 pertanyaan sekitar 3 menit.
+          Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>, paling banyak 16 pertanyaan sekitar 4 menit.
         </p>
       </div>
       <ol className="xl-path" aria-label="Daftar modul">
@@ -459,7 +459,7 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
         </article>
         <article className="xl-l-cell xl-l-cell-e">
           <h3 className="h5">Tes penempatan</h3>
-          <p>12 pertanyaan, hasilnya saran modul untuk memulai. Terbuka tanpa akun.</p>
+          <p>Satu pertanyaan per layar, hasilnya level kamu dan saran modul untuk memulai. Terbuka tanpa akun.</p>
           <Link to="/tes-penempatan" className="btn btn-light btn-sm">
             Ikuti tes penempatan
           </Link>
