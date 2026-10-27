@@ -4,6 +4,7 @@ import { useProgress } from '../../app/ProgressContext';
 import { EmptyState, ErrorState, Loading, Status } from '../../components/feedback/Feedback';
 import { Level } from '../../components/learning/Bits';
 import { ExerciseWorkspace } from '../../components/spreadsheet/ExerciseWorkspace';
+import { HowToPanel } from '../../components/spreadsheet/HowToPanel';
 import { useAsync } from '../../hooks/useAsync';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { api } from '../../services/api';
@@ -38,6 +39,8 @@ export function ExerciseCatalogPage() {
         <h1>Katalog latihan</h1>
         <p>Setiap latihan berupa lembar kerja mini dengan tugas, petunjuk bertahap, dan umpan balik yang menjelaskan jawabanmu.</p>
       </header>
+
+      <HowToPanel mode="katalog" />
 
       <form className="xl-filters" onSubmit={(e) => e.preventDefault()} aria-label="Saring latihan">
         <div>

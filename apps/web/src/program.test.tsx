@@ -26,9 +26,9 @@ describe('halaman Program Perintis', () => {
     mockApi({ ...base, ...ANON, 'GET /program/status': pub });
     renderApp('/program');
     expect(await screen.findByRole('heading', { name: /100 sertifikat gratis/ })).toBeInTheDocument();
-    expect(screen.getByText(/37 dari 100 sertifikat sudah diklaim/)).toBeInTheDocument();
-    expect(screen.getByText('63')).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: /Kuota/ })).toHaveAttribute('aria-valuenow', '37');
+    // Kuota yang masih longgar (63 tersisa) tidak dipamerkan.
+    expect(screen.queryByRole('progressbar', { name: /Kuota/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/sudah diklaim/)).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Daftar gratis' })).toHaveAttribute('href', '/daftar');
     expect(screen.queryByRole('button', { name: /Klaim sertifikat/ })).not.toBeInTheDocument();
   });
@@ -127,39 +127,54 @@ describe('banner Program Perintis di beranda', () => {
       { slug: 'fungsi-sum', title: 'SUM: Menjumlahkan Angka', summary: 'Jumlahkan rentang', minutes: 8, moduleTitle: 'Rumus Dasar' },
     ],
   };
+  const member = { ...home, 'GET /auth/me': { user: STUDENT, csrfToken: 'tok' } };
 
-  it('tampil dengan sisa kuota dan tautan ke halaman program selama kuota masih ada', async () => {
-    mockApi({ ...home, 'GET /program/status': pub });
+  it('pengunjung di beranda tidak melihat banner program sama sekali', async () => {
+    mockApi({ ...home, 'GET /program/status': { ...pub, taken: 90, remaining: 10 } });
     renderApp('/');
-    const banner = await screen.findByRole('complementary', { name: 'Program Perintis' });
-    expect(within(banner).getByText(/Sertifikat gratis untuk 100 pengguna pertama/)).toBeInTheDocument();
-    expect(within(banner).getByText('63')).toBeInTheDocument();
-    expect(within(banner).getByRole('link', { name: 'Lihat syarat' })).toHaveAttribute('href', '/program');
-  });
-
-  it('hilang ketika kuota habis', async () => {
-    mockApi({ ...home, 'GET /program/status': { ...pub, open: false, taken: 100, remaining: 0 } });
-    renderApp('/');
-    // Beranda sudah selesai dimuat bila kartu paket tampil; banner tidak boleh ada setelahnya.
     await waitFor(() => expect(screen.getByRole('heading', { name: /Belajarnya gratis/ })).toBeInTheDocument());
     expect(screen.queryByRole('complementary', { name: 'Program Perintis' })).not.toBeInTheDocument();
   });
 
-  it('kuota yang masih penuh (belum ada klaim) tidak dipamerkan di banner maupun halaman program', async () => {
-    const empty = { ...pub, taken: 0, remaining: 100 };
-    mockApi({ ...home, 'GET /program/status': empty });
-    const { unmount } = renderApp('/');
+  it('anggota melihat banner dengan tautan ke halaman program, tanpa angka sisa selama kuota masih longgar', async () => {
+    mockApi({ ...member, 'GET /program/status': pub });
+    renderApp('/');
     const banner = await screen.findByRole('complementary', { name: 'Program Perintis' });
     expect(within(banner).getByText(/Sertifikat gratis untuk 100 pengguna pertama/)).toBeInTheDocument();
+    expect(within(banner).getByRole('link', { name: 'Lihat syarat' })).toHaveAttribute('href', '/program');
     expect(within(banner).queryByText(/Tersisa/)).not.toBeInTheDocument();
-    expect(within(banner).queryByText('100')).not.toBeInTheDocument();
+    expect(within(banner).queryByText('63')).not.toBeInTheDocument();
+  });
+
+  it('sisa kuota baru tampil di banner dan halaman program ketika tinggal 20 atau kurang', async () => {
+    const tight = { ...pub, taken: 85, remaining: 15 };
+    mockApi({ ...member, 'GET /program/status': tight });
+    const { unmount } = renderApp('/');
+    const banner = await screen.findByRole('complementary', { name: 'Program Perintis' });
+    expect(within(banner).getByText('15')).toBeInTheDocument();
     unmount();
-    mockApi({ ...base, ...ANON, 'GET /program/status': empty });
+    mockApi({ ...base, ...ANON, 'GET /program/status': tight });
     renderApp('/program');
-    expect(await screen.findByRole('heading', { name: /100 sertifikat gratis/ })).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar', { name: /Kuota/ })).not.toBeInTheDocument();
-    expect(screen.queryByText(/sudah diklaim/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Tersisa/)).not.toBeInTheDocument();
+    expect(await screen.findByText(/85 dari 100 sertifikat sudah diklaim/)).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: /Kuota/ })).toHaveAttribute('aria-valuenow', '85');
+  });
+
+  it('batas tepat 20 masih tampil, 21 belum', async () => {
+    mockApi({ ...member, 'GET /program/status': { ...pub, taken: 80, remaining: 20 } });
+    const { unmount } = renderApp('/');
+    expect(within(await screen.findByRole('complementary', { name: 'Program Perintis' })).getByText('20')).toBeInTheDocument();
+    unmount();
+    mockApi({ ...member, 'GET /program/status': { ...pub, taken: 79, remaining: 21 } });
+    renderApp('/');
+    const banner = await screen.findByRole('complementary', { name: 'Program Perintis' });
+    expect(within(banner).queryByText(/Tersisa/)).not.toBeInTheDocument();
+  });
+
+  it('banner hilang ketika kuota habis', async () => {
+    mockApi({ ...member, 'GET /program/status': { ...pub, open: false, taken: 100, remaining: 0 } });
+    renderApp('/');
+    await waitFor(() => expect(screen.getByRole('heading', { name: /Belajarnya gratis|Selamat datang|jalur/i })).toBeInTheDocument());
+    expect(screen.queryByRole('complementary', { name: 'Program Perintis' })).not.toBeInTheDocument();
   });
 
   it('anggota melihat tautan "Sertifikat gratis" di menu utama', async () => {

@@ -10,7 +10,11 @@ import type { ProgramStatus } from '../../services/types';
 
 const dateFmt = new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' });
 
-/** Banner ringkas untuk beranda: hanya tampil selama kuota masih ada. */
+/** Sisa kuota baru ditampilkan bila tinggal sedikit. Kuota yang masih longgar tidak perlu dipamerkan, dan angka sisa yang besar justru terbaca "belum banyak yang ikut". */
+export const QUOTA_TIGHT = 20;
+const quotaTight = (d: Pick<ProgramStatus, 'open' | 'remaining'>): boolean => d.open && d.remaining <= QUOTA_TIGHT;
+
+/** Banner ringkas untuk beranda anggota: hanya tampil selama kuota masih ada. */
 export function ProgramBanner() {
   const st = useAsync((s) => api.get<ProgramStatus>('/program/status', s), []);
   const d = st.data;
@@ -25,8 +29,7 @@ export function ProgramBanner() {
         <p className="h5 mb-1">Sertifikat gratis untuk {d.quota} pengguna pertama</p>
         <p className="xl-muted mb-0">
           Selesaikan tes penempatan, Sprint, dan {d.minExercises} latihan.
-          {/* Sisa kuota baru ditampilkan setelah ada yang klaim; kuota yang masih penuh tidak dipamerkan. */}
-          {d.taken > 0 && (
+          {quotaTight(d) && (
             <>
               {' '}
               Tersisa <strong>{d.remaining}</strong> dari {d.quota}.
@@ -92,8 +95,8 @@ export function ProgramPage() {
         </p>
       </header>
 
-      {/* Kuota yang masih penuh (belum ada yang klaim) disembunyikan; mulai tampil setelah klaim pertama atau saat kuota habis. */}
-      {(d.taken > 0 || !d.open) && (
+      {/* Kuota yang masih longgar disembunyikan; tampil saat tinggal sedikit atau sudah habis. */}
+      {(quotaTight(d) || !d.open) && (
         <section aria-labelledby="kuota" className="mb-4">
           <h2 id="kuota" className="h6">
             Kuota

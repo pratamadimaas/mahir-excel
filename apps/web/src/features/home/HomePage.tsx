@@ -133,7 +133,7 @@ function ExercisePreview() {
   const ex = useAsync((s) => api.get<PublicExercise>('/exercises/total-harga-barang', s), []);
   if (ex.loading) return <Loading label="Memuat latihan…" lines={4} />;
   if (ex.error || !ex.data) return <ErrorState message={ex.error ?? 'Latihan tidak tersedia.'} onRetry={ex.reload} />;
-  return <ExerciseWorkspace exercise={ex.data} nextSlug="cari-penjualan-tertinggi" />;
+  return <ExerciseWorkspace exercise={ex.data} nextSlug="cari-penjualan-tertinggi" guide={false} />;
 }
 
 function ShortcutPreview() {
