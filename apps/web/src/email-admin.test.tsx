@@ -181,7 +181,7 @@ describe('admin: statistik dan pengguna', () => {
     anonCorrect: 1,
   }));
 
-  it('dasbor menampilkan pengunjung, pendaftar, halaman populer, dan hasil tes penempatan', async () => {
+  it('dasbor menampilkan pengunjung, pendaftar, halaman populer, dan hasil uji kemampuan Excel', async () => {
     mockApi({
       ...base,
       'GET /auth/me': { user: ADMIN, csrfToken: 'x' },
@@ -238,7 +238,7 @@ describe('admin: statistik dan pengguna', () => {
     expect(stats).toEqual(expect.arrayContaining(['42', '80', '300']));
     expect(screen.getByText('Pengunjung hari ini')).toBeInTheDocument();
     expect(screen.getByText('/belajar/fungsi-sum')).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: 'Tes penempatan' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Uji Kemampuan Excel' })).toBeInTheDocument();
     expect(await screen.findByText('Budi (budi@example.com)')).toBeInTheDocument();
     expect(screen.getAllByText('Tanpa akun').length).toBeGreaterThan(0);
     expect(screen.getByText('Sebaran tingkat')).toBeInTheDocument();

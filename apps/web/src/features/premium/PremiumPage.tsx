@@ -17,7 +17,7 @@ function contactHref(url: string, email: string | undefined): string {
 
 const COMPARISON: { label: string; note?: string; free: boolean }[] = [
   { label: 'Semua pelajaran dan latihan', free: true },
-  { label: 'Tes penempatan dan jadwal ulang', free: true },
+  { label: 'Uji Kemampuan Excel dan jadwal ulang', free: true },
   { label: 'Pustaka shortcut dan mode kuis', free: true },
   { label: 'Sprint 60 detik dan papan peringkat', free: true },
   { label: 'Progres, poin, dan streak tersimpan', free: true },
@@ -116,10 +116,10 @@ export function PremiumPage() {
       </div>
       <p className="xl-small xl-muted">
         Ingin sertifikat tanpa Premium? Ada <Link to="/program">Program Perintis</Link>: sertifikat gratis untuk pengguna pertama yang menyelesaikan
-        tes penempatan, Sprint, dan beberapa latihan.
+        uji kemampuan Excel, Sprint, dan beberapa latihan.
       </p>
       <p className="xl-small xl-muted">
-        Akun gratis cukup daftar dengan email atau Google. Tanpa akun, kamu tetap bisa membuka beranda, tes penempatan, dan 5 pelajaran
+        Akun gratis cukup daftar dengan email atau Google. Tanpa akun, kamu tetap bisa membuka beranda, uji kemampuan Excel, dan 5 pelajaran
         contoh.
       </p>
 

@@ -58,7 +58,7 @@ function PathSection() {
   const { modules, error, reload } = useModules();
   const { progress } = useProgress();
   if (error) return <ErrorState message={error} onRetry={reload} />;
-  if (!modules) return <Loading label="Memuat jalur belajar…" lines={3} />;
+  if (!modules) return <Loading label="Memuat urutan belajar…" lines={3} />;
   const all = flattenLessons(modules);
   const next = all.find((l) => !progress.completedLessons.has(l.slug)) ?? all[0];
   const started = progress.completedLessons.size > 0;
@@ -78,7 +78,7 @@ function PathSection() {
           </Link>
         </div>
       )}
-      <ol className="xl-path" aria-label="Jalur belajar pemula">
+      <ol className="xl-path" aria-label="Urutan belajar pemula">
         {modules.map((m, i) => {
           const done = m.lessons.filter((l) => progress.completedLessons.has(l.slug)).length;
           return (

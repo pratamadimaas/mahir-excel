@@ -7,7 +7,7 @@ import { run } from '../db/pool';
 import { errorBody, parse } from '../middleware/errors';
 
 /**
- * Tes penempatan terbuka tanpa akun, tetapi skornya disimpan di server.
+ * Uji Kemampuan Excel terbuka tanpa akun, tetapi skornya disimpan di server.
  * Skor dihitung ulang di sini dari jawaban (nilai dari klien tidak dipercaya).
  * Untuk pengunjung tanpa akun tidak ada nama, IP, atau User-Agent yang disimpan.
  */

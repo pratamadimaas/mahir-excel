@@ -198,7 +198,7 @@ export function AdminDashboard() {
         <Stat label="Percobaan latihan, akun (7 hari)" value={usage.week.attempts} />
         <Stat label="Percobaan latihan, akun (total)" value={stats.attempts} />
         <Stat
-          label="Tes penempatan selesai"
+          label="Uji Kemampuan Excel selesai"
           value={placement.data?.total ?? 0}
           hint={placement.data ? `${nf.format(placement.data.withAccount)} dari akun, sisanya tanpa akun` : undefined}
         />
@@ -402,7 +402,7 @@ export function AdminDashboard() {
 
       <PlacementSection />
       <p className="xl-small xl-muted mt-2">
-        Tes penempatan terbuka tanpa akun; pengunjung tanpa akun tersimpan tanpa nama, IP, atau data perangkat. {stats.note}
+        Uji Kemampuan Excel terbuka tanpa akun; pengunjung tanpa akun tersimpan tanpa nama, IP, atau data perangkat. {stats.note}
       </p>
     </>
   );

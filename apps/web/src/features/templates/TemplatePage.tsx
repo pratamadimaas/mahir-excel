@@ -91,7 +91,7 @@ export function TemplatePage() {
       </header>
 
       <p className="xl-small xl-muted">
-        Butuh rumus untuk datamu sendiri? Coba <Link to="/wizard">Wizard rumus</Link>. Mau belajar sesuai tujuan? Lihat <Link to="/jalur">jalur belajar</Link>.
+        Butuh rumus untuk datamu sendiri? Coba <Link to="/wizard">Wizard rumus</Link>. Mau belajar sesuai tujuan? Lihat <Link to="/jalur">bidang</Link>.
       </p>
 
       {list.loading && <Loading label="Memuat template…" lines={4} />}

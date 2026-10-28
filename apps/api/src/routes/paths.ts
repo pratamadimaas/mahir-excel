@@ -6,7 +6,7 @@ import { notFound, parse } from '../middleware/errors';
 
 const slugParam = z.string().regex(/^[a-z0-9][a-z0-9-]{0,99}$/);
 
-/** Jalur belajar dihitung dari kurikulum di paket shared, tanpa database. Daftar dan rincian terbuka untuk umum. */
+/** Bidang dihitung dari kurikulum di paket shared, tanpa database. Daftar dan rincian terbuka untuk umum. */
 function summarize(p: PathDef) {
   const steps = p.lessons.map((slug) => {
     const l = lessons.find((x) => x.slug === slug)!;
@@ -41,7 +41,7 @@ export function pathRoutes(_ctx: Ctx): Router {
 
   r.get('/paths/:slug', (req, res) => {
     const p = pathBySlug(parse(slugParam, req.params.slug));
-    if (!p) throw notFound('Jalur belajar');
+    if (!p) throw notFound('Bidang');
     res.json({
       data: {
         ...summarize(p),

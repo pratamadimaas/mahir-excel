@@ -10,7 +10,7 @@ import { api } from '../../services/api';
 import type { PathDetail, PathSummary } from '../../services/types';
 
 export function PathsPage() {
-  useDocumentTitle('Jalur belajar');
+  useDocumentTitle('Bidang');
   const { user } = useAuth();
   const { progress } = useProgress();
   const list = useAsync((s) => api.get<PathSummary[]>('/paths', s), []);
@@ -19,16 +19,16 @@ export function PathsPage() {
     <div className="xl-page">
       <header className="xl-page-head">
         <p className="xl-eyebrow">Mulai dari tujuanmu</p>
-        <h1>Jalur belajar</h1>
+        <h1>Bidang</h1>
         <p>
-          Bingung mulai dari mana? Pilih jalur sesuai tujuanmu. Setiap jalur adalah urutan pelajaran dan latihan yang sudah dipilih, ditambah template yang cocok. Semua pelajarannya gratis; jalur hanya
+          Bingung mulai dari mana? Pilih bidang sesuai tujuanmu. Setiap bidang adalah urutan pelajaran dan latihan yang sudah dipilih, ditambah template yang cocok. Semua pelajarannya gratis; bidang hanya
           merapikan urutannya.
         </p>
       </header>
 
-      {list.loading && <Loading label="Memuat jalur…" lines={3} />}
+      {list.loading && <Loading label="Memuat bidang…" lines={3} />}
       {list.error && <ErrorState message={list.error} onRetry={list.reload} />}
-      {list.data && list.data.length === 0 && <EmptyState title="Belum ada jalur" />}
+      {list.data && list.data.length === 0 && <EmptyState title="Belum ada bidang" />}
 
       {list.data && (
         <ul className="xl-tpl-grid">
@@ -44,10 +44,10 @@ export function PathsPage() {
                 <p className="xl-small mb-0">
                   {p.lessons} pelajaran · sekitar {p.minutes} menit · {p.exercises} latihan
                 </p>
-                {user && <ProgressBar value={done} max={p.lessons} label={`Kemajuan jalur ${p.title}: ${done} dari ${p.lessons} pelajaran`} />}
+                {user && <ProgressBar value={done} max={p.lessons} label={`Kemajuan bidang ${p.title}: ${done} dari ${p.lessons} pelajaran`} />}
                 <div className="xl-tpl-foot">
                   <Link className="btn btn-primary btn-sm" to={`/jalur/${p.slug}`}>
-                    {user && done > 0 ? 'Lanjutkan jalur' : 'Lihat jalur'} <ArrowRight className="xl-icon ms-1 me-0" aria-hidden="true" />
+                    {user && done > 0 ? 'Lanjutkan belajar' : 'Lihat bidang'} <ArrowRight className="xl-icon ms-1 me-0" aria-hidden="true" />
                   </Link>
                   {user && <span className="xl-small xl-muted">{done} dari {p.lessons} selesai</span>}
                 </div>
@@ -58,7 +58,7 @@ export function PathsPage() {
       )}
 
       <p className="xl-small xl-muted mt-4">
-        Jalur adalah susunan belajar yang kami pilih, bukan jaminan pekerjaan dan bukan sertifikasi resmi. Setiap perusahaan punya kebutuhan Excel yang berbeda.
+        Bidang adalah susunan belajar yang kami pilih, bukan jaminan pekerjaan dan bukan sertifikasi resmi. Setiap perusahaan punya kebutuhan Excel yang berbeda.
       </p>
     </div>
   );
@@ -70,12 +70,12 @@ export function PathDetailPage() {
   const { progress } = useProgress();
   const premium = !!user?.premium;
   const path = useAsync((s) => api.get<PathDetail>(`/paths/${encodeURIComponent(slug)}`, s), [slug]);
-  useDocumentTitle(path.data ? `Jalur ${path.data.title}` : undefined);
+  useDocumentTitle(path.data ? `Bidang ${path.data.title}` : undefined);
 
   if (path.loading) {
     return (
       <div className="xl-page">
-        <Loading label="Memuat jalur…" lines={5} />
+        <Loading label="Memuat bidang…" lines={5} />
       </div>
     );
   }
@@ -84,11 +84,11 @@ export function PathDetailPage() {
     return (
       <div className="xl-page py-4">
         {nf ? (
-          <EmptyState title="Jalur tidak ditemukan">
-            <Link to="/jalur">Lihat semua jalur</Link>
+          <EmptyState title="Bidang tidak ditemukan">
+            <Link to="/jalur">Lihat semua bidang</Link>
           </EmptyState>
         ) : (
-          <ErrorState message={path.error ?? 'Jalur tidak tersedia.'} onRetry={path.reload} />
+          <ErrorState message={path.error ?? 'Bidang tidak tersedia.'} onRetry={path.reload} />
         )}
       </div>
     );
@@ -101,13 +101,13 @@ export function PathDetailPage() {
   return (
     <div className="xl-page">
       <nav aria-label="Breadcrumb" className="xl-breadcrumb">
-        <Link to="/jalur">Jalur belajar</Link>
+        <Link to="/jalur">Bidang</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{p.title}</span>
       </nav>
 
       <header className="xl-page-head">
-        <p className="xl-eyebrow">Jalur belajar</p>
+        <p className="xl-eyebrow">Bidang</p>
         <h1>{p.title}</h1>
         <p>{p.forWho}</p>
         <p className="xl-small xl-muted">
@@ -116,8 +116,8 @@ export function PathDetailPage() {
       </header>
 
       {user ? (
-        <section aria-label="Kemajuanmu di jalur ini" className="mb-4">
-          <ProgressBar value={done} max={p.lessons} label={`Kemajuan jalur: ${done} dari ${p.lessons} pelajaran`} large />
+        <section aria-label="Kemajuanmu di bidang ini" className="mb-4">
+          <ProgressBar value={done} max={p.lessons} label={`Kemajuan bidang: ${done} dari ${p.lessons} pelajaran`} large />
           <div className="d-flex align-items-center flex-wrap gap-3 mt-2">
             <span>
               {done} dari {p.lessons} pelajaran selesai
@@ -127,7 +127,7 @@ export function PathDetailPage() {
                 {done === 0 ? 'Mulai dari pelajaran pertama' : `Lanjutkan: ${next.title}`} <ArrowRight className="xl-icon ms-1 me-0" aria-hidden="true" />
               </Link>
             ) : (
-              <strong>Jalur ini selesai.</strong>
+              <strong>Bidang ini selesai.</strong>
             )}
           </div>
         </section>
@@ -142,7 +142,7 @@ export function PathDetailPage() {
 
       <section aria-labelledby="pj-bisa" className="mb-4">
         <h2 id="pj-bisa" className="h5">
-          Setelah jalur ini kamu bisa
+          Setelah bidang ini kamu bisa
         </h2>
         <ul>
           {p.outcomes.map((o) => (
@@ -217,7 +217,7 @@ export function PathDetailPage() {
         )}
       </section>
 
-      <p className="xl-small xl-muted">Jalur adalah susunan belajar yang kami pilih, bukan jaminan pekerjaan dan bukan sertifikasi resmi.</p>
+      <p className="xl-small xl-muted">Bidang adalah susunan belajar yang kami pilih, bukan jaminan pekerjaan dan bukan sertifikasi resmi.</p>
     </div>
   );
 }

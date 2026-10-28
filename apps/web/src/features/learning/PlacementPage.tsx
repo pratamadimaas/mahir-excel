@@ -74,7 +74,7 @@ export function usePlacementResult(): PlacementResult | null {
 
 /** Teks yang dibagikan: hanya skor dan level, tanpa data pribadi. */
 export function shareText(result: PlacementResult, url: string): string {
-  return `Skor tes penempatan Excel saya ${result.score}/${result.total} (level ${placementLevel(result)}). Coba juga, gratis: ${url}`;
+  return `Skor Uji Kemampuan Excel saya ${result.score}/${result.total} (level ${placementLevel(result)}). Coba juga, gratis: ${url}`;
 }
 
 function ShareResult({ result }: { result: PlacementResult }) {
@@ -149,7 +149,7 @@ function TierSteps({ current, done }: { current: string | null; done: Set<string
 }
 
 export function PlacementPage() {
-  useDocumentTitle('Tes penempatan');
+  useDocumentTitle('Uji Kemampuan Excel');
   const { modules } = useModules();
   const { user } = useAuth();
   const [saved, setSaved] = useState<'idle' | 'ok' | 'fail'>('idle');
@@ -208,10 +208,10 @@ export function PlacementPage() {
   return (
     <div className="xl-page xl-page-narrow">
       <header className="xl-page-head">
-        <p className="xl-eyebrow">Tes penempatan</p>
+        <p className="xl-eyebrow">Uji Kemampuan Excel</p>
         <h1>Mulai dari mana?</h1>
         <p>
-          Jawab satu per satu, paling banyak {placementQuestions.length} pertanyaan (sekitar 4 menit). Soal naik bertahap dari Pemula sampai Mahir, dan tes
+          Jawab satu per satu, paling banyak {placementQuestions.length} pertanyaan. Soal naik bertahap dari Pemula sampai Mahir, dan tes
           berhenti lebih awal kalau soal berikutnya sudah terlalu jauh. Santai saja, ini bukan ujian dan tidak ada nilai resmi.
         </p>
         <p className="xl-small xl-muted">Tanpa perlu akun. Hasilnya dicatat tanpa nama supaya kami bisa membuat materi yang lebih pas.</p>
@@ -324,7 +324,7 @@ export function PlacementPage() {
       ) : (
         current && (
           <form
-            aria-label="Tes penempatan"
+            aria-label="Uji Kemampuan Excel"
             onSubmit={(e) => {
               e.preventDefault();
               advance();
@@ -370,7 +370,7 @@ export function PlacementPage() {
   );
 }
 
-/** Ajakan tes penempatan, atau ringkasan hasilnya bila sudah pernah mengikuti. */
+/** Ajakan uji kemampuan Excel, atau ringkasan hasilnya bila sudah pernah mengikuti. */
 export function PlacementBanner() {
   const result = usePlacementResult();
   const { modules } = useModules();
@@ -387,7 +387,7 @@ export function PlacementBanner() {
         </>
       ) : (
         <>
-          Belum yakin mulai dari mana? <Link to="/tes-penempatan">Ikuti tes penempatan (sekitar 4 menit)</Link>.
+          Belum yakin mulai dari mana? <Link to="/tes-penempatan">Ikuti uji kemampuan Excel</Link>.
         </>
       )}
     </p>

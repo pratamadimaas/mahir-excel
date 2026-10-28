@@ -28,7 +28,7 @@ export function ProgramBanner() {
         <p className="xl-eyebrow mb-1">Program Perintis</p>
         <p className="h5 mb-1">Sertifikat gratis untuk {d.quota} pengguna pertama</p>
         <p className="xl-muted mb-0">
-          Selesaikan tes penempatan, Sprint, dan {d.minExercises} latihan.
+          Selesaikan uji kemampuan Excel, Sprint, dan {d.minExercises} latihan.
           {quotaTight(d) && (
             <>
               {' '}
@@ -90,7 +90,7 @@ export function ProgramPage() {
         <p className="xl-eyebrow">Program Perintis</p>
         <h1>{d.quota} sertifikat gratis untuk pengguna pertama</h1>
         <p>
-          Kerjakan tes penempatan, satu ronde Sprint, dan {d.minExercises} latihan. Siapa pun yang menyelesaikannya lebih dulu dan menekan
+          Kerjakan uji kemampuan Excel, satu ronde Sprint, dan {d.minExercises} latihan. Siapa pun yang menyelesaikannya lebih dulu dan menekan
           klaim mendapat sertifikat Perintis, gratis.
         </p>
       </header>
@@ -173,7 +173,7 @@ export function ProgramPage() {
         ) : (
           <>
             <ol>
-              <li>Selesaikan tes penempatan.</li>
+              <li>Selesaikan uji kemampuan Excel.</li>
               <li>Selesaikan satu ronde Sprint 60 detik.</li>
               <li>Selesaikan {d.minExercises} latihan.</li>
             </ol>
@@ -207,7 +207,7 @@ export function ProgramPage() {
         <ul className="xl-small">
           <li>Satu akun mendapat satu sertifikat Perintis.</li>
           <li>Nomor Perintis diberikan berurutan saat kamu menekan klaim, bukan saat mendaftar.</li>
-          <li>Tes penempatan dan Sprint dihitung kalau dikerjakan saat sudah masuk akun.</li>
+          <li>Uji Kemampuan Excel dan Sprint dihitung kalau dikerjakan saat sudah masuk akun.</li>
           <li>
             Sertifikat ini penanda keikutsertaan di Mahir Excel, bukan sertifikasi resmi Microsoft. Ini terpisah dari sertifikat
             penyelesaian materi di paket <Link to="/premium">Premium</Link>.

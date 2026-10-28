@@ -257,7 +257,7 @@ describe('halaman Laporan kemajuan', () => {
   });
 });
 
-describe('jalur belajar', () => {
+describe('bidang', () => {
   const SUMMARY = [
     { slug: 'perkantoran-admin', title: 'Admin dan Perkantoran', tagline: 'Merapikan data dan membuat rekap.', forWho: 'Untuk calon admin.', lessons: 3, minutes: 24, exercises: 4, lessonSlugs: ['sel-baris-kolom-rentang', 'fungsi-sum', 'fungsi-if'] },
   ];
@@ -305,8 +305,8 @@ describe('jalur belajar', () => {
   });
 
   it('jalur yang tidak ada menampilkan pesan, bukan halaman rusak', async () => {
-    mockApi({ ...SIGNED_IN, 'GET /paths/tidak-ada': () => ({ status: 404, body: { error: { code: 'NOT_FOUND', message: 'Jalur belajar tidak ditemukan.' } } }) });
+    mockApi({ ...SIGNED_IN, 'GET /paths/tidak-ada': () => ({ status: 404, body: { error: { code: 'NOT_FOUND', message: 'Bidang tidak ditemukan.' } } }) });
     renderApp('/jalur/tidak-ada');
-    expect(await screen.findByText('Jalur tidak ditemukan')).toBeInTheDocument();
+    expect(await screen.findByText('Bidang tidak ditemukan')).toBeInTheDocument();
   });
 });

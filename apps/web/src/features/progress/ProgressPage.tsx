@@ -172,9 +172,9 @@ export function ProgressPage() {
 
       {modules && (
         <section aria-labelledby="jalur-saya" className="mb-4">
-          <h2 id="jalur-saya">Jalur belajar saat ini</h2>
+          <h2 id="jalur-saya">Progres belajar saat ini</h2>
           <div className="mb-2" style={{ maxWidth: 480 }}>
-            <ProgressBar value={progress.completedLessons.size} max={allLessons.length} label="Progres jalur belajar" large />
+            <ProgressBar value={progress.completedLessons.size} max={allLessons.length} label="Progres belajar" large />
             <p className="xl-small xl-muted mt-1">
               {allLessons.length ? Math.round((progress.completedLessons.size / allLessons.length) * 100) : 0}% pelajaran selesai
             </p>

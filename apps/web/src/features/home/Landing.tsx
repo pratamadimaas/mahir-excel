@@ -265,12 +265,12 @@ function Audience() {
   return (
     <section className="xl-l-section xl-l-split2" aria-labelledby="l-siapa">
       <div className="xl-l-side">
-        <h2 id="l-siapa">Untuk siapa Mahir Excel.</h2>
+        <h2 id="l-siapa">Mahir Excel untuk siapa?</h2>
         <p className="xl-l-lead mb-0">
-          Belum yakin dengan level kamu? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>: paling banyak 16 pertanyaan, sekitar 4 menit, hasilnya level Pemula, Menengah, atau Mahir. Bisa diikuti walau tanpa akun.
+          Belum yakin dengan levelmu? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link>: sampai 16 soal, tanpa perlu daftar. Hasilnya Pemula, Menengah, atau Mahir. Daftar akun kalau mau hasilnya tersimpan.
         </p>
         <p className="xl-l-lead mb-0">
-          Sudah tahu tujuanmu? Pilih <Link to="/jalur">jalur belajar</Link> untuk admin, usaha kecil, atau keuangan dasar.
+          Belajar Excel sesuai kerjaanmu. Pilih <Link to="/jalur">bidang</Link> yang paling dekat: admin, admin HRD, jualan, atau keuangan.
         </p>
       </div>
       <dl className="xl-l-limits">
@@ -359,7 +359,7 @@ function Curriculum({ overview }: { overview: Overview | null }) {
             : 'Pelajaran dan latihan disusun berurutan. Delapan modul inti ditutup dengan proyek kecil, dan satu modul tambahan menyiapkanmu untuk tes kerja admin.'}
         </p>
         <p className="mb-0">
-          Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti tes penempatan</Link>, paling banyak 16 pertanyaan sekitar 4 menit.
+          Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link>: sampai 16 soal, tanpa perlu daftar.
         </p>
       </div>
       <ol className="xl-path" aria-label="Daftar modul">
@@ -457,10 +457,10 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
           <p>Unduh, lalu kerjakan di Excel sungguhan. 3 worksheet pertama gratis; sisanya dan kunci jawaban untuk anggota Premium.</p>
         </article>
         <article className="xl-l-cell xl-l-cell-e">
-          <h3 className="h5">Tes penempatan</h3>
+          <h3 className="h5">Uji Kemampuan Excel</h3>
           <p>Satu pertanyaan per layar, hasilnya level kamu dan saran modul untuk memulai. Terbuka tanpa akun.</p>
           <Link to="/tes-penempatan" className="btn btn-light btn-sm">
-            Ikuti tes penempatan
+            Ikuti uji kemampuan Excel
           </Link>
         </article>
         <article className="xl-l-cell xl-l-cell-f">
@@ -572,7 +572,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
             <li>
               Semua pelajaran{counts ? ` (${counts.lessons})` : ''} dan latihan{counts ? ` (${counts.exercises})` : ''}
             </li>
-            <li>Tes penempatan dan jadwal ulang</li>
+            <li>Uji Kemampuan Excel dan jadwal ulang</li>
             <li>Pustaka shortcut dan mode kuis</li>
             <li>Petunjuk bertahap dan pembahasan setelah jawabanmu benar</li>
             <li>Satu solusi langsung gratis setiap 7 hari</li>
@@ -628,13 +628,13 @@ function Closing() {
     <section className="xl-l-closing" aria-labelledby="l-tutup">
       <div className="xl-page">
         <h2 id="l-tutup">Mulai dari satu rumus.</h2>
-        <p>Buat akun gratis, atau cek dulu level kamu lewat tes penempatan.</p>
+        <p>Buat akun gratis, atau cek dulu level kamu lewat uji kemampuan Excel.</p>
         <div className="d-flex flex-wrap gap-2">
           <Link to="/daftar" className="btn btn-light btn-lg">
             Daftar gratis
           </Link>
           <Link to="/tes-penempatan" className="xl-hero-link">
-            Ikuti tes penempatan
+            Ikuti uji kemampuan Excel
           </Link>
         </div>
       </div>

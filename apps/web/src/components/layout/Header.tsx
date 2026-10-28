@@ -31,7 +31,7 @@ export function Header() {
   const { modules } = useModules();
   const { t, lang, setLang } = useI18n();
 
-  // Pengunjung tanpa akun hanya dapat membuka tes penempatan; materi lain menunggu login.
+  // Pengunjung tanpa akun hanya dapat membuka uji kemampuan Excel; materi lain menunggu login.
   const NAV = user
     ? [
         { to: '/belajar', label: t('nav.learn') },

@@ -10,7 +10,7 @@ export interface PlacementQuestion {
   explanation: string;
 }
 
-/** Tes penempatan singkat: dua pertanyaan untuk modul awal, satu atau dua untuk modul lanjutan. Tidak mengukur kemahiran secara resmi. */
+/** Uji Kemampuan Excel singkat: dua pertanyaan untuk modul awal, satu atau dua untuk modul lanjutan. Tidak mengukur kemahiran secara resmi. */
 export const placementQuestions: PlacementQuestion[] = [
   {
     id: 'p1',

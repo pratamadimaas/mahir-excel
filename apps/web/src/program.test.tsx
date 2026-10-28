@@ -13,7 +13,7 @@ const base = {
 };
 const pub = { enabled: true, open: true, quota: 100, taken: 37, remaining: 63, minExercises: 5 };
 const reqs = (done: [boolean, boolean, boolean], have = 2) => [
-  { key: 'placement', label: 'Selesaikan tes penempatan saat masuk akun', done: done[0], to: '/tes-penempatan' },
+  { key: 'placement', label: 'Selesaikan uji kemampuan Excel saat masuk akun', done: done[0], to: '/tes-penempatan' },
   { key: 'sprint', label: 'Selesaikan satu ronde Sprint 60 detik saat masuk akun', done: done[1], to: '/sprint' },
   { key: 'exercises', label: 'Selesaikan 5 latihan', done: done[2], progress: { have, need: 5 }, to: '/latihan' },
 ];

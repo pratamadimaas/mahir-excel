@@ -36,7 +36,7 @@ const weekFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short
 const pct = (a: number, b: number): number => (b > 0 ? Math.round((a / b) * 100) : 0);
 const moduleLabel = (slug: string): string => TOPIC_LABELS[slug] ?? slug;
 
-/** Hasil tes penempatan: sebaran tingkat, soal tersulit, akurasi per modul, tren mingguan, dan daftar hasil. */
+/** Hasil uji kemampuan Excel: sebaran tingkat, soal tersulit, akurasi per modul, tren mingguan, dan daftar hasil. */
 export function PlacementSection() {
   const [level, setLevel] = useState<'' | Level>('');
   const [onlyAccount, setOnlyAccount] = useState(false);
@@ -51,11 +51,11 @@ export function PlacementSection() {
   return (
     <section aria-labelledby="pt-admin">
       <h2 className="h5 mt-4" id="pt-admin">
-        Tes penempatan
+        Uji Kemampuan Excel
       </h2>
       {st.error && <ErrorState message={st.error} onRetry={st.reload} />}
       {st.loading && !d && <Loading label="Memuat hasil tes…" />}
-      {d && d.total === 0 && <EmptyState title="Belum ada yang mengikuti tes penempatan" />}
+      {d && d.total === 0 && <EmptyState title="Belum ada yang mengikuti uji kemampuan Excel" />}
       {d && d.total > 0 && (
         <>
           <p className="mb-2">
@@ -90,7 +90,7 @@ export function PlacementSection() {
               <h3 className="h6">Soal yang paling sering salah</h3>
               <div className="xl-table-wrap">
                 <table className="xl-table">
-                  <caption className="visually-hidden">Soal tes penempatan yang paling sering dijawab salah</caption>
+                  <caption className="visually-hidden">Soal uji kemampuan Excel yang paling sering dijawab salah</caption>
                   <thead>
                     <tr>
                       <th scope="col">Soal</th>
@@ -172,7 +172,7 @@ export function PlacementSection() {
           </div>
           <div className="xl-table-wrap">
             <table className="xl-table">
-              <caption className="visually-hidden">Hasil tes penempatan terbaru</caption>
+              <caption className="visually-hidden">Hasil uji kemampuan Excel terbaru</caption>
               <thead>
                 <tr>
                   <th scope="col">Waktu</th>

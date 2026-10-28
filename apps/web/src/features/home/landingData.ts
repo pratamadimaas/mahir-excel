@@ -121,7 +121,7 @@ export const MODULE_OUTCOMES: Record<string, string> = {
 export const AUDIENCE: { title: string; text: string }[] = [
   {
     title: 'Pemula yang mau belajar Excel',
-    text: 'Mulai dari sel dan column, dengan istilah sederhana. Tes penempatan membantu memilih titik awal.',
+    text: 'Mulai dari sel dan column, dengan istilah sederhana. Uji Kemampuan Excel membantu memilih titik awal.',
   },
   {
     title: 'Pekerja kantor yang mau naik level',
@@ -170,11 +170,11 @@ export interface Faq {
 export const faqs = (functions: number | null): Faq[] => [
   {
     q: 'Benar-benar gratis?',
-    a: 'Untuk belajar, ya. Semua pelajaran, latihan, shortcut, jalur belajar, 2 template, dan 3 worksheet pertama gratis. Premium menambah solusi langsung tanpa batas di latihan, 4 template dan 8 worksheet lanjutan beserta kunci jawabannya, penelusur rumus, wizard rumus lengkap, laporan kemajuan, contekan PDF, dan sertifikat PDF.',
+    a: 'Untuk belajar, ya. Semua pelajaran, latihan, shortcut, bidang, 2 template, dan 3 worksheet pertama gratis. Premium menambah solusi langsung tanpa batas di latihan, 4 template dan 8 worksheet lanjutan beserta kunci jawabannya, penelusur rumus, wizard rumus lengkap, laporan kemajuan, contekan PDF, dan sertifikat PDF.',
   },
   {
     q: 'Kenapa harus daftar dulu?',
-    a: 'Supaya poin, progres, dan jadwal ulang tersimpan dan bisa dilanjutkan dari perangkat mana pun. Lima pelajaran contoh dan tes penempatan tetap bisa dibuka tanpa akun.',
+    a: 'Supaya poin, progres, dan jadwal ulang tersimpan dan bisa dilanjutkan dari perangkat mana pun. Lima pelajaran contoh dan uji kemampuan Excel tetap bisa dibuka tanpa akun.',
   },
   {
     q: 'Perlu punya Excel di komputer?',

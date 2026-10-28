@@ -36,7 +36,7 @@ const bodyOf = (fetchMock: ReturnType<typeof vi.fn>, path: string): Record<strin
   return JSON.parse((call![1] as RequestInit).body as string);
 };
 
-describe('tes penempatan', () => {
+describe('uji kemampuan Excel', () => {
   // Menjawab soal yang sedang tampil satu per satu sampai tes selesai; `wrong` berisi id soal yang sengaja dijawab salah.
   const runTest = async (wrong: string[] = [], maxSteps = 40): Promise<number> => {
     let steps = 0;
@@ -135,7 +135,7 @@ describe('tes penempatan', () => {
   it('Akademi mengajak tes bila belum pernah, dan menampilkan hasil bila sudah', async () => {
     mockApi({ ...base, ...SIGNED_IN });
     const first = renderApp('/belajar');
-    expect(await screen.findByRole('link', { name: /Ikuti tes penempatan/ })).toHaveAttribute('href', '/tes-penempatan');
+    expect(await screen.findByRole('link', { name: /Ikuti uji kemampuan Excel/ })).toHaveAttribute('href', '/tes-penempatan');
     first.unmount();
     const answers = Object.fromEntries(placementQuestions.map((q) => [q.id, q.answerIndex]));
     localStorage.setItem('excellab.placement.v1', JSON.stringify({ answers, at: new Date().toISOString() }));
@@ -149,7 +149,7 @@ describe('tes penempatan', () => {
     localStorage.setItem('excellab.placement.v1', JSON.stringify({ answers: old, at: new Date().toISOString() }));
     mockApi({ ...base, ...SIGNED_IN });
     renderApp('/belajar');
-    expect(await screen.findByRole('link', { name: /Ikuti tes penempatan/ })).toHaveAttribute('href', '/tes-penempatan');
+    expect(await screen.findByRole('link', { name: /Ikuti uji kemampuan Excel/ })).toHaveAttribute('href', '/tes-penempatan');
   });
 });
 

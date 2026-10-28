@@ -1,5 +1,5 @@
 /**
- * Jalur belajar: urutan pelajaran yang dipilih untuk satu tujuan. Isinya hanya daftar slug dari kurikulum yang ada;
+ * Bidang: urutan pelajaran yang dipilih untuk satu tujuan. Isinya hanya daftar slug dari kurikulum yang ada;
  * judul, durasi, dan jumlah latihan dihitung dari pelajaran aslinya (lihat apps/api/src/routes/paths.ts).
  */
 export interface PathDef {
@@ -8,13 +8,13 @@ export interface PathDef {
   /** Satu kalimat untuk kartu daftar. */
   tagline: string;
   forWho: string;
-  /** Hal yang bisa dikerjakan setelah menyelesaikan jalur. Bukan janji pekerjaan atau gaji. */
+  /** Hal yang bisa dikerjakan setelah menyelesaikan bidang. Bukan janji pekerjaan atau gaji. */
   outcomes: string[];
   /** Slug pelajaran, sudah berurutan. */
   lessons: string[];
   /** Slug template .xlsx yang relevan. */
   templates: string[];
-  /** Hal Premium yang relevan untuk jalur ini, ditulis apa adanya dan harus benar-benar ada. */
+  /** Hal Premium yang relevan untuk bidang ini, ditulis apa adanya dan harus benar-benar ada. */
   premiumExtras: string[];
 }
 
@@ -50,7 +50,7 @@ export const paths: PathDef[] = [
     ],
     templates: ['laporan-penjualan', 'invoice-piutang'],
     premiumExtras: [
-      'Solusi langsung tanpa batas di semua latihan jalur ini.',
+      'Solusi langsung tanpa batas di semua latihan bidang ini.',
       'Penelusur rumus dan wizard rumus lengkap untuk memeriksa rumusmu langkah demi langkah.',
       'Contekan PDF per modul untuk dicetak atau disimpan di HP.',
     ],
@@ -94,7 +94,7 @@ export const paths: PathDef[] = [
     templates: ['invoice-piutang'],
     premiumExtras: [
       'Worksheet Gaji dan Lembur serta Absensi Karyawan (.xlsx) beserta kunci jawabannya.',
-      'Solusi langsung tanpa batas di semua latihan jalur ini.',
+      'Solusi langsung tanpa batas di semua latihan bidang ini.',
       'Penelusur rumus untuk melihat di langkah mana sebuah rumus keliru.',
     ],
   },

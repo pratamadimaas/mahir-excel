@@ -23,7 +23,7 @@ interface Known {
 
 const PUBLIC_PAGES: Record<string, Known> = {
   '/tes-penempatan': {
-    title: 'Tes penempatan Excel',
+    title: 'Uji Kemampuan Excel',
     description: 'Tes untuk tahu level Excel-mu dan mulai belajar dari bagian yang tepat. Gratis, bisa dikerjakan tanpa daftar akun.',
   },
   '/sprint': {
@@ -31,8 +31,8 @@ const PUBLIC_PAGES: Record<string, Known> = {
     description: 'Jawab soal Excel sebanyak mungkin dalam 60 detik dan bandingkan skormu di papan peringkat.',
   },
   '/jalur': {
-    title: 'Jalur belajar Excel: admin, jualan, keuangan',
-    description: 'Pilih jalur sesuai tujuanmu. Urutan pelajaran, latihan, dan template yang sudah dipilih untuk admin, usaha kecil, atau keuangan dasar.',
+    title: 'Bidang belajar Excel: admin, admin HRD, jualan, keuangan',
+    description: 'Pilih bidang sesuai kerjaanmu. Urutan pelajaran, latihan, dan template yang sudah dipilih untuk admin, admin HRD, usaha kecil, atau keuangan dasar.',
   },
   '/template': {
     title: 'Template Excel gratis dan siap pakai',
@@ -45,7 +45,7 @@ const PUBLIC_PAGES: Record<string, Known> = {
   },
   '/program': {
     title: 'Program Perintis: sertifikat gratis',
-    description: 'Sertifikat gratis untuk pengguna pertama yang menyelesaikan tes penempatan, Sprint 60 detik, dan beberapa latihan.',
+    description: 'Sertifikat gratis untuk pengguna pertama yang menyelesaikan uji kemampuan Excel, Sprint 60 detik, dan beberapa latihan.',
   },
   '/tentang': {
     title: 'Tentang Mahir Excel',
@@ -112,11 +112,11 @@ export function seoFor(rawPath: string): PageSeo {
     return { ...base, status: 200, title: `${l.title} | Mahir Excel`, description: l.summary, index: PUBLIC_LESSON_SLUGS.includes(l.slug) };
   }
 
-  const jalur = /^\/jalur\/([^/]+)$/.exec(path);
-  if (jalur) {
-    const p = pathBySlug(jalur[1]!);
+  const bidang = /^\/jalur\/([^/]+)$/.exec(path);
+  if (bidang) {
+    const p = pathBySlug(bidang[1]!);
     if (!p) return missing;
-    return { ...base, status: 200, title: `Jalur ${p.title} | Mahir Excel`, description: `${p.tagline} Urutan pelajaran, latihan, dan template yang sudah dipilih.`, index: true };
+    return { ...base, status: 200, title: `Bidang ${p.title} | Mahir Excel`, description: `${p.tagline} Urutan pelajaran, latihan, dan template yang sudah dipilih.`, index: true };
   }
 
   const latihan = /^\/latihan\/([^/]+)$/.exec(path);

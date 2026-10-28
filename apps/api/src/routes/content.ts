@@ -80,7 +80,7 @@ const submitBody = z.object({
 
 export function contentRoutes({ db, config, auth }: Ctx): Router {
   const r = Router();
-  // Seluruh materi belajar hanya untuk pengguna yang sudah masuk. Tes penempatan, berbagi progres, dan verifikasi sertifikat tetap publik.
+  // Seluruh materi belajar hanya untuk pengguna yang sudah masuk. Uji Kemampuan Excel, berbagi progres, dan verifikasi sertifikat tetap publik.
   // Pengecualian: beberapa pelajaran contoh (PUBLIC_LESSON_SLUGS) boleh dibaca tanpa login sebagai etalase.
   r.use(['/modules', '/lessons', '/exercises', '/shortcuts', '/worksheets', '/challenges'], (req, res, next) => {
     const pathname = req.originalUrl.split('?')[0] ?? '';

@@ -68,7 +68,7 @@ describe('beranda pengunjung', () => {
   it('memuat bagian-bagian utama dengan angka dari server, tanpa tanda pisah panjang', async () => {
     mockApi(anon);
     renderApp('/');
-    expect(await screen.findByRole('heading', { name: /Untuk siapa Mahir Excel/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Mahir Excel untuk siapa/ })).toBeInTheDocument();
     for (const name of [
       /Coba sebelum daftar/,
       /Coba satu rumus sekarang/,
@@ -204,7 +204,7 @@ describe('beranda pengunjung', () => {
       'GET /progress/review-due': { due: [], upcoming: 0 },
     });
     renderApp('/');
-    expect(await screen.findByRole('heading', { name: 'Jalur belajar pemula' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Urutan belajar pemula' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Hasilnya aneh/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Mulai dari satu rumus/ })).not.toBeInTheDocument();
   });
@@ -219,21 +219,21 @@ describe('susunan beranda yang baru', () => {
   it('urutan bagian: untuk siapa, isi kursus, pelajaran contoh, demo, alat, sertifikat, batasan, harga', async () => {
     mockApi(anon);
     renderApp('/');
-    await screen.findByRole('heading', { name: /Untuk siapa Mahir Excel/ });
-    const order = [/Untuk siapa Mahir Excel/, /Dari sel pertama sampai Intermediate/, /Baca satu pelajaran dulu/, /Coba sebelum daftar/, /Selain pelajaran/, /Bukti belajar/, /Yang sebaiknya kamu tahu/, /Belajarnya gratis/];
+    await screen.findByRole('heading', { name: /Mahir Excel untuk siapa/ });
+    const order = [/Mahir Excel untuk siapa/, /Dari sel pertama sampai Intermediate/, /Baca satu pelajaran dulu/, /Coba sebelum daftar/, /Selain pelajaran/, /Bukti belajar/, /Yang sebaiknya kamu tahu/, /Belajarnya gratis/];
     const all = [...document.querySelectorAll('main h2')].map((h) => h.textContent ?? '');
     const positions = order.map((re) => all.findIndex((t) => re.test(t)));
     for (const p of positions) expect(p).toBeGreaterThanOrEqual(0);
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
   });
 
-  it('bagian untuk siapa menyebut tiga kelompok pembaca dan menautkan tes penempatan', async () => {
+  it('bagian untuk siapa menyebut tiga kelompok pembaca dan menautkan uji kemampuan Excel', async () => {
     mockApi(anon);
     renderApp('/');
-    const h = await screen.findByRole('heading', { name: /Untuk siapa Mahir Excel/ });
+    const h = await screen.findByRole('heading', { name: /Mahir Excel untuk siapa/ });
     const section = h.closest('section')!;
     for (const t of AUDIENCE) expect(within(section).getByText(t.title)).toBeInTheDocument();
-    expect(within(section).getByRole('link', { name: 'Ikuti tes penempatan' })).toHaveAttribute('href', '/tes-penempatan');
+    expect(within(section).getByRole('link', { name: 'Ikuti Uji Kemampuan Excel' })).toHaveAttribute('href', '/tes-penempatan');
   });
 
   it('kurikulum menampilkan hasil nyata tiap modul dan menjadi tujuan tautan #belajar', async () => {
@@ -274,18 +274,18 @@ describe('susunan beranda yang baru', () => {
     expect(screen.getByText(/Contoh tampilan\. Sertifikat asli memuat namamu/)).toBeInTheDocument();
   });
 
-  it('hero: satu tombol utama, tes penempatan hanya tautan teks, dan navbar pengunjung memuat Jalur dan tiga tautan bagian', async () => {
+  it('hero: satu tombol utama, uji kemampuan Excel hanya tautan teks, dan navbar pengunjung memuat Bidang dan tiga tautan bagian', async () => {
     mockApi(anon);
     renderApp('/');
     const hero = (await screen.findByRole('heading', { level: 1, name: /Excel bisa dipelajari/ })).closest('section')!;
     expect(within(hero).getByRole('link', { name: 'Daftar gratis' })).toHaveClass('btn-primary');
-    const link = within(hero).getByRole('link', { name: 'Ikuti tes penempatan' });
+    const link = within(hero).getByRole('link', { name: 'Ikuti uji kemampuan Excel' });
     expect(link).toHaveAttribute('href', '/tes-penempatan');
     expect(link).not.toHaveClass('btn');
 
     const nav = screen.getByRole('navigation', { name: 'Navigasi utama' });
     expect(within(nav).getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
-      ['Jalur', '/jalur'],
+      ['Bidang', '/jalur'],
       ['Belajar', '/#belajar'],
       ['Harga', '/#harga'],
       ['FAQ', '/#faq'],

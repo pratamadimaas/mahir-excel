@@ -19,7 +19,7 @@ interface Requirement {
 }
 
 /**
- * Program Perintis: sertifikat gratis untuk N pengguna pertama yang menyelesaikan tes penempatan, satu ronde
+ * Program Perintis: sertifikat gratis untuk N pengguna pertama yang menyelesaikan uji kemampuan Excel, satu ronde
  * Sprint, dan beberapa latihan. Semua syarat dibaca dari data akun di server, bukan dari klaim browser.
  */
 export function programRoutes({ db, config, auth }: Ctx): Router {
@@ -40,7 +40,7 @@ export function programRoutes({ db, config, auth }: Ctx): Router {
     ]);
     const have = Number(exercises?.n ?? 0);
     return [
-      { key: 'placement', label: 'Selesaikan tes penempatan saat masuk akun', done: Number(placement?.n ?? 0) > 0, to: '/tes-penempatan' },
+      { key: 'placement', label: 'Selesaikan uji kemampuan Excel saat masuk akun', done: Number(placement?.n ?? 0) > 0, to: '/tes-penempatan' },
       { key: 'sprint', label: 'Selesaikan satu ronde Sprint 60 detik saat masuk akun', done: Number(sprint?.n ?? 0) > 0, to: '/sprint' },
       {
         key: 'exercises',

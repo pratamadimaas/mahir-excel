@@ -85,7 +85,7 @@ export function AboutPage() {
         <li>{c ? `${c.shortcuts} shortcut` : 'Pustaka shortcut'} untuk Windows dan Mac, plus mode kuis.</li>
         <li>{c ? `${c.worksheets} worksheet` : 'Worksheet'} .xlsx siap unduh. 3 worksheet pertama gratis; sisanya dan kunci jawaban untuk anggota Premium.</li>
         <li>
-          Progres, poin, streak, ulang terjadwal, tes penempatan, bagikan progres, dan sertifikat penyelesaian (Premium), tersimpan di
+          Progres, poin, streak, ulang terjadwal, uji kemampuan Excel, bagikan progres, dan sertifikat penyelesaian (Premium), tersimpan di
           akunmu. Akun gratis dan diperlukan untuk membuka materi belajar.
         </li>
       </ul>
@@ -131,7 +131,7 @@ export function TermsPage() {
 
       <h2>Layanan</h2>
       <p>
-        Mahir Excel adalah platform belajar Microsoft Excel berbahasa Indonesia. Pelajaran, latihan, shortcut, tes penempatan, dan
+        Mahir Excel adalah platform belajar Microsoft Excel berbahasa Indonesia. Pelajaran, latihan, shortcut, uji kemampuan Excel, dan
         sebagian worksheet gratis setelah kamu membuat akun. Premium menambah fitur seperti yang tertulis di halaman{' '}
         <Link to="/premium">Premium</Link>.
       </p>
@@ -195,10 +195,10 @@ export function PrivacyPage() {
       <h2>Tanpa akun</h2>
       <p>
         Pelajaran, latihan, shortcut, dan worksheet bisa dibuka setelah kamu masuk. Tanpa akun, kamu tetap bisa melihat beranda, halaman
-        info, dan mencoba <strong>tes penempatan</strong>.
+        info, dan mencoba <strong>uji kemampuan Excel</strong>.
       </p>
       <p>
-        Hasil tes penempatan (jawaban dan skor) kami catat tanpa nama dan tanpa data pribadi, supaya kami tahu materi mana yang perlu
+        Hasil uji kemampuan Excel (jawaban dan skor) kami catat tanpa nama dan tanpa data pribadi, supaya kami tahu materi mana yang perlu
         diperbaiki. Kalau kamu sedang masuk, hasilnya terhubung ke akunmu dan bisa dilihat pengelola situs.
       </p>
       <h2>Statistik kunjungan</h2>
