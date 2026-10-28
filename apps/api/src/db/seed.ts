@@ -8,8 +8,9 @@ import { generateWorksheets } from '../worksheets/generate';
 const json = (v: unknown): string => JSON.stringify(v);
 
 /**
- * Mengisi konten dari paket @excellab/shared. Idempoten: konten diperbarui berdasarkan slug,
- * sehingga menjalankan ulang akan menimpa edit manual pada konten bawaan.
+ * Mengisi konten dari paket @excellab/shared. Idempoten: konten diperbarui berdasarkan slug.
+ * Pelajaran yang sudah diubah lewat admin (kolom `edited`) tidak ditimpa judul, ringkasan, durasi, dan isinya;
+ * modul, latihan, shortcut, dan worksheet tetap mengikuti kode.
  */
 export async function seedContent(
   db: Db,
@@ -28,8 +29,9 @@ export async function seedContent(
     await run(
       db,
       `INSERT INTO lessons (module_id, slug, title, summary, minutes, sort_order, published, content) VALUES (?,?,?,?,?,?,1,?)
-       ON DUPLICATE KEY UPDATE module_id=VALUES(module_id), title=VALUES(title), summary=VALUES(summary),
-         minutes=VALUES(minutes), sort_order=VALUES(sort_order), content=VALUES(content)`,
+       ON DUPLICATE KEY UPDATE module_id=VALUES(module_id), sort_order=VALUES(sort_order),
+         title=IF(edited=1, title, VALUES(title)), summary=IF(edited=1, summary, VALUES(summary)),
+         minutes=IF(edited=1, minutes, VALUES(minutes)), content=IF(edited=1, content, VALUES(content))`,
       [mod.id, l.slug, l.title, l.summary, l.minutes, l.sortOrder, json(l.content)],
     );
   }
@@ -129,7 +131,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const counts = await seedContent(db);
     const admin = await seedAdmin(db, config);
     const files = await generateWorksheets(config.worksheetDir);
+    const kept = await row<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM lessons WHERE edited=1');
     console.log('Seed selesai:', counts, `| admin: ${admin} | ${files.length} file worksheet`);
+    if (Number(kept?.n ?? 0) > 0) console.log(`${kept?.n} pelajaran yang diubah lewat admin tidak ditimpa.`);
   })()
     .catch((e) => {
       console.error('Seed gagal:', e instanceof Error ? e.message : e);

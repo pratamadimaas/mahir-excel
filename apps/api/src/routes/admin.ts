@@ -1,12 +1,15 @@
+import { isDeepStrictEqual } from 'node:util';
 import { Router, type Response } from 'express';
 import { z, type ZodType } from 'zod';
 import {
   evaluatePlacement,
   jakartaDate,
+  lessons as bundledLessons,
   placementQuestions,
   solutionCells,
   validateSubmission,
   type ExerciseDef,
+  type LessonContent,
   type PlacementLevel,
 } from '@excellab/shared';
 import type { Ctx } from '../app';
@@ -31,6 +34,7 @@ const toolRange = /^[A-Za-z]{1,2}\d{1,3}:[A-Za-z]{1,2}\d{1,3}$/;
 const fileName = z.string().regex(/^[a-z0-9][a-z0-9-]*\.xlsx$/, 'Nama file harus huruf kecil/angka/tanda hubung dan berakhiran .xlsx.');
 
 const lessonContent = z.object({
+  guide: z.boolean().optional(),
   objectives: z.array(text(300)).min(1),
   sections: z.array(z.object({ heading: text(160), paragraphs: z.array(text(2000)).min(1) })).min(1),
   syntax: z
@@ -166,6 +170,8 @@ interface Handler {
   get(db: Db, id: number): Promise<unknown | undefined>;
   /** Mengembalikan kolom untuk INSERT/UPDATE. */
   columns(db: Db, body: never): Promise<Record<string, unknown>>;
+  /** Kolom tambahan saat UPDATE, dihitung dari data sebelum dan sesudah (mis. penanda diedit). */
+  onUpdate?(before: unknown, body: never): Record<string, unknown>;
   table: string;
 }
 
@@ -224,6 +230,16 @@ const handlers: Record<ResourceName, Handler> = {
         published: b(body.published),
         content: JSON.stringify(body.content),
       };
+    },
+    // Hanya perubahan pada teks pelajaran yang membuatnya "diedit" (dilindungi dari seed). Menerbitkan atau mengurutkan tidak.
+    onUpdate(before, body: z.infer<typeof schemas.lessons>) {
+      const b4 = before as ReturnType<typeof lessonView>;
+      const changed =
+        b4.title !== body.title ||
+        b4.summary !== body.summary ||
+        b4.minutes !== body.minutes ||
+        !isDeepStrictEqual(b4.content, body.content);
+      return changed ? { edited: 1 } : {};
     },
   },
   exercises: {
@@ -351,6 +367,7 @@ interface LessonRow {
   sort_order: number;
   published: number;
   content: unknown;
+  edited: number;
 }
 const modView = (r: { id: number; slug: string; title: string; summary: string; sort_order: number; published: number }) => ({
   id: r.id,
@@ -369,7 +386,10 @@ const lessonView = (r: LessonRow) => ({
   minutes: r.minutes,
   sortOrder: r.sort_order,
   published: !!r.published,
-  content: asJson(r.content),
+  content: asJson<LessonContent>(r.content),
+  edited: !!r.edited,
+  /** Ada versi bawaan di kode, jadi "Kembalikan ke bawaan" tersedia. */
+  hasDefault: bundledLessons.some((l) => l.slug === r.slug),
 });
 const exView = (r: ExerciseRow) => ({ id: r.id, ...rowToExercise(r), lessonSlug: r.lesson_slug });
 
@@ -444,8 +464,10 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
         [lo, hi],
       ),
     ]);
-    const stat = (day: string, metric: string): number => Number(stats.find((x) => String(x.day).slice(0, 10) === day && x.metric === metric)?.total ?? 0);
-    const count = (list: { day: string; n: number }[], day: string): number => Number(list.find((x) => String(x.day).slice(0, 10) === day)?.n ?? 0);
+    const stat = (day: string, metric: string): number =>
+      Number(stats.find((x) => String(x.day).slice(0, 10) === day && x.metric === metric)?.total ?? 0);
+    const count = (list: { day: string; n: number }[], day: string): number =>
+      Number(list.find((x) => String(x.day).slice(0, 10) === day)?.n ?? 0);
     return dates.map((day) => ({
       day,
       visitors: stat(day, 'visitor'),
@@ -647,7 +669,10 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
       `SELECT l.created_at, l.action, u.email FROM admin_audit_logs l LEFT JOIN users u ON u.id = l.resource_id
        WHERE ${grantWhere} ORDER BY l.id DESC LIMIT 20`,
     );
-    const online = await row<{ orders: number; amount: number | null }>(db, "SELECT COUNT(*) AS orders, SUM(amount) AS amount FROM premium_orders WHERE status = 'paid'");
+    const online = await row<{ orders: number; amount: number | null }>(
+      db,
+      "SELECT COUNT(*) AS orders, SUM(amount) AS amount FROM premium_orders WHERE status = 'paid'",
+    );
     const { priceIdr, months: priceMonths } = config.premium;
     const estimate = (m: number | null): number => (priceIdr && priceMonths ? Math.round((Number(m ?? 0) / priceMonths) * priceIdr) : 0);
     res.json({
@@ -747,7 +772,12 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
         page: q.page,
         pageSize: q.pageSize,
         total: Number(sum?.n ?? 0),
-        summary: { count: Number(sum?.n ?? 0), amount: Number(sum?.amount ?? 0), months: Number(sum?.months ?? 0), amount30: Number(sum?.amount30 ?? 0) },
+        summary: {
+          count: Number(sum?.n ?? 0),
+          amount: Number(sum?.amount ?? 0),
+          months: Number(sum?.months ?? 0),
+          amount30: Number(sum?.amount30 ?? 0),
+        },
       },
     });
   });
@@ -795,12 +825,16 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
       {
         key: 'tried',
         label: 'Mencoba latihan',
-        count: await one("SELECT COUNT(DISTINCT a.user_id) AS n FROM exercise_attempts a JOIN users u ON u.id = a.user_id WHERE u.role = 'user'"),
+        count: await one(
+          "SELECT COUNT(DISTINCT a.user_id) AS n FROM exercise_attempts a JOIN users u ON u.id = a.user_id WHERE u.role = 'user'",
+        ),
       },
       {
         key: 'solved1',
         label: 'Menyelesaikan 1 latihan',
-        count: await one("SELECT COUNT(DISTINCT c.user_id) AS n FROM exercise_completions c JOIN users u ON u.id = c.user_id WHERE u.role = 'user'"),
+        count: await one(
+          "SELECT COUNT(DISTINCT c.user_id) AS n FROM exercise_completions c JOIN users u ON u.id = c.user_id WHERE u.role = 'user'",
+        ),
       },
       {
         key: 'solved5',
@@ -812,7 +846,9 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
       {
         key: 'lesson',
         label: 'Menyelesaikan 1 pelajaran',
-        count: await one("SELECT COUNT(DISTINCT p.user_id) AS n FROM lesson_progress p JOIN users u ON u.id = p.user_id WHERE u.role = 'user'"),
+        count: await one(
+          "SELECT COUNT(DISTINCT p.user_id) AS n FROM lesson_progress p JOIN users u ON u.id = p.user_id WHERE u.role = 'user'",
+        ),
       },
       {
         key: 'premium',
@@ -951,7 +987,7 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
     res.json({ data: { id, hidden } });
   });
 
-  // Hasil tes penempatan (terbuka tanpa akun): ringkasan, sebaran tingkat, soal tersulit, akurasi per modul, tren mingguan, dan 50 hasil terbaru.
+  // Hasil uji kemampuan Excel (terbuka tanpa akun): ringkasan, sebaran tingkat, soal tersulit, akurasi per modul, tren mingguan, dan 50 hasil terbaru.
   // Tingkat dihitung ulang dari jawaban yang tersimpan, jadi hasil versi lama (12 soal) ikut dinilai dengan aturan yang sama.
   const PLACEMENT_SAMPLE = 5000;
   r.get('/stats/placement', async (req, res) => {
@@ -1002,7 +1038,8 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
     let matching = 0;
 
     for (const p of latest) {
-      const raw = typeof p.answers === 'string' ? (JSON.parse(p.answers) as Record<string, number>) : ((p.answers ?? {}) as Record<string, number>);
+      const raw =
+        typeof p.answers === 'string' ? (JSON.parse(p.answers) as Record<string, number>) : ((p.answers ?? {}) as Record<string, number>);
       const asked = placementQuestions.filter((q) => Number.isInteger(raw[q.id]));
       const result = asked.length > 0 ? evaluatePlacement(raw, asked) : null;
       const isLegacy = Number(p.version) < 2;
@@ -1058,7 +1095,13 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
         legacy,
         levels,
         hardest: [...perQuestion.entries()]
-          .map(([id, v]) => ({ id, question: questionOf.get(id)?.question ?? id, module: questionOf.get(id)?.module ?? '', asked: v.asked, wrong: v.wrong }))
+          .map(([id, v]) => ({
+            id,
+            question: questionOf.get(id)?.question ?? id,
+            module: questionOf.get(id)?.module ?? '',
+            asked: v.asked,
+            wrong: v.wrong,
+          }))
           .sort((a, b) => b.wrong / b.asked - a.wrong / a.asked || b.asked - a.asked)
           .slice(0, 8),
         moduleAccuracy: [...perModuleAcc.entries()].map(([module, v]) => ({ module, correct: v.correct, total: v.total })),
@@ -1178,7 +1221,10 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
 
   // Laporan soal dari pengguna.
   r.get('/reports', async (req, res) => {
-    const status = z.enum(['open', 'all']).default('open').parse(req.query.status ?? 'open');
+    const status = z
+      .enum(['open', 'all'])
+      .default('open')
+      .parse(req.query.status ?? 'open');
     const list = await rows<{
       id: number;
       reason: string;
@@ -1274,9 +1320,10 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
     const name = req.params.resource as ResourceName;
     const id = parse(idParam, req.params.id);
     const h = handlers[name];
-    if (!(await h.get(db, id))) throw notFound();
+    const before = await h.get(db, id);
+    if (!before) throw notFound();
     const body = parse(schemas[name] as ZodType, req.body);
-    const cols = await h.columns(db, body as never);
+    const cols = { ...(await h.columns(db, body as never)), ...h.onUpdate?.(before, body as never) };
     const keys = Object.keys(cols);
     try {
       await run(db, `UPDATE ${h.table} SET ${keys.map((k) => `${k}=?`).join(',')} WHERE id=?`, [...keys.map((k) => cols[k]), id]);
@@ -1285,6 +1332,24 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
     }
     await audit(req.user!.id, 'update', name, id);
     res.json({ data: await h.get(db, id) });
+  });
+
+  // Mengembalikan teks pelajaran ke versi bawaan di kode dan melepas perlindungan dari seed.
+  r.post('/lessons/:id/reset', async (req, res) => {
+    const id = parse(idParam, req.params.id);
+    const current = (await handlers.lessons.get(db, id)) as ReturnType<typeof lessonView> | undefined;
+    if (!current) throw notFound();
+    const bundled = bundledLessons.find((l) => l.slug === current.slug);
+    if (!bundled) throw new AppError(400, 'VALIDATION_ERROR', 'Pelajaran ini dibuat lewat admin dan tidak punya versi bawaan.');
+    await run(db, 'UPDATE lessons SET title=?, summary=?, minutes=?, content=?, edited=0 WHERE id=?', [
+      bundled.title,
+      bundled.summary,
+      bundled.minutes,
+      JSON.stringify(bundled.content),
+      id,
+    ]);
+    await audit(req.user!.id, 'lesson-reset', 'lessons', id);
+    res.json({ data: await handlers.lessons.get(db, id) });
   });
 
   r.delete('/:resource/:id', async (req, res) => {

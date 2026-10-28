@@ -5,8 +5,9 @@ import { ConfirmDialog, EmptyState, ErrorState, Loading, Status } from '../../co
 import { useAsync } from '../../hooks/useAsync';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { api, ApiError, errorMessage } from '../../services/api';
+import { LessonField } from './LessonEditor';
 
-type FieldType = 'text' | 'number' | 'textarea' | 'select' | 'bool' | 'json' | 'nullable';
+type FieldType = 'text' | 'number' | 'textarea' | 'select' | 'bool' | 'json' | 'nullable' | 'lesson';
 interface Field {
   key: string;
   label: string;
@@ -61,9 +62,8 @@ const RESOURCES: Record<string, ResourceConfig> = {
       { key: 'published', label: 'Diterbitkan', type: 'bool' },
       {
         key: 'content',
-        label: 'Konten (JSON)',
-        type: 'json',
-        help: 'objectives, sections, syntax (opsional), example, mistakes, playgroundNote (opsional), quiz.',
+        label: 'Isi pelajaran',
+        type: 'lesson',
       },
     ],
     empty: {
@@ -288,7 +288,7 @@ function toFormValues(cfg: ResourceConfig, item: Record<string, unknown>): Recor
   for (const f of cfg.fields) {
     const v = item[f.key];
     if (f.type === 'bool') out[f.key] = !!v;
-    else if (f.type === 'json') out[f.key] = JSON.stringify(v ?? null, null, 2);
+    else if (f.type === 'json' || f.type === 'lesson') out[f.key] = JSON.stringify(v ?? null, null, 2);
     else out[f.key] = v === null || v === undefined ? '' : String(v);
   }
   return out;
@@ -307,7 +307,7 @@ function toBody(
       const n = Number(v);
       if (v === '' || Number.isNaN(n)) errors[f.key] = 'Harus berupa angka.';
       body[f.key] = n;
-    } else if (f.type === 'json') {
+    } else if (f.type === 'json' || f.type === 'lesson') {
       try {
         body[f.key] = JSON.parse(String(v));
       } catch {
@@ -331,10 +331,26 @@ function ResourceForm({
   resource: string;
   initial: Record<string, unknown>;
   id?: number;
-  onDone: () => void;
+  onDone: (text?: string) => void;
   onCancel: () => void;
 }) {
   const [vals, setVals] = useState(() => toFormValues(cfg, initial));
+  const [confirmReset, setConfirmReset] = useState(false);
+  const edited = resource === 'lessons' && !!id && initial.edited === true;
+  const canReset = edited && initial.hasDefault === true;
+
+  const resetToDefault = async (): Promise<void> => {
+    setConfirmReset(false);
+    setBusy(true);
+    try {
+      await api.post(`/admin/lessons/${id}/reset`, {});
+      onDone('Pelajaran dikembalikan ke versi bawaan.');
+    } catch (err) {
+      setServerError({ message: errorMessage(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<{ message: string; details?: { path: string; message: string }[] } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -368,6 +384,24 @@ function ResourceForm({
       noValidate
     >
       <h2 className="h5">{id ? `Ubah ${cfg.singular}` : `Tambah ${cfg.singular}`}</h2>
+      {edited && (
+        <Status tone="info">
+          Pelajaran ini sudah kamu ubah lewat admin, jadi tidak ditimpa saat konten di-seed ulang.
+          {canReset && (
+            <>
+              {' '}
+              <button
+                type="button"
+                className="btn btn-link btn-sm p-0 align-baseline"
+                onClick={() => setConfirmReset(true)}
+                disabled={busy}
+              >
+                Kembalikan ke bawaan
+              </button>
+            </>
+          )}
+        </Status>
+      )}
       {serverError && (
         <Status tone="error" live>
           {serverError.message}
@@ -386,10 +420,17 @@ function ResourceForm({
         {cfg.fields.map((f) => {
           const fid = `f-${f.key}`;
           const err = errors[f.key];
-          const wide = f.type === 'json' || f.type === 'textarea';
+          const wide = f.type === 'json' || f.type === 'textarea' || f.type === 'lesson';
           return (
             <div key={f.key} className={wide ? 'col-12' : 'col-12 col-md-6'}>
-              {f.type === 'bool' ? (
+              {f.type === 'lesson' ? (
+                <LessonField
+                  value={String(vals[f.key])}
+                  onChange={(json) => setVals({ ...vals, [f.key]: json })}
+                  meta={{ title: String(vals.title ?? ''), summary: String(vals.summary ?? ''), minutes: Number(vals.minutes) || 0 }}
+                  error={err}
+                />
+              ) : f.type === 'bool' ? (
                 <div className="form-check">
                   <input
                     id={fid}
@@ -462,6 +503,19 @@ function ResourceForm({
           Batal
         </button>
       </div>
+      <ConfirmDialog
+        open={confirmReset}
+        title="Kembalikan ke versi bawaan?"
+        confirmLabel="Ya, kembalikan"
+        danger
+        onConfirm={() => void resetToDefault()}
+        onCancel={() => setConfirmReset(false)}
+      >
+        <p className="mb-0">
+          Semua perubahanmu pada judul, ringkasan, durasi, dan isi pelajaran ini diganti dengan versi dari kode. Tindakan ini tidak bisa
+          dibatalkan.
+        </p>
+      </ConfirmDialog>
     </form>
   );
 }
@@ -541,9 +595,9 @@ export function AdminResourcePage() {
           initial={form.initial}
           id={form.id}
           onCancel={() => setForm(null)}
-          onDone={() => {
+          onDone={(text) => {
             setForm(null);
-            setMessage({ tone: 'success', text: 'Tersimpan.' });
+            setMessage({ tone: 'success', text: text ?? 'Tersimpan.' });
             list.reload();
           }}
         />
@@ -574,6 +628,7 @@ export function AdminResourcePage() {
                   ))}
                   <td>
                     {item.published ? <span className="text-success fw-semibold">Terbit</span> : <span className="xl-muted">Draf</span>}
+                    {resource === 'lessons' && item.edited === true && <span className="badge text-bg-secondary ms-2">Diedit</span>}
                   </td>
                   <td>
                     <div className="d-flex flex-wrap gap-1">

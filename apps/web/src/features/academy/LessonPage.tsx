@@ -1,66 +1,16 @@
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
-import { ArrowLeft, ArrowRight, CircleCheck, Circle, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CircleCheck, Circle } from 'lucide-react';
 import { isPublicLesson } from '@excellab/shared';
 import { useAuth } from '../../app/AuthContext';
 import { useProgress } from '../../app/ProgressContext';
 import { EmptyState, ErrorState, Loading, Status } from '../../components/feedback/Feedback';
 import { Level } from '../../components/learning/Bits';
-import { MiniSheet } from '../../components/spreadsheet/MiniSheet';
 import { useAsync } from '../../hooks/useAsync';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { api, ApiError } from '../../services/api';
-import type { LessonContent, LessonDetail } from '../../services/types';
-
-function Quiz({ quiz }: { quiz: LessonContent['quiz'] }) {
-  const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [checked, setChecked] = useState<Record<number, boolean>>({});
-  return (
-    <div>
-      {quiz.map((q, i) => {
-        const chosen = answers[i];
-        const isChecked = checked[i];
-        const correct = chosen === q.answerIndex;
-        return (
-          <fieldset key={i} className="xl-quiz">
-            <legend className="h6">{q.question}</legend>
-            {q.options.map((o, oi) => (
-              <div className="form-check" key={oi}>
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name={`quiz-${i}`}
-                  id={`quiz-${i}-${oi}`}
-                  checked={chosen === oi}
-                  onChange={() => (setAnswers((a) => ({ ...a, [i]: oi })), setChecked((c) => ({ ...c, [i]: false })))}
-                />
-                <label className="form-check-label" htmlFor={`quiz-${i}-${oi}`}>
-                  {o}
-                </label>
-              </div>
-            ))}
-            <div className="mt-2" aria-live="polite">
-              {isChecked ? (
-                <Status tone={correct ? 'success' : 'error'}>
-                  <strong>{correct ? 'Benar.' : 'Belum tepat.'}</strong> {q.explanation}
-                </Status>
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary btn-sm"
-                  disabled={chosen === undefined}
-                  onClick={() => setChecked((c) => ({ ...c, [i]: true }))}
-                >
-                  Periksa jawaban
-                </button>
-              )}
-            </div>
-          </fieldset>
-        );
-      })}
-    </div>
-  );
-}
+import type { LessonDetail } from '../../services/types';
+import { LessonBody } from './LessonBody';
 
 export function LessonPage() {
   const { slug = '' } = useParams();
@@ -152,119 +102,42 @@ export function LessonPage() {
 
       <div className="xl-lesson-layout">
         <article className="xl-lesson">
-          <header className="mb-4">
-            <h1>{l.title}</h1>
-            <p className="xl-muted mb-2">{l.summary}</p>
-            <span className="xl-muted xl-small">
-              <Clock className="xl-icon me-1" aria-hidden="true" />
-              Perkiraan {l.minutes} menit
-            </span>
-          </header>
-
-          <section aria-labelledby="tujuan" className="xl-objectives">
-            <h2 id="tujuan" className="h6 xl-eyebrow">
-              Tujuan belajar
-            </h2>
-            <ul>
-              {c.objectives.map((o) => (
-                <li key={o}>{o}</li>
-              ))}
-            </ul>
-          </section>
-
-          {c.sections.map((s) => (
-            <section key={s.heading}>
-              <h2>{s.heading}</h2>
-              {s.paragraphs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </section>
-          ))}
-
-          {c.syntax && (
-            <section aria-labelledby="sintaks">
-              <h2 id="sintaks">Sintaks</h2>
-              <pre className="xl-code">{c.syntax.signature}</pre>
-              <dl className="xl-params">
-                {c.syntax.params.map((p) => (
-                  <div key={p.name}>
-                    <dt>
-                      <code>{p.name}</code>
-                    </dt>
-                    <dd>{p.description}</dd>
-                  </div>
-                ))}
-              </dl>
-              {c.syntax.notes?.map((n) => (
-                <p key={n} className="xl-muted xl-small">
-                  {n}
-                </p>
-              ))}
-            </section>
-          )}
-
-          <section aria-labelledby="contoh">
-            <h2 id="contoh">Contoh: {c.example.title}</h2>
-            <p>{c.example.description}</p>
-            <MiniSheet table={c.example.table} label={`Contoh: ${c.example.title}`} />
-            <p className="mt-3 mb-1">Rumus:</p>
-            <pre className="xl-code">{c.example.formula}</pre>
-            <p className="mb-1">
-              <strong>Hasil:</strong> {c.example.result}
-            </p>
-            <p className="xl-muted">{c.example.walkthrough}</p>
-          </section>
-
-          <section aria-labelledby="kesalahan">
-            <h2 id="kesalahan">Kesalahan yang sering terjadi</h2>
-            <ul className="xl-mistakes">
-              {c.mistakes.map((m) => (
-                <li key={m.title}>
-                  <strong>{m.title}.</strong> {m.detail}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {c.playgroundNote && (
-            <Status tone="info">
-              <strong>Excel asli vs playground.</strong> {c.playgroundNote}
-            </Status>
-          )}
-
-          <section aria-labelledby="praktik" className="xl-practice">
-            <h2 id="praktik">Coba sekarang</h2>
-            {l.exercises.length === 0 ? (
-              <p className="xl-muted">
-                {c.guide
-                  ? 'Pelajaran ini berupa langkah di menu Excel, jadi tidak ada latihan di playground. Coba langsung di Excel-mu, lalu cek pemahamanmu lewat kuis di bawah.'
-                  : 'Belum ada latihan untuk pelajaran ini.'}
-              </p>
-            ) : (
-              <ul className="xl-exercise-links">
-                {l.exercises.map((e) => {
-                  const ok = !!progress.completedExercises[e.slug];
-                  return (
-                    <li key={e.slug}>
-                      {ok ? (
-                        <CircleCheck className="xl-icon text-success" aria-label="Selesai" />
-                      ) : (
-                        <Circle className="xl-icon xl-muted" aria-label="Belum selesai" />
-                      )}
-                      {guest ? <span>{e.title}</span> : <Link to={`/latihan/${e.slug}${q}`}>{e.title}</Link>}
-                      <Level difficulty={e.difficulty} />
-                      <span className="xl-muted xl-small">{e.points} poin</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
-
-          <section aria-labelledby="kuis">
-            <h2 id="kuis">Cek pemahaman</h2>
-            <Quiz quiz={c.quiz} />
-          </section>
+          <LessonBody
+            title={l.title}
+            summary={l.summary}
+            minutes={l.minutes}
+            content={c}
+            practice={
+              <section aria-labelledby="praktik" className="xl-practice">
+                <h2 id="praktik">Coba sekarang</h2>
+                {l.exercises.length === 0 ? (
+                  <p className="xl-muted">
+                    {c.guide
+                      ? 'Pelajaran ini berupa langkah di menu Excel, jadi tidak ada latihan di playground. Coba langsung di Excel-mu, lalu cek pemahamanmu lewat kuis di bawah.'
+                      : 'Belum ada latihan untuk pelajaran ini.'}
+                  </p>
+                ) : (
+                  <ul className="xl-exercise-links">
+                    {l.exercises.map((e) => {
+                      const ok = !!progress.completedExercises[e.slug];
+                      return (
+                        <li key={e.slug}>
+                          {ok ? (
+                            <CircleCheck className="xl-icon text-success" aria-label="Selesai" />
+                          ) : (
+                            <Circle className="xl-icon xl-muted" aria-label="Belum selesai" />
+                          )}
+                          {guest ? <span>{e.title}</span> : <Link to={`/latihan/${e.slug}${q}`}>{e.title}</Link>}
+                          <Level difficulty={e.difficulty} />
+                          <span className="xl-muted xl-small">{e.points} poin</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </section>
+            }
+          />
 
           {guest && (
             <Status tone="info">
