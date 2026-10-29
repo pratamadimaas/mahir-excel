@@ -45,6 +45,31 @@ describe('navigasi dan routing', () => {
       expect(within(nav).getByRole('link', { name: label })).toBeInTheDocument();
   });
 
+  it('beranda setelah login punya panduan cara memakai: tiap kartu mengarah ke halamannya, bisa disembunyikan', async () => {
+    localStorage.removeItem('xl-start-hidden');
+    mockApi({
+      ...base,
+      'GET /exercises/total-harga-barang': { ...EXERCISE, slug: 'total-harga-barang' },
+      'GET /shortcuts': [],
+      'GET /worksheets': [],
+    });
+    renderApp('/');
+    const guide = await screen.findByRole('region', { name: 'Cara memakai Mahir Excel' });
+    const href = (name: string) => within(guide).getByRole('link', { name: new RegExp(`^${name}`) }).getAttribute('href');
+    expect(href('Belajar')).toBe('/belajar');
+    expect(href('Bidang')).toBe('/jalur');
+    expect(href('Latihan')).toBe('/latihan');
+    expect(href('Worksheet')).toBe('/worksheet');
+    expect(href('Sertifikat gratis')).toBe('/program');
+    expect(within(guide).getByRole('link', { name: 'Ikuti Uji Kemampuan Excel' })).toHaveAttribute('href', '/tes-penempatan');
+
+    await userEvent.click(within(guide).getByRole('button', { name: /Sembunyikan petunjuk/ }));
+    expect(screen.queryByRole('region', { name: 'Cara memakai Mahir Excel' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Tampilkan cara memakai Mahir Excel' }));
+    expect(screen.getByRole('region', { name: 'Cara memakai Mahir Excel' })).toBeInTheDocument();
+    localStorage.removeItem('xl-start-hidden');
+  });
+
   it('klik navigasi membuka halaman akademi', async () => {
     mockApi(base);
     renderApp('/shortcut-tidak-ada');

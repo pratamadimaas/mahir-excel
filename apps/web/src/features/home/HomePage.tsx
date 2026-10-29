@@ -17,6 +17,7 @@ import { formatBytes, type PublicExercise, type ShortcutView, type WorksheetView
 import { HeroVisual } from '../../scenes/hero/HeroVisual';
 import { ProgramBanner } from '../program/ProgramPage';
 import { Landing, SprintTeaser } from './Landing';
+import { StartGuide } from './StartGuide';
 
 const HERO_TABLE = [
   ['Barang', 'Harga', 'Jumlah'],
@@ -254,6 +255,7 @@ export function HomePage() {
 
       {user ? (
         <div className="xl-page">
+          <StartGuide />
           <ProgramBanner />
 
           <Section id="jalur" title={t('home.path.title')} lead={t('home.path.lead')}>

@@ -1028,3 +1028,70 @@
     gap: 6px;
   }
 }
+
+.xl-start {
+  margin-bottom: 24px;
+}
+.xl-start-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+@media (max-width: 991px) {
+  .xl-start-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .xl-start-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.xl-start-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius-lg);
+  color: var(--xl-text);
+  text-decoration: none;
+}
+.xl-start-card:hover,
+.xl-start-card:focus-visible {
+  border-color: var(--xl-green);
+  background: var(--xl-green-pale);
+}
+.xl-start-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background: var(--xl-green-light);
+  color: var(--xl-green-dark);
+  font-weight: 700;
+}
+.xl-start-go {
+  margin-top: auto;
+  padding-top: 8px;
+  color: var(--xl-green);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.xl-start-note {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--xl-green);
+  border-radius: 6px;
+  background: var(--xl-green-pale);
+}
+.xl-start-show {
+  margin: 0 0 16px;
+}

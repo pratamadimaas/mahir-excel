@@ -267,10 +267,10 @@ function Audience() {
       <div className="xl-l-side">
         <h2 id="l-siapa">Mahir Excel untuk siapa?</h2>
         <p className="xl-l-lead mb-0">
-          Belum yakin dengan levelmu? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link>: sampai 16 soal, tanpa perlu daftar. Hasilnya Pemula, Menengah, atau Mahir. Daftar akun kalau mau hasilnya tersimpan.
+          Belum yakin dengan levelmu? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link>: terdapat 16 soal, tanpa perlu daftar. Hasilnya akan tampil level excelmu: Pemula, Menengah, atau Mahir. Daftar akun kalau mau hasilnya tersimpan.
         </p>
         <p className="xl-l-lead mb-0">
-          Belajar Excel sesuai kerjaanmu. Pilih <Link to="/jalur">bidang</Link> yang paling dekat: admin, admin HRD, jualan, atau keuangan.
+          Belajar Excel sesuai passionmu. Pilih <Link to="/jalur">bidang</Link> yang paling dekat denganmu: admin, admin HRD, jualan, atau keuangan.
         </p>
       </div>
       <dl className="xl-l-limits">
