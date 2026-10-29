@@ -2,8 +2,7 @@ import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type Rea
 import { Link } from 'react-router';
 import { Sheet, formatValue, isError } from '@excellab/spreadsheet-engine';
 import { paths } from '@excellab/shared';
-import { ArrowRight, Award, Briefcase, Building2, Calculator, Check, ChevronDown, ClipboardCheck, Compass, PencilLine, Sprout, Store, Users, X, type LucideIcon } from 'lucide-react';
-import QRCode from 'qrcode';
+import { ArrowRight, Check, ChevronDown, Clock3, FileSpreadsheet, Keyboard, ListFilter, Minus, RotateCcw, SquareCheckBig, X } from 'lucide-react';
 import { Keycaps } from '../../components/learning/Bits';
 import { MiniSheet } from '../../components/spreadsheet/MiniSheet';
 import { useAsync } from '../../hooks/useAsync';
@@ -152,9 +151,9 @@ function TryIt({ exercises }: { exercises: number | null }) {
     <div className="xl-l-try" aria-labelledby="l-coba">
       <div className="xl-l-try-copy">
         <h3 id="l-coba" className="h4">
-          Coba satu rumus sekarang.
+          Jumlahkan semua biaya di sel B6.
         </h3>
-        <p className="xl-l-lead">Jumlahkan semua biaya di sel B6. Tidak perlu akun untuk mencoba ini.</p>
+        <p className="xl-l-lead">Tidak perlu akun untuk mencoba ini.</p>
         <form onSubmit={check} noValidate aria-label="Coba rumus">
           <label htmlFor="coba-rumus" className="form-label">
             Rumus untuk sel B6
@@ -210,9 +209,9 @@ function TryIt({ exercises }: { exercises: number | null }) {
 
 /* ---------- Demo bertab: tiga contoh jadi satu bagian ---------- */
 const DEMO_TABS = [
-  { id: 'rumus', label: 'Coba satu rumus' },
-  { id: 'aneh', label: 'Hasilnya aneh?' },
-  { id: 'umpan', label: 'Salah itu wajar' },
+  { id: 'rumus', label: 'Coba satu rumus', hint: 'Tulis SUM, lihat hasilnya langsung' },
+  { id: 'aneh', label: 'Hasilnya aneh?', hint: 'Empat penyebab yang paling sering' },
+  { id: 'umpan', label: 'Salah itu wajar', hint: 'Lihat cara sistem menjelaskan kesalahanmu' },
 ] as const;
 type DemoTab = (typeof DEMO_TABS)[number]['id'];
 
@@ -232,9 +231,9 @@ function Demo({ exercises }: { exercises: number | null }) {
   return (
     <section className="xl-l-section" aria-labelledby="l-demo">
       <h2 id="l-demo">Coba sebelum daftar.</h2>
-      <p className="xl-l-lead">Tiga contoh yang jalan di browsermu tanpa akun.</p>
+      <p className="xl-l-lead">Tiga contoh yang berjalan di browsermu, tanpa akun.</p>
       <div role="tablist" aria-label="Pilih contoh" className="xl-l-demo-tabs" onKeyDown={onKey}>
-        {DEMO_TABS.map((t) => (
+        {DEMO_TABS.map((t, i) => (
           <button
             key={t.id}
             ref={(el) => {
@@ -245,10 +244,17 @@ function Demo({ exercises }: { exercises: number | null }) {
             id={`demo-${t.id}`}
             aria-selected={tab === t.id}
             aria-controls="demo-panel"
+            aria-label={t.label}
             tabIndex={tab === t.id ? 0 : -1}
             onClick={() => setTab(t.id)}
           >
-            {t.label}
+            <span className="xl-l-dtab-no" aria-hidden="true">
+              {i + 1}
+            </span>
+            <span>
+              <strong>{t.label}</strong>
+              <small>{t.hint}</small>
+            </span>
           </button>
         ))}
       </div>
@@ -261,173 +267,87 @@ function Demo({ exercises }: { exercises: number | null }) {
   );
 }
 
+/* ---------- Cara kerja latihan ---------- */
+const HOW_STEPS: { title: string; text: ReactNode }[] = [
+  { title: 'Unduh berkasnya', text: <>Klik tombol unduh di halaman latihan. Kamu mendapat berkas <code>.xlsx</code> dengan data yang sudah terisi.</> },
+  { title: 'Kerjakan di Excel', text: 'Isi sel yang berwarna hijau dengan rumusmu, lalu simpan berkasnya.' },
+  { title: 'Unggah kembali', text: 'Sistem membaca rumusmu. Jika belum tepat, kamu mendapat petunjuk tentang sel yang bermasalah.' },
+];
+
+function HowItWorks() {
+  return (
+    <section className="xl-l-section" aria-labelledby="l-cara">
+      <h2 id="l-cara">Cara kerja latihannya</h2>
+      <p className="xl-l-lead">Setiap latihan bisa dikerjakan di browser atau di Excel. Penilaiannya sama.</p>
+      <ol className="xl-l-how" aria-label="Tiga langkah mengerjakan latihan">
+        {HOW_STEPS.map((s, i) => (
+          <li key={s.title}>
+            <span className="xl-l-how-no" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))}
+      </ol>
+      <div className="xl-l-notes">
+        <div>
+          <strong>Yang dinilai adalah rumusnya, bukan hanya angkanya.</strong>
+          <span>Jika latihan meminta SUM lalu kamu mengetik 1020000 langsung, jawabannya ditolak meskipun angkanya sama.</span>
+        </div>
+        <div>
+          <strong>Petunjuk dibuka satu per satu.</strong>
+          <span>Solusi lengkap baru terbuka setelah kamu menjawab benar atau memilih menyerah.</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- Untuk siapa ---------- */
-const AUDIENCE_ICONS: LucideIcon[] = [Sprout, Building2, Award];
 function Audience() {
   return (
     <section className="xl-l-section xl-l-split2" aria-labelledby="l-siapa">
       <div className="xl-l-side">
         <h2 id="l-siapa">Mahir Excel untuk siapa?</h2>
         <p className="xl-l-lead mb-0">
-          Belum yakin dengan levelmu? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link>: terdapat 16 soal, tanpa perlu daftar. Hasilnya akan tampil level excelmu: Pemula, Menengah, atau Mahir. Daftar akun kalau mau hasilnya tersimpan.
+          Belum yakin dengan levelmu? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link>: 16 soal, tanpa perlu daftar. Hasilnya menunjukkan levelmu: Pemula, Menengah, atau Mahir. Daftar akun jika ingin hasilnya tersimpan.
         </p>
       </div>
-      <dl className="xl-l-limits">
-        {AUDIENCE.map((a, i) => {
-          const Icon = AUDIENCE_ICONS[i] ?? Sprout;
-          return (
-            <div key={a.title} className="xl-l-aud">
-              <span className="xl-l-ic" aria-hidden="true">
-                <Icon className="xl-icon" />
-              </span>
-              <div>
-                <dt>{a.title}</dt>
-                <dd>{a.text}</dd>
-              </div>
-            </div>
-          );
-        })}
+      <dl className="xl-l-aud-list">
+        {AUDIENCE.map((a) => (
+          <div key={a.title}>
+            <dt>{a.title}</dt>
+            <dd>{a.text}</dd>
+          </div>
+        ))}
       </dl>
     </section>
   );
 }
 
-/* ---------- Sertifikat ---------- */
-/** Contoh tampilan sertifikat. QR-nya sungguhan tetapi mengarah ke beranda; nama dan kode di sertifikat asli milik pemiliknya. */
-function CertificatePreview() {
-  const cells = useMemo(() => {
-    const qr = QRCode.create('https://mahirexcel.online', { errorCorrectionLevel: 'M' });
-    const n = qr.modules.size;
-    const out: ReactNode[] = [];
-    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)) out.push(<rect key={`${r}-${c}`} x={c} y={r} width={1.05} height={1.05} />);
-    return { n, out };
-  }, []);
-  return (
-    <figure className="xl-l-cert">
-      <div className="xl-l-cert-page" role="img" aria-label="Contoh sertifikat penyelesaian modul Rumus Dasar">
-        <div className="xl-l-cert-brand">Mahir Excel</div>
-        <div className="xl-l-cert-title">SERTIFIKAT PENYELESAIAN</div>
-        <div className="xl-l-cert-label">Diberikan kepada</div>
-        <div className="xl-l-cert-name">Contoh Nama</div>
-        <div className="xl-l-cert-text">yang telah menyelesaikan modul 3: Rumus Dasar</div>
-        <div className="xl-l-cert-foot">
-          <svg viewBox={`0 0 ${cells.n} ${cells.n}`} className="xl-l-cert-qr" aria-hidden="true" shapeRendering="crispEdges">
-            <g fill="#185c37">{cells.out}</g>
-          </svg>
-          <div className="xl-l-cert-verify">
-            <strong>Pindai untuk memeriksa keaslian</strong>
-            <span>Kode verifikasi unik</span>
-          </div>
-          <div className="xl-l-cert-issuer">
-            <em>Mahir Excel</em>
-            <span>Diterbitkan oleh Mahir Excel</span>
-          </div>
-        </div>
-      </div>
-      <figcaption className="xl-small xl-muted mt-2">
-        Contoh tampilan. Sertifikat asli memuat namamu, tanggal terbit, dan kode unik yang bisa diperiksa siapa pun.
-      </figcaption>
-    </figure>
-  );
-}
-
-function Certificates() {
-  return (
-    <section className="xl-l-section xl-l-split" aria-labelledby="l-sertifikat">
-      <div>
-        <h2 id="l-sertifikat">Bukti belajar yang bisa diperiksa.</h2>
-        <p className="xl-l-lead">
-          Selesaikan semua pelajaran sebuah modul, atau seluruh materi, lalu unduh sertifikat PDF. Siapa pun bisa memeriksa keasliannya lewat
-          kode di sertifikat.
-        </p>
-        <ul className="xl-l-checks">
-          <li>Sertifikat per modul dan untuk seluruh materi tersedia di paket Premium.</li>
-          <li>
-            Program Perintis memberi sertifikat gratis untuk pengguna pertama yang menyelesaikan syaratnya. <Link to="/program">Lihat syarat</Link>
-          </li>
-        </ul>
-      </div>
-      <CertificatePreview />
-    </section>
-  );
-}
-
-/* ---------- 3. Cara belajar, bidang, dan isi kursus ---------- */
-const LEARN_STEPS: { icon: LucideIcon; title: string; text: string }[] = [
-  { icon: ClipboardCheck, title: '1. Cek levelmu', text: 'Uji kemampuan Excel-mu, terdapat 16 soal.' },
-  { icon: Compass, title: '2. Pilih bidang', text: 'Pelajaran disusun sesuai yang kamu minati.' },
-  { icon: PencilLine, title: '3. Baca, lalu latihan', text: 'Baca kemudian jawab soal latihannya, sistem akan memeriksa jawabanmu.' },
-];
-
-const PATH_ICONS: Record<string, LucideIcon> = {
-  'perkantoran-admin': Briefcase,
-  'admin-hrd': Users,
-  'jualan-usaha': Store,
-  'keuangan-dasar': Calculator,
-};
-
+/* ---------- Bidang dan isi kursus ---------- */
 function Curriculum({ overview }: { overview: Overview | null }) {
   const modules = overview?.modules ?? [];
   return (
     <section id="belajar" className="xl-l-section" aria-labelledby="l-modul">
-      <div className="xl-l-learn">
-        <div>
-          <h2 id="l-modul">
-            Cara belajar di <mark className="xl-l-mark">Mahir Excel</mark>
-          </h2>
-          <p className="xl-l-lead">
-            {overview ? `${overview.counts.lessons} pelajaran dan ${overview.counts.exercises} latihan, disusun berurutan.` : 'Pelajaran dan latihan disusun berurutan.'}{' '}
-            Pilih bidang yang kamu minati, lalu belajar sambil langsung praktek.
-          </p>
-          <Link to="/daftar" className="btn btn-light btn-lg">
-            Daftar gratis
-          </Link>
-          <p className="xl-l-learn-note">
-            Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link> dulu.
-          </p>
-        </div>
-        <ol className="xl-l-steps" aria-label="Tiga langkah belajar">
-          {LEARN_STEPS.map((s) => (
-            <li key={s.title}>
-              <span className="xl-l-ic xl-l-ic-solid" aria-hidden="true">
-                <s.icon className="xl-icon" />
-              </span>
-              <div>
-                <strong>{s.title}</strong>
-                <span>{s.text}</span>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      <h3 className="xl-l-beds-title">Pilih bidangmu</h3>
+      <h2 id="l-modul">Pilih bidang yang dekat dengan kerjaanmu</h2>
+      <p className="xl-l-lead">
+        {overview ? `${overview.counts.lessons} pelajaran dan ${overview.counts.exercises} latihan, disusun berurutan.` : 'Pelajaran dan latihan disusun berurutan.'}{' '}
+        Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link> terlebih dahulu.
+      </p>
       <ul className="xl-l-beds">
-        {paths.map((p) => {
-          const Icon = PATH_ICONS[p.slug] ?? Briefcase;
-          return (
-            <li key={p.slug}>
-              <Link to={`/jalur/${p.slug}`} className="xl-l-bed">
-                <span className="xl-l-ic xl-l-ic-light" aria-hidden="true">
-                  <Icon className="xl-icon" />
-                </span>
-                <strong>{p.title}</strong>
-                <span className="xl-l-bed-tag">{p.tagline}</span>
-                <ul>
-                  {p.outcomes.slice(0, 2).map((o) => (
-                    <li key={o}>
-                      <Check className="xl-icon" aria-hidden="true" />
-                      {o}
-                    </li>
-                  ))}
-                </ul>
-                <span className="xl-l-bed-go">
-                  Lihat bidang <ArrowRight className="xl-icon" aria-hidden="true" />
-                </span>
-              </Link>
-            </li>
-          );
-        })}
+        {paths.map((p) => (
+          <li key={p.slug}>
+            <Link to={`/jalur/${p.slug}`} className="xl-l-bed">
+              <strong>{p.title}</strong>
+              <span className="xl-l-bed-tag">{p.tagline}</span>
+              <span className="xl-l-bed-go">
+                Lihat bidang <ArrowRight className="xl-icon" aria-hidden="true" />
+              </span>
+            </Link>
+          </li>
+        ))}
       </ul>
 
       <details className="xl-l-fold">
@@ -493,16 +413,22 @@ function FeedbackDemo() {
   );
 }
 
-/* ---------- 5. Bento: isi paket ---------- */
+/* ---------- 5. Alat bantu ---------- */
 function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
   return (
     <section className="xl-l-section" aria-labelledby="l-isi">
-      <h2 id="l-isi">Selain pelajaran, ada alat untuk dipakai sehari-hari.</h2>
-      <div className="xl-l-bento">
-        <article className="xl-l-cell xl-l-cell-a">
-          <h3 className="h5">Playground yang bisa mengurutkan, menyaring, dan mengisi otomatis</h3>
+      <h2 id="l-isi">
+        Selain pelajaran, ada alat <mark className="xl-l-mark">untuk dipakai sehari-hari.</mark>
+      </h2>
+      <p className="xl-l-lead">Alat yang bisa dipakai di luar jam belajar.</p>
+      <div className="xl-l-tools">
+        <article>
+          <span className="xl-l-ic" aria-hidden="true">
+            <ListFilter className="xl-icon" />
+          </span>
+          <h3>Playground: urutkan, saring, isi otomatis</h3>
           <p>
-            Latihan tertentu memberi alat urutkan dan filter, serta isi otomatis dengan tarik, tombol, atau Ctrl + D. Rumus yang disalin
+            Latihan tertentu menyediakan alat urutkan dan filter, serta isi otomatis dengan tarik, tombol, atau Ctrl + D. Rumus yang disalin
             bergeser seperti di Excel.
           </p>
           <div className="xl-l-keys">
@@ -510,18 +436,24 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
             <Keycaps combo="Ctrl + R" />
           </div>
         </article>
-        <article className="xl-l-cell xl-l-cell-b">
-          <h3 className="h5">{counts ? `${counts.shortcuts} shortcut` : 'Pustaka shortcut'}</h3>
-          <p>Untuk Windows dan Mac, bisa dicari, ditambah mode kuis.</p>
+        <article>
+          <span className="xl-l-ic" aria-hidden="true">
+            <Keyboard className="xl-icon" />
+          </span>
+          <h3>{counts ? `${counts.shortcuts} shortcut` : 'Pustaka shortcut'}</h3>
+          <p>Untuk Windows dan Mac, bisa dicari, dilengkapi mode kuis.</p>
           <div className="xl-l-keys">
             <Keycaps combo="Ctrl + Shift + L" />
             <Keycaps combo="Alt + =" />
             <Keycaps combo="F4" />
           </div>
         </article>
-        <article className="xl-l-cell xl-l-cell-c">
-          <h3 className="h5">Ulang terjadwal</h3>
-          <p>Latihan yang pernah salah muncul lagi, makin jarang tiap kali kamu menjawab benar.</p>
+        <article>
+          <span className="xl-l-ic" aria-hidden="true">
+            <RotateCcw className="xl-icon" />
+          </span>
+          <h3>Ulang terjadwal</h3>
+          <p>Latihan yang pernah salah muncul kembali, dengan jeda yang makin panjang setiap kali kamu menjawab benar.</p>
           <ol className="xl-l-days" aria-label="Jeda pengulangan dalam hari">
             {[1, 3, 7, 14, 30].map((d) => (
               <li key={d}>
@@ -531,27 +463,42 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
             ))}
           </ol>
         </article>
-        <article className="xl-l-cell xl-l-cell-d">
-          <h3 className="h5">{counts ? `${counts.worksheets} worksheet` : 'Worksheet'} .xlsx</h3>
-          <p>Unduh, lalu kerjakan di Excel sungguhan. 3 worksheet pertama gratis; sisanya dan kunci jawaban untuk anggota Premium.</p>
-        </article>
-        <article className="xl-l-cell xl-l-cell-e">
-          <h3 className="h5">Uji Kemampuan Excel</h3>
-          <p>Satu pertanyaan per layar, hasilnya level kamu dan saran modul untuk memulai. Terbuka tanpa akun.</p>
-          <Link to="/tes-penempatan" className="btn btn-light btn-sm">
-            Ikuti uji kemampuan Excel
-          </Link>
-        </article>
-        <article className="xl-l-cell xl-l-cell-f">
-          <div>
-            <h3 className="h5">Sprint 60 detik</h3>
-            <p className="mb-0">
-              Jawab soal Excel sebanyak mungkin dalam satu menit: hasil rumus, nama galat, dan shortcut. Tanpa akun, cukup isi nama di akhir.
-            </p>
+        <article>
+          <span className="xl-l-ic" aria-hidden="true">
+            <FileSpreadsheet className="xl-icon" />
+          </span>
+          <h3>{counts ? `${counts.worksheets} worksheet` : 'Worksheet'} .xlsx</h3>
+          <p>Unduh, lalu kerjakan di Excel. Kunci jawaban tersedia untuk anggota Premium.</p>
+          <div className="xl-l-foot">
+            <span className="xl-l-file">rekap-penjualan.xlsx</span>
+            <span className="xl-l-tag">3 pertama gratis</span>
           </div>
-          <Link to="/sprint" className="btn btn-primary">
-            Main sekarang
-          </Link>
+        </article>
+        <article>
+          <span className="xl-l-ic" aria-hidden="true">
+            <SquareCheckBig className="xl-icon" />
+          </span>
+          <h3>Uji Kemampuan Excel</h3>
+          <p>Satu pertanyaan per layar. Hasilnya berupa levelmu dan saran modul untuk memulai.</p>
+          <div className="xl-l-foot">
+            <span className="xl-l-tag">Tanpa akun</span>
+            <Link to="/tes-penempatan" className="xl-l-go">
+              Ikuti ujinya <ArrowRight className="xl-icon" aria-hidden="true" />
+            </Link>
+          </div>
+        </article>
+        <article className="xl-l-tool-dark">
+          <span className="xl-l-ic" aria-hidden="true">
+            <Clock3 className="xl-icon" />
+          </span>
+          <h3>Sprint 60 detik</h3>
+          <p>Jawab soal sebanyak mungkin dalam satu menit: hasil rumus, nama galat, dan shortcut. Cukup isi nama di akhir.</p>
+          <div className="xl-l-foot">
+            <span className="xl-l-tag">Tanpa akun</span>
+            <Link to="/sprint" className="xl-l-go">
+              Main sekarang <ArrowRight className="xl-icon" aria-hidden="true" />
+            </Link>
+          </div>
         </article>
       </div>
     </section>
@@ -579,35 +526,6 @@ export function SprintTeaser() {
       <div className="xl-l-sprint-board">
         <Leaderboard limit={5} as="h3" />
       </div>
-    </section>
-  );
-}
-
-/* ---------- 6. Batasan yang jujur ---------- */
-function Limits({ functions }: { functions: number | null }) {
-  return (
-    <section className="xl-l-section xl-l-split2" aria-labelledby="l-batas">
-      <div className="xl-l-side">
-        <h2 id="l-batas">Yang sebaiknya kamu tahu dulu.</h2>
-        <p className="xl-l-lead mb-0">Empat hal yang belum ada atau sengaja tidak ditiru di sini.</p>
-      </div>
-      <dl className="xl-l-limits">
-        <div>
-          <dt>Playground adalah simulasi</dt>
-          <dd>
-            {functions ? `Ada ${functions} fungsi` : 'Fungsinya terbatas'}, cukup untuk dasar sampai VLOOKUP dan XLOOKUP. Ini bukan
-            pengganti Excel, dan beberapa perilaku Excel asli sengaja tidak ditiru.
-          </dd>
-        </div>
-        <div>
-          <dt>PivotTable dan grafik baru dijelaskan</dt>
-          <dd>Pelajarannya membahas konsepnya, tetapi belum bisa dilatih langsung di playground.</dd>
-        </div>
-        <div>
-          <dt>Hanya berbahasa Indonesia</dt>
-          <dd>Antarmuka punya versi English, tetapi pelajaran dan latihan ditulis dalam Bahasa Indonesia.</dd>
-        </div>
-      </dl>
     </section>
   );
 }
@@ -641,42 +559,68 @@ function SampleLessons() {
 function Plans({ counts }: { counts: Overview['counts'] | null }) {
   const cfg = useAuthConfig();
   const price = cfg?.premium.priceLabel;
+  const yes = <Check className="xl-icon" aria-label="Ya" role="img" />;
+  const no = <Minus className="xl-icon xl-l-cmp-no" aria-label="Tidak tersedia" role="img" />;
+  const rows: [string, ReactNode, ReactNode][] = [
+    [`Semua pelajaran${counts ? ` (${counts.lessons})` : ''} dan latihan${counts ? ` (${counts.exercises})` : ''}`, yes, yes],
+    ['Pemeriksa otomatis dan petunjuk bertahap', yes, yes],
+    ['Uji Kemampuan Excel, jadwal ulang, Sprint 60 detik, dan pustaka shortcut', yes, yes],
+    ['Progres, poin, dan streak tersimpan di akun', yes, yes],
+    ['Tombol “Lihat solusi”', '1 solusi setiap 7 hari', 'Tanpa batas'],
+    ['Worksheet .xlsx', counts ? `3 dari ${counts.worksheets}` : '3 worksheet pertama', 'Semua, beserta kunci jawaban'],
+    ['Template', '2', '2, ditambah 4 lanjutan'],
+    ['Penelusur rumus, wizard rumus, laporan kemajuan, dan contekan PDF', no, yes],
+    ['Sertifikat PDF yang bisa dicek lewat kode', no, yes],
+  ];
   return (
     <section id="harga" className="xl-l-section" aria-labelledby="l-paket">
-      <h2 id="l-paket">Belajarnya gratis. Premium untuk latihan lebih banyak dan bukti belajar.</h2>
-      <div className="xl-l-plans">
-        <div className="xl-l-plan">
-          <h3 className="h5">Gratis</h3>
-          <ul>
-            <li>
-              Semua pelajaran{counts ? ` (${counts.lessons})` : ''} dan latihan{counts ? ` (${counts.exercises})` : ''}
-            </li>
-            <li>Uji Kemampuan Excel dan jadwal ulang</li>
-            <li>Pustaka shortcut dan mode kuis</li>
-            <li>Petunjuk bertahap dan pembahasan setelah jawabanmu benar</li>
-            <li>Satu solusi langsung gratis setiap 7 hari</li>
-            <li>3 worksheet .xlsx pertama</li>
-            <li>Sprint 60 detik dan papan peringkat</li>
-            <li>Progres, poin, dan streak tersimpan di akun</li>
-          </ul>
-          <Link to="/daftar" className="btn btn-primary">
-            Daftar gratis
-          </Link>
-        </div>
-        <div className="xl-l-plan xl-l-plan-pro">
-          <h3 className="h5">Premium</h3>
-          <ul>
-            <li>Semua yang gratis</li>
-            <li>Tombol “Lihat solusi” tanpa batas di setiap latihan</li>
-            <li>8 worksheet lanjutan dan kunci jawaban semua worksheet</li>
-            <li>4 template lanjutan, penelusur rumus, wizard rumus, laporan kemajuan, dan contekan PDF</li>
-            <li>Sertifikat PDF per modul dan untuk seluruh materi, bisa dicek lewat kode</li>
-          </ul>
-          {price && <p className="xl-l-price">{price}</p>}
-          <Link to="/premium" className="btn btn-outline-primary">
-            Lihat Premium
-          </Link>
-        </div>
+      <h2 id="l-paket">Belajar gratis. Premium untuk solusi dan alat tambahan.</h2>
+      <p className="xl-l-lead">
+        Semua pelajaran dan latihan bisa dikerjakan tanpa biaya. Premium menambah solusi tanpa batas, worksheet lanjutan, dan alat bantu.
+      </p>
+      <div className="xl-l-cmp-wrap">
+        <table className="xl-l-cmp">
+          <caption className="visually-hidden">Perbandingan paket Gratis dan Premium</caption>
+          <thead>
+            <tr>
+              <th scope="col">
+                <span className="visually-hidden">Fitur</span>
+              </th>
+              <th scope="col">
+                <span className="xl-l-cmp-name">Gratis</span>
+                <span className="xl-l-cmp-sub">Rp0</span>
+              </th>
+              <th scope="col" className="xl-l-cmp-pro">
+                <span className="xl-l-cmp-name">Premium</span>
+                {price && <span className="xl-l-price">{price}</span>}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([label, free, pro]) => (
+              <tr key={label}>
+                <th scope="row">{label}</th>
+                <td>{free}</td>
+                <td className="xl-l-cmp-pro">{pro}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td />
+              <td>
+                <Link to="/daftar" className="btn btn-outline-primary">
+                  Daftar gratis
+                </Link>
+              </td>
+              <td className="xl-l-cmp-pro">
+                <Link to="/premium" className="btn btn-light">
+                  Lihat Premium
+                </Link>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </section>
   );
@@ -732,67 +676,55 @@ function Band({ tone, children }: { tone: 'white' | 'sage' | 'deep' | 'butter'; 
   );
 }
 
-/** Empat angka asli dari server tepat di bawah hero. Tidak tampil bila angkanya belum ada. */
-function StatStrip({ counts }: { counts: Overview['counts'] | null }) {
-  if (!counts) return null;
-  const items: [number, string][] = [
-    [counts.lessons, 'pelajaran'],
-    [counts.exercises, 'latihan'],
-    [counts.functions, 'fungsi rumus'],
-    [counts.shortcuts, 'shortcut'],
-  ];
-  return (
-    <dl className="xl-l-stats" aria-label="Isi Mahir Excel saat ini">
-      {items.map(([n, label]) => (
-        <div key={label}>
-          <dt>{label}</dt>
-          <dd>{nf.format(n)}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
 /** Siapa di balik Mahir Excel. Hanya fakta yang bisa dipertanggungjawabkan; kontak muncul bila VITE_CONTACT_URL diisi. */
 function Maker() {
   return (
-    <section className="xl-l-section xl-l-maker" aria-labelledby="l-pembuat">
-      <h2 id="l-pembuat">Dibuat oleh siapa dan kenapa</h2>
-      <p className="xl-l-statement">
-        Belajar Excel dalam Bahasa Indonesia, tanpa harus membayar dulu.
-      </p>
-      <dl className="xl-l-facts">
-        <div>
-          <dt>Kenapa ada</dt>
-          <dd>
-            Mahir Excel dibuat supaya orang Indonesia bisa belajar Excel lewat latihan langsung, bukan hanya membaca. Belajarnya sengaja dibuat
-            gratis. Premium ada supaya proyek ini bisa terus dirawat.
-          </dd>
+    <section className="xl-l-maker" aria-labelledby="l-pembuat">
+      <div className="xl-l-mk">
+        <div className="xl-l-mk-main">
+          <p className="xl-l-eyebrow">Tentang proyek ini</p>
+          <h2 id="l-pembuat">Dibuat oleh siapa dan kenapa</h2>
+          <p className="xl-l-statement">
+            Belajar Excel dalam Bahasa Indonesia, <mark className="xl-l-mark-dark">tanpa harus membayar dulu.</mark>
+          </p>
+          <div className="xl-l-who">
+            <span aria-hidden="true">C</span>
+            <div>
+              <strong>Codewithdims</strong>
+              <small>Pengembang independen</small>
+            </div>
+          </div>
+          <div className="d-flex flex-wrap align-items-center gap-3">
+            {CONTACT && (
+              <a className="btn btn-lime" href={CONTACT} target="_blank" rel="noopener noreferrer">
+                Hubungi Codewithdims
+              </a>
+            )}
+            <Link to="/tentang" className="xl-l-mk-link">
+              Baca selengkapnya
+            </Link>
+          </div>
         </div>
-        <div>
-          <dt>Cara materi dijaga benar</dt>
-          <dd>
-            Pelajaran ditulis orisinal. Setiap contoh dijalankan oleh mesin rumus sendiri, dan jawaban latihan diuji terhadap data lain
-            supaya jawaban asal tidak lolos. Daftar shortcut belum diverifikasi di semua versi dan tata letak keyboard, dan itu dicatat
-            terang-terangan.
-          </dd>
-        </div>
-        <div>
-          <dt>Siapa di baliknya</dt>
-          <dd>
-            Seorang pengembang independen yang membangun dan merawatnya sendiri
-          </dd>
-        </div>
-      </dl>
-      <div className="d-flex flex-wrap gap-2">
-        <Link to="/tentang" className="btn btn-outline-primary">
-          Baca selengkapnya
-        </Link>
-        {CONTACT && (
-          <a className="btn btn-primary" href={CONTACT} target="_blank" rel="noopener noreferrer">
-            Hubungi Codewithdims
-          </a>
-        )}
+        <dl className="xl-l-facts">
+          <div>
+            <dt>Kenapa ada</dt>
+            <dd>
+              Agar orang Indonesia bisa belajar Excel lewat latihan langsung, bukan hanya membaca. Belajarnya sengaja dibuat gratis. Premium ada
+              supaya situs ini bisa terus dirawat.
+            </dd>
+          </div>
+          <div>
+            <dt>Cara materi dijaga</dt>
+            <dd>
+              Pelajaran ditulis sendiri. Setiap contoh dijalankan oleh mesin rumus kami, dan jawaban latihan diuji dengan data lain supaya
+              jawaban asal tidak lolos.
+            </dd>
+          </div>
+          <div>
+            <dt>Siapa di baliknya</dt>
+            <dd>Satu orang yang membangun dan merawatnya sendiri.</dd>
+          </div>
+        </dl>
       </div>
     </section>
   );
@@ -804,10 +736,10 @@ export function Landing() {
   const data = overview.data ?? null;
   return (
     <>
-      <Band tone="sage">
-        <StatStrip counts={data?.counts ?? null} />
-      </Band>
       <Band tone="white">
+        <HowItWorks />
+      </Band>
+      <Band tone="sage">
         <Audience />
       </Band>
       <Band tone="deep">
@@ -822,14 +754,10 @@ export function Landing() {
       <Band tone="white">
         <Toolbox counts={data?.counts ?? null} />
       </Band>
-      <Band tone="butter">
-        <Certificates />
-      </Band>
       <Band tone="sage">
-        <Limits functions={data?.counts.functions ?? null} />
+        <Plans counts={data?.counts ?? null} />
       </Band>
       <Band tone="white">
-        <Plans counts={data?.counts ?? null} />
         <Faqs functions={data?.counts.functions ?? null} />
       </Band>
       <Band tone="sage">

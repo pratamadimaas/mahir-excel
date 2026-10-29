@@ -121,7 +121,7 @@ export const MODULE_OUTCOMES: Record<string, string> = {
 export const AUDIENCE: { title: string; text: string }[] = [
   {
     title: 'Pemula yang mau belajar Excel',
-    text: 'Mulai dari sel dan column, dengan istilah sederhana. Uji Kemampuan Excel membantu memilih titik awal.',
+    text: 'Mulai dari sel dan kolom, dengan istilah yang sederhana. Uji Kemampuan Excel membantu menentukan titik awal.',
   },
   {
     title: 'Pekerja kantor yang mau naik level',
@@ -129,7 +129,7 @@ export const AUDIENCE: { title: string; text: string }[] = [
   },
   {
     title: 'Mahasiswa dan pencari kerja',
-    text: 'Butuh bukti belajar untuk CV? Selesaikan materinya dan unduh sertifikat PDF yang keasliannya bisa diperiksa lewat kode.',
+    text: 'Butuh bukti belajar untuk CV? Selesaikan materinya dan unduh sertifikat PDF (Premium) yang keasliannya bisa diperiksa lewat kode.',
   },
 ];
 
@@ -183,6 +183,14 @@ export const faqs = (functions: number | null): Faq[] => [
   {
     q: 'Apakah sama persis dengan Excel?',
     a: `Tidak. Playground memakai mesin rumus sendiri${functions ? ` dengan ${functions} fungsi` : ''}, cukup untuk dasar sampai VLOOKUP. Beberapa perilaku Excel asli sengaja tidak ditiru, dan perbedaannya dicatat di halaman Tentang.`,
+  },
+  {
+    q: 'Ada latihan PivotTable dan grafik?',
+    a: 'Pelajarannya membahas konsepnya, tetapi PivotTable dan grafik belum bisa dilatih langsung di playground.',
+  },
+  {
+    q: 'Apakah tersedia dalam bahasa Inggris?',
+    a: 'Antarmuka punya versi English, tetapi pelajaran dan latihan ditulis dalam Bahasa Indonesia.',
   },
   {
     q: 'Bisa dipakai lewat HP?',

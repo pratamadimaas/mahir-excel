@@ -70,22 +70,22 @@ describe('beranda pengunjung', () => {
     renderApp('/');
     expect(await screen.findByRole('heading', { name: /Mahir Excel untuk siapa/ })).toBeInTheDocument();
     for (const name of [
+      /Cara kerja latihannya/,
       /Coba sebelum daftar/,
-      /Coba satu rumus sekarang/,
-      /Cara belajar di Mahir Excel/,
+      /Jumlahkan semua biaya di sel B6/,
+      /Pilih bidang yang dekat dengan kerjaanmu/,
       /Baca satu pelajaran dulu/,
       /Selain pelajaran/,
-      /Bukti belajar yang bisa diperiksa/,
-      /Yang sebaiknya kamu tahu/,
-      /Belajarnya gratis/,
+      /Belajar gratis\. Premium/,
       /Pertanyaan yang sering muncul/,
+      /Dibuat oleh siapa dan kenapa/,
       /Mulai dari satu rumus/,
     ])
       expect(await screen.findByRole('heading', { name })).toBeInTheDocument();
 
     expect(await screen.findByText(/30 pelajaran dan 54 latihan/)).toBeInTheDocument();
     expect(screen.getByText('53 shortcut')).toBeInTheDocument();
-    expect(screen.getByText(/Ada 33 fungsi/)).toBeInTheDocument();
+    expect(screen.getByText(/dengan 33 fungsi/)).toBeInTheDocument();
     expect(screen.getByText('Rp 29.000 untuk 12 bulan')).toBeInTheDocument();
     // Tidak ada em-dash atau en-dash di teks halaman.
     expect(document.body.textContent).not.toMatch(/[–—]/);
@@ -94,9 +94,9 @@ describe('beranda pengunjung', () => {
   it('angka tidak dikarang bila server gagal: halaman tetap tampil tanpa jumlah', async () => {
     mockApi({ ...anon, 'GET /public/overview': () => ({ status: 500, body: { error: { code: 'INTERNAL_ERROR', message: 'x' } } }) });
     renderApp('/');
-    expect(await screen.findByRole('heading', { name: /Cara belajar di Mahir Excel/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Pilih bidang yang dekat dengan kerjaanmu/ })).toBeInTheDocument();
     expect(screen.queryByText(/pelajaran dan .* latihan, disusun/)).not.toBeInTheDocument();
-    expect(screen.getByText(/Fungsinya terbatas/)).toBeInTheDocument();
+    expect(screen.queryByText(/dengan \d+ fungsi/)).not.toBeInTheDocument();
   });
 
   it('lab kesalahan: ganti kasus, lihat galat, tekan Perbaiki untuk melihat hasil yang benar', async () => {
@@ -216,11 +216,21 @@ describe('susunan beranda yang baru', () => {
     expect(Object.keys(MODULE_OUTCOMES).sort()).toEqual(modules.map((m) => m.slug).sort());
   });
 
-  it('urutan bagian: untuk siapa, isi kursus, pelajaran contoh, demo, alat, sertifikat, batasan, harga', async () => {
+  it('urutan bagian: cara kerja, untuk siapa, bidang, pelajaran contoh, demo, alat, harga, FAQ, pembuat', async () => {
     mockApi(anon);
     renderApp('/');
     await screen.findByRole('heading', { name: /Mahir Excel untuk siapa/ });
-    const order = [/Mahir Excel untuk siapa/, /Cara belajar di Mahir Excel/, /Baca satu pelajaran dulu/, /Coba sebelum daftar/, /Selain pelajaran/, /Bukti belajar/, /Yang sebaiknya kamu tahu/, /Belajarnya gratis/];
+    const order = [
+      /Cara kerja latihannya/,
+      /Mahir Excel untuk siapa/,
+      /Pilih bidang yang dekat dengan kerjaanmu/,
+      /Baca satu pelajaran dulu/,
+      /Coba sebelum daftar/,
+      /Selain pelajaran/,
+      /Belajar gratis\. Premium/,
+      /Pertanyaan yang sering muncul/,
+      /Dibuat oleh siapa/,
+    ];
     const all = [...document.querySelectorAll('main h2')].map((h) => h.textContent ?? '');
     const positions = order.map((re) => all.findIndex((t) => re.test(t)));
     for (const p of positions) expect(p).toBeGreaterThanOrEqual(0);
@@ -245,18 +255,24 @@ describe('susunan beranda yang baru', () => {
     expect(document.getElementById('faq')).not.toBeNull();
   });
 
-  it('cara belajar: tiga langkah, empat kartu bidang yang menuju halamannya, dan daftar modul yang dilipat', async () => {
+  it('cara kerja latihan: tiga langkah unduh, kerjakan, unggah, dengan dua catatan yang bisa dibuktikan', async () => {
     mockApi(anon);
     renderApp('/');
-    const section = (await screen.findByRole('heading', { name: /Cara belajar di Mahir Excel/ })).closest('section')!;
-    const steps = within(within(section).getByRole('list', { name: 'Tiga langkah belajar' })).getAllByRole('listitem');
-    expect(steps.map((s) => s.querySelector('strong')?.textContent)).toEqual(['1. Cek levelmu', '2. Pilih bidang', '3. Baca, lalu latihan']);
-    expect(within(section).getByText('Uji kemampuan Excel-mu, terdapat 16 soal.')).toBeInTheDocument();
+    const section = (await screen.findByRole('heading', { name: /Cara kerja latihannya/ })).closest('section')!;
+    const steps = within(within(section).getByRole('list', { name: 'Tiga langkah mengerjakan latihan' })).getAllByRole('listitem');
+    expect(steps.map((s) => s.querySelector('h3')?.textContent)).toEqual(['Unduh berkasnya', 'Kerjakan di Excel', 'Unggah kembali']);
+    expect(within(section).getByText(/Yang dinilai adalah rumusnya, bukan hanya angkanya/)).toBeInTheDocument();
+    expect(within(section).getByText(/Petunjuk dibuka satu per satu/)).toBeInTheDocument();
+  });
 
+  it('bidang: empat kartu yang menuju halamannya, dan daftar modul yang dilipat', async () => {
+    mockApi(anon);
+    renderApp('/');
+    const section = (await screen.findByRole('heading', { name: /Pilih bidang yang dekat dengan kerjaanmu/ })).closest('section')!;
     const beds = paths.map((p) => within(section).getByRole('link', { name: new RegExp(p.title) }));
     expect(beds.map((a) => a.getAttribute('href'))).toEqual(paths.map((p) => `/jalur/${p.slug}`));
     expect(paths.map((p) => p.slug)).toEqual(['perkantoran-admin', 'admin-hrd', 'jualan-usaha', 'keuangan-dasar']);
-    expect(within(section).getByRole('link', { name: 'Daftar gratis' })).toHaveAttribute('href', '/daftar');
+    expect(within(section).getByRole('link', { name: 'Ikuti Uji Kemampuan Excel' })).toHaveAttribute('href', '/tes-penempatan');
 
     const fold = section.querySelector('details')!;
     expect(fold).not.toHaveAttribute('open');
@@ -272,7 +288,7 @@ describe('susunan beranda yang baru', () => {
     const tabs = await screen.findByRole('tablist', { name: 'Pilih contoh' });
     const rumus = within(tabs).getByRole('tab', { name: 'Coba satu rumus' });
     expect(rumus).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('heading', { name: /Coba satu rumus sekarang/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Jumlahkan semua biaya di sel B6/ })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Hasilnya aneh/ })).not.toBeInTheDocument();
 
     rumus.focus();
@@ -282,24 +298,25 @@ describe('susunan beranda yang baru', () => {
 
     await user.click(within(tabs).getByRole('tab', { name: 'Salah itu wajar' }));
     expect(await screen.findByRole('heading', { name: /Salah itu wajar/ })).toBeInTheDocument();
-    expect(screen.getByText(FEEDBACK_STEPS[0]!.formula)).toBeInTheDocument();
+    expect(within(screen.getByRole('tabpanel')).getByText(FEEDBACK_STEPS[0]!.formula)).toBeInTheDocument();
   });
 
-  it('Sprint hanya satu sel di kotak alat dan contoh sertifikat tampil dengan penjelasan', async () => {
+  it('Sprint hanya satu kartu di kotak alat, dan bagian sertifikat serta batasan tidak ada lagi', async () => {
     mockApi(anon);
     renderApp('/');
     const sprint = await screen.findByRole('heading', { name: 'Sprint 60 detik' });
-    expect(within(sprint.closest('article')!).getByRole('link', { name: 'Main sekarang' })).toHaveAttribute('href', '/sprint');
-    expect(screen.getByRole('img', { name: /Contoh sertifikat penyelesaian modul Rumus Dasar/ })).toBeInTheDocument();
-    expect(screen.getByText(/Contoh tampilan\. Sertifikat asli memuat namamu/)).toBeInTheDocument();
+    expect(within(sprint.closest('article')!).getByRole('link', { name: /Main sekarang/ })).toHaveAttribute('href', '/sprint');
+    expect(screen.queryByRole('img', { name: /Contoh sertifikat/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Bukti belajar yang bisa diperiksa/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Yang sebaiknya kamu tahu/ })).not.toBeInTheDocument();
   });
 
-  it('hero: satu tombol utama, uji kemampuan Excel hanya tautan teks, dan navbar pengunjung memuat Bidang dan tiga tautan bagian', async () => {
+  it('hero: satu tombol utama, cek level hanya tautan teks, dan navbar pengunjung memuat Bidang dan tiga tautan bagian', async () => {
     mockApi(anon);
     renderApp('/');
-    const hero = (await screen.findByRole('heading', { level: 1, name: /Excel bisa dipelajari/ })).closest('section')!;
+    const hero = (await screen.findByRole('heading', { level: 1, name: /Latihan Excel yang langsung dinilai/ })).closest('section')!;
     expect(within(hero).getByRole('link', { name: 'Daftar gratis' })).toHaveClass('btn-primary');
-    const link = within(hero).getByRole('link', { name: 'Ikuti uji kemampuan Excel' });
+    const link = within(hero).getByRole('link', { name: 'Cek levelmu terlebih dahulu (16 soal)' });
     expect(link).toHaveAttribute('href', '/tes-penempatan');
     expect(link).not.toHaveClass('btn');
 
@@ -318,32 +335,30 @@ describe('susunan beranda yang baru', () => {
     spy.mockClear();
     mockApi(anon);
     renderApp('/#harga');
-    await screen.findByRole('heading', { name: /Belajarnya gratis/ });
+    await screen.findByRole('heading', { name: /Belajar gratis\. Premium/ });
     await waitFor(() => expect(spy).toHaveBeenCalled());
     expect((spy.mock.contexts[0] as HTMLElement).id).toBe('harga');
   });
 });
 
 describe('profil pembuat dan angka di beranda', () => {
-  it('empat angka asli tampil tepat setelah hero, dengan labelnya', async () => {
+  it('tabel paket memuat angka asli dari server dan harga dari konfigurasi', async () => {
     mockApi(anon);
     renderApp('/');
-    for (const [n, label] of [
-      ['30', 'pelajaran'],
-      ['54', 'latihan'],
-      ['33', 'fungsi rumus'],
-      ['53', 'shortcut'],
-    ] as const) {
-      const term = await screen.findByText(label, { selector: 'dt' });
-      expect(term.nextElementSibling).toHaveTextContent(n);
-    }
+    const table = await screen.findByRole('table', { name: 'Perbandingan paket Gratis dan Premium' });
+    expect(within(table).getByRole('rowheader', { name: 'Semua pelajaran (30) dan latihan (54)' })).toBeInTheDocument();
+    expect(within(table).getByText('3 dari 10')).toBeInTheDocument();
+    expect(within(table).getByText('Rp 29.000 untuk 12 bulan')).toBeInTheDocument();
+    expect(within(table).getByRole('link', { name: 'Daftar gratis' })).toHaveAttribute('href', '/daftar');
+    expect(within(table).getByRole('link', { name: 'Lihat Premium' })).toHaveAttribute('href', '/premium');
   });
 
-  it('angka tidak muncul bila server gagal (tidak ada angka karangan)', async () => {
+  it('angka tidak dikarang di tabel paket bila server gagal', async () => {
     mockApi({ ...anon, 'GET /public/overview': () => ({ status: 500, body: { error: { code: 'INTERNAL_ERROR', message: 'x' } } }) });
     renderApp('/');
-    await screen.findByRole('heading', { name: /Cara belajar di Mahir Excel/ });
-    expect(screen.queryByText('fungsi rumus', { selector: 'dt' })).not.toBeInTheDocument();
+    const table = await screen.findByRole('table', { name: 'Perbandingan paket Gratis dan Premium' });
+    expect(within(table).getByRole('rowheader', { name: 'Semua pelajaran dan latihan' })).toBeInTheDocument();
+    expect(within(table).getByText('3 worksheet pertama')).toBeInTheDocument();
   });
 
   it('bagian "Dibuat oleh siapa dan kenapa" memuat alasan, cara materi dijaga, dan tidak menyebut instansi mana pun', async () => {
@@ -352,9 +367,10 @@ describe('profil pembuat dan angka di beranda', () => {
     const h = await screen.findByRole('heading', { name: 'Dibuat oleh siapa dan kenapa' });
     const section = h.closest('section')!;
     expect(within(section).getByText('Kenapa ada')).toBeInTheDocument();
-    expect(within(section).getByText('Cara materi dijaga benar')).toBeInTheDocument();
+    expect(within(section).getByText('Cara materi dijaga')).toBeInTheDocument();
     expect(within(section).getByText('Siapa di baliknya')).toBeInTheDocument();
-    expect(within(section).getByText(/Seorang pengembang independen/)).toBeInTheDocument();
+    expect(within(section).getByText(/Satu orang yang membangun dan merawatnya sendiri/)).toBeInTheDocument();
+    expect(within(section).queryByText(/belum diverifikasi/)).not.toBeInTheDocument();
     expect(within(section).getByRole('link', { name: 'Baca selengkapnya' })).toHaveAttribute('href', '/tentang');
     expect(section.textContent).not.toMatch(/Kemenkeu|DJPb|KPPN|pegawai negeri|PNS/i);
   });

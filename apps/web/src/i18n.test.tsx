@@ -41,11 +41,11 @@ describe('ganti bahasa', () => {
   it('bawaan Indonesia; tombol mengganti ke English, tersimpan, dan mengubah <html lang>', async () => {
     mockApi(anon);
     renderApp('/');
-    expect(await screen.findByRole('heading', { level: 1, name: /Excel bisa dipelajari/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /Latihan Excel yang langsung dinilai/ })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('id');
 
     await userEvent.click(screen.getByRole('button', { name: 'Ganti bahasa ke English' }));
-    expect(await screen.findByRole('heading', { level: 1, name: 'Excel can be learned. Start here.' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Excel practice that is graded instantly.' })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('en');
     expect(localStorage.getItem('excellab.lang')).toBe('en');
 
@@ -56,7 +56,7 @@ describe('ganti bahasa', () => {
     expect(within(nav).getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/#faq');
     expect(within(nav).queryByRole('link', { name: 'Placement test' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Sign up free' })).toHaveAttribute('href', '/daftar');
-    expect(screen.getByRole('link', { name: 'Take the placement test' })).toHaveAttribute('href', '/tes-penempatan');
+    expect(screen.getByRole('link', { name: 'Check your level first (16 questions)' })).toHaveAttribute('href', '/tes-penempatan');
   });
 
   it('pilihan bahasa tersimpan antar kunjungan', async () => {
@@ -71,14 +71,14 @@ describe('ganti bahasa', () => {
     localStorage.setItem('excellab.lang', 'fr');
     mockApi(base);
     renderApp('/');
-    expect(await screen.findByRole('heading', { level: 1, name: /Excel bisa dipelajari/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /Latihan Excel yang langsung dinilai/ })).toBeInTheDocument();
   });
 
   it('di area konten (isi masih Indonesia) tampil catatan; di beranda tidak', async () => {
     localStorage.setItem('excellab.lang', 'en');
     mockApi(base);
     const home = renderApp('/');
-    await screen.findByRole('heading', { level: 1, name: 'Excel can be learned. Start here.' });
+    await screen.findByRole('heading', { level: 1, name: 'Excel practice that is graded instantly.' });
     expect(screen.queryByRole('note')).not.toBeInTheDocument();
     home.unmount();
     renderApp('/belajar');

@@ -16,6 +16,7 @@ import { flattenLessons, useModules } from '../../services/catalog';
 import { formatBytes, type PublicExercise, type ShortcutView, type WorksheetView } from '../../services/types';
 import { HeroVisual } from '../../scenes/hero/HeroVisual';
 import { ProgramBanner } from '../program/ProgramPage';
+import { HeroCheck } from './HeroCheck';
 import { Landing, SprintTeaser } from './Landing';
 import { StartGuide } from './StartGuide';
 
@@ -215,11 +216,18 @@ export function HomePage() {
         <div className="xl-page">
           <div className="xl-hero-grid">
             <div className="xl-hero-copy">
-              <p className="xl-eyebrow">{t('hero.eyebrow')}</p>
+              {user && <p className="xl-eyebrow">{t('hero.eyebrow')}</p>}
               <h1 id="hero-title" className="xl-hero-title">
-                {t('hero.title')}
+                {user ? (
+                  t('hero.title')
+                ) : (
+                  <>
+                    {t('hero.vTitleA')}
+                    <mark className="xl-hero-mark">{t('hero.vTitleB')}</mark>
+                  </>
+                )}
               </h1>
-              <p className="xl-hero-lead">{t('hero.lead')}</p>
+              <p className="xl-hero-lead">{user ? t('hero.lead') : t('hero.vLead')}</p>
               <div className="d-flex flex-wrap gap-2 mb-4">
                 {user ? (
                   <>
@@ -236,11 +244,12 @@ export function HomePage() {
                       {t('hero.signup')}
                     </Link>
                     <Link to="/tes-penempatan" className="xl-hero-link">
-                      {t('hero.placement')}
+                      {t('hero.vPlacement')}
                     </Link>
                   </>
                 )}
               </div>
+              {!user && <p className="xl-hero-note">{t('hero.vNote')}</p>}
               {user && (
                 <div className="xl-hero-mini">
                   <MiniSheet table={HERO_TABLE} label="Contoh lembar kerja mini" initial="B4" />
@@ -248,7 +257,7 @@ export function HomePage() {
                 </div>
               )}
             </div>
-            <HeroVisual />
+            {user ? <HeroVisual /> : <HeroCheck />}
           </div>
         </div>
       </section>

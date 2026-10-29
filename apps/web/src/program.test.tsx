@@ -132,7 +132,7 @@ describe('banner Program Perintis di beranda', () => {
   it('pengunjung di beranda tidak melihat banner program sama sekali', async () => {
     mockApi({ ...home, 'GET /program/status': { ...pub, taken: 90, remaining: 10 } });
     renderApp('/');
-    await waitFor(() => expect(screen.getByRole('heading', { name: /Belajarnya gratis/ })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole('heading', { name: /Belajar gratis\. Premium/ })).toBeInTheDocument());
     expect(screen.queryByRole('complementary', { name: 'Program Perintis' })).not.toBeInTheDocument();
   });
 
@@ -173,7 +173,7 @@ describe('banner Program Perintis di beranda', () => {
   it('banner hilang ketika kuota habis', async () => {
     mockApi({ ...member, 'GET /program/status': { ...pub, open: false, taken: 100, remaining: 0 } });
     renderApp('/');
-    await waitFor(() => expect(screen.getByRole('heading', { name: /Belajarnya gratis|Selamat datang|jalur/i })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole('heading', { name: /Cara memakai Mahir Excel/ })).toBeInTheDocument());
     expect(screen.queryByRole('complementary', { name: 'Program Perintis' })).not.toBeInTheDocument();
   });
 
@@ -184,12 +184,13 @@ describe('banner Program Perintis di beranda', () => {
     expect(links[0]).toHaveAttribute('href', '/program');
   });
 
-  it('pengunjung menemukan program lewat banner dan bagian sertifikat di beranda, bukan di navbar', async () => {
+  it('pengunjung tidak melihat program di navbar maupun di beranda', async () => {
     mockApi({ ...home, 'GET /program/status': pub });
     renderApp('/');
     const nav = await screen.findByRole('navigation', { name: 'Navigasi utama' });
     expect(within(nav).queryByRole('link', { name: 'Sertifikat gratis' })).not.toBeInTheDocument();
-    const heading = await screen.findByRole('heading', { name: /Bukti belajar yang bisa diperiksa/ });
-    expect(within(heading.closest('section')!).getByRole('link', { name: 'Lihat syarat' })).toHaveAttribute('href', '/program');
+    await screen.findByRole('heading', { name: /Belajar gratis\. Premium/ });
+    expect(screen.queryByRole('link', { name: 'Lihat syarat' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Program Perintis' })).not.toBeInTheDocument();
   });
 });

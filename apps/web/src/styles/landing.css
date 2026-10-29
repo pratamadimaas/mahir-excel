@@ -1100,3 +1100,760 @@ main:has(.xl-l-closing) + .xl-footer {
   color: var(--l-forest);
   text-decoration: none;
 }
+
+/* =====================================================================
+ * Penyusunan ulang landing: pemeriksa otomatis jadi pesan utama.
+ * ===================================================================== */
+:root {
+  --l-lime: #d9f35b;
+  --l-line: #d3ddd7;
+}
+
+/* ---------- Hero pengunjung ---------- */
+.xl-hero-pro {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(900px 480px at 85% 15%, rgba(46, 160, 99, 0.36), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
+    #0f3a29;
+}
+@media (min-width: 900px) {
+  .xl-hero-pro {
+    padding: 88px 0 110px;
+  }
+}
+.xl-hero-pro .xl-hero-title {
+  font-size: clamp(2.25rem, 1.4rem + 3.4vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+.xl-hero-mark {
+  color: inherit;
+  background: linear-gradient(transparent 63%, rgba(217, 243, 91, 0.9) 63%, rgba(217, 243, 91, 0.9) 93%, transparent 93%);
+  padding: 0;
+}
+.xl-hero-pro .xl-hero-lead {
+  font-size: 1.1875rem;
+  max-width: 30em;
+}
+.xl-hero-note {
+  margin: 0;
+  color: #a9c4b5;
+  font-size: 0.95rem;
+}
+.xl-hc {
+  margin: 0;
+  position: relative;
+  padding-bottom: 170px;
+  width: 100%;
+  max-width: 560px;
+  margin-left: auto;
+}
+.xl-hc-win {
+  background: #fff;
+  color: var(--xl-text);
+  border-radius: 14px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.38);
+  overflow: hidden;
+}
+.xl-hc-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 16px;
+  background: #f6f8f7;
+  border-bottom: 1px solid #e3e9e5;
+  font-size: 0.8rem;
+  color: var(--xl-text-muted);
+}
+.xl-hc-bar i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #d3dad6;
+}
+.xl-hc-bar span {
+  margin-left: 8px;
+}
+.xl-hc-fx {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e3e9e5;
+  font-size: 0.85rem;
+}
+.xl-hc-nm {
+  width: 64px;
+  padding: 8px 0;
+  text-align: center;
+  font-weight: 700;
+  border-right: 1px solid #e3e9e5;
+}
+.xl-hc-fx code {
+  padding: 8px 14px;
+  color: var(--xl-text);
+  font-weight: 600;
+}
+.xl-hc-win table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.xl-hc-win th,
+.xl-hc-win td {
+  padding: 7px 14px;
+  border-bottom: 1px solid #e9eeea;
+  border-right: 1px solid #e9eeea;
+}
+.xl-hc-win th {
+  background: #f3f6f4;
+  color: var(--xl-text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.xl-hc-rh {
+  width: 44px;
+  background: #f3f6f4;
+  color: var(--xl-text-muted);
+  text-align: center;
+  font-size: 0.8rem;
+}
+.xl-hc-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.xl-hc-bad {
+  outline: 2.5px solid #c0392b;
+  outline-offset: -2.5px;
+  background: #fff6f5;
+  font-weight: 700;
+}
+.xl-hc-fb {
+  position: absolute;
+  left: -36px;
+  bottom: 0;
+  width: min(420px, 92%);
+  background: #fdecea;
+  border: 1px solid #f1c3bd;
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: #7a1a12;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+.xl-hc-fb strong {
+  display: block;
+}
+.xl-hc figcaption {
+  position: absolute;
+  right: 0;
+  top: -28px;
+  font-size: 0.78rem;
+  color: #a9c4b5;
+}
+@media (max-width: 899px) {
+  .xl-hc {
+    padding-bottom: 0;
+    margin: 28px 0 0;
+  }
+  .xl-hc-fb {
+    position: static;
+    width: auto;
+    margin-top: 12px;
+  }
+  .xl-hc figcaption {
+    position: static;
+    margin-top: 8px;
+  }
+}
+
+/* ---------- Cara kerja latihan ---------- */
+.xl-l-how {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 2px solid var(--l-forest);
+}
+.xl-l-how li {
+  padding: 22px 0 18px;
+  border-bottom: 1px solid var(--l-line);
+}
+.xl-l-how-no {
+  display: block;
+  font-family: var(--xl-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  color: var(--xl-green);
+  margin-bottom: 8px;
+}
+.xl-l-how h3 {
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+.xl-l-how p {
+  margin: 0;
+  color: var(--xl-text-muted);
+}
+.xl-l-how code {
+  background: var(--l-sage);
+  color: var(--xl-green-dark);
+  padding: 1px 7px;
+  border-radius: 5px;
+}
+@media (min-width: 900px) {
+  .xl-l-how {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .xl-l-how li {
+    padding: 26px 30px 8px 0;
+    border-bottom: 0;
+  }
+  .xl-l-how li + li {
+    padding-left: 30px;
+    border-left: 1px solid var(--l-line);
+  }
+}
+.xl-l-notes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 36px;
+}
+.xl-l-notes > div {
+  border-left: 3px solid var(--l-lime);
+  padding-left: 18px;
+}
+.xl-l-notes strong {
+  display: block;
+  font-size: 1.0625rem;
+}
+.xl-l-notes span {
+  color: var(--xl-text-muted);
+}
+@media (min-width: 900px) {
+  .xl-l-notes {
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    margin-top: 44px;
+  }
+}
+
+/* ---------- Untuk siapa ---------- */
+.xl-l-aud-list {
+  margin: 0;
+  border-top: 2px solid var(--l-forest);
+}
+.xl-l-aud-list > div {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--l-line);
+}
+.xl-l-aud-list dt {
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+.xl-l-aud-list dd {
+  margin: 4px 0 0;
+  color: var(--xl-text-muted);
+}
+
+/* ---------- Bidang ---------- */
+.xl-l-band-deep .xl-l-lead {
+  color: #c3d8cb;
+}
+.xl-l-band-deep .xl-l-lead a {
+  color: #fff;
+}
+.xl-l-bed {
+  min-height: 190px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.xl-l-bed strong {
+  margin-top: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+/* ---------- Coba sebelum daftar ---------- */
+.xl-l-demo-tabs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  border: 0;
+  margin: 8px 0 18px;
+}
+@media (min-width: 900px) {
+  .xl-l-demo-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+.xl-l-demo-tabs [role='tab'] {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  text-align: left;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--l-line);
+  border-radius: 14px;
+  color: var(--xl-text);
+}
+.xl-l-demo-tabs [role='tab'] strong {
+  display: block;
+  font-size: 1.0625rem;
+}
+.xl-l-demo-tabs [role='tab'] small {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--xl-text-muted);
+  line-height: 1.4;
+}
+.xl-l-dtab-no {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1.5px solid var(--l-line);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--xl-text-muted);
+}
+.xl-l-demo-tabs [role='tab'][aria-selected='true'] {
+  background: #fff;
+  border: 2px solid var(--xl-green);
+  box-shadow: 0 8px 24px rgba(16, 57, 42, 0.1);
+  color: var(--xl-text);
+}
+.xl-l-demo-tabs [role='tab'][aria-selected='true'] .xl-l-dtab-no {
+  background: var(--xl-green);
+  border-color: var(--xl-green);
+  color: #fff;
+}
+.xl-l-demo-body {
+  background: #fff;
+  border-radius: 20px;
+  padding: 26px 22px;
+  box-shadow: 0 10px 30px rgba(16, 57, 42, 0.08);
+}
+@media (min-width: 900px) {
+  .xl-l-demo-body {
+    padding: 38px 40px;
+  }
+}
+.xl-l-try {
+  background: #fff;
+  border-radius: 20px;
+  padding: 26px 22px;
+  box-shadow: 0 10px 30px rgba(16, 57, 42, 0.08);
+}
+.xl-l-demo-body .xl-l-try {
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+@media (min-width: 900px) {
+  .xl-l-try {
+    padding: 38px 40px;
+    gap: 48px;
+  }
+}
+.xl-l-try-copy h3 {
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.xl-l-try-copy .xl-l-lead {
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+.xl-l-try .form-control {
+  font-size: 1.35rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--xl-green);
+  border-radius: 12px;
+  box-shadow: 0 0 0 5px rgba(33, 115, 70, 0.12);
+}
+.xl-l-try .btn-primary {
+  padding-inline: 1.6rem;
+  font-weight: 700;
+  border-radius: 12px;
+}
+.xl-l-try-sheet {
+  box-shadow: none;
+  padding: 0;
+}
+
+/* ---------- Alat bantu ---------- */
+.xl-l-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .xl-l-tools {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1000px) {
+  .xl-l-tools {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+.xl-l-tools article {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 26px;
+  min-height: 280px;
+  background: #fff;
+  border: 1px solid var(--l-line);
+  border-radius: 18px;
+}
+.xl-l-tools h3 {
+  margin: 6px 0 0;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.xl-l-tools p {
+  margin: 0;
+  color: var(--xl-text-muted);
+}
+.xl-l-tools .xl-l-ic {
+  width: 46px;
+  height: 46px;
+  background: var(--l-sage-2);
+}
+.xl-l-tools .xl-l-days li {
+  border-color: var(--l-line);
+  background: #fafcfb;
+}
+.xl-l-foot {
+  margin-top: auto;
+  padding-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.xl-l-file {
+  border: 1px dashed #9db8a8;
+  border-radius: 10px;
+  background: #f7fbf8;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.xl-l-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--xl-green-dark);
+  background: var(--l-sage-2);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+.xl-l-go {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--xl-green-dark);
+  text-decoration: none;
+}
+.xl-l-go .xl-icon {
+  margin: 0;
+}
+.xl-l-go:hover {
+  text-decoration: underline;
+}
+.xl-l-tools .xl-l-tool-dark {
+  background: var(--l-forest);
+  border-color: var(--l-forest);
+  color: #fff;
+}
+.xl-l-tool-dark h3 {
+  color: #fff;
+}
+.xl-l-tool-dark p {
+  color: #cfe0d6;
+}
+.xl-l-tool-dark .xl-l-ic {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--l-lime);
+}
+.xl-l-tool-dark .xl-l-tag {
+  background: rgba(217, 243, 91, 0.2);
+  color: var(--l-lime);
+}
+.xl-l-tool-dark .xl-l-go {
+  color: var(--l-lime);
+}
+
+/* ---------- Perbandingan paket ---------- */
+.xl-l-cmp-wrap {
+  overflow-x: auto;
+  border-radius: 20px;
+  box-shadow: 0 14px 40px rgba(16, 57, 42, 0.1);
+  border: 1px solid var(--l-line);
+  background: #fff;
+}
+.xl-l-cmp {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+}
+.xl-l-cmp th,
+.xl-l-cmp td {
+  padding: 15px 22px;
+  border-bottom: 1px solid #e8eeea;
+  vertical-align: middle;
+}
+.xl-l-cmp tbody th {
+  font-weight: 600;
+  text-align: left;
+}
+.xl-l-cmp tbody td {
+  color: var(--xl-text-muted);
+}
+.xl-l-cmp thead th {
+  text-align: left;
+  vertical-align: bottom;
+  padding-top: 26px;
+  padding-bottom: 22px;
+  border-bottom: 2px solid var(--l-line);
+}
+.xl-l-cmp-name {
+  display: block;
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+.xl-l-cmp-sub {
+  color: var(--xl-text-muted);
+  font-weight: 400;
+}
+.xl-l-cmp .xl-l-cmp-pro {
+  background: var(--l-forest);
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+.xl-l-cmp tbody td.xl-l-cmp-pro {
+  color: #fff;
+}
+.xl-l-cmp .xl-l-price {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--l-lime);
+}
+.xl-l-cmp td .xl-icon {
+  margin: 0;
+  color: var(--xl-green);
+}
+.xl-l-cmp td.xl-l-cmp-pro .xl-icon {
+  color: var(--l-lime);
+}
+.xl-l-cmp-no {
+  color: #a5b2aa;
+}
+.xl-l-cmp tfoot td {
+  border-bottom: 0;
+  padding-top: 20px;
+  padding-bottom: 22px;
+}
+.xl-l-cmp tfoot .btn-light {
+  background: var(--l-lime);
+  border-color: var(--l-lime);
+  color: var(--l-forest);
+  font-weight: 700;
+}
+
+/* ---------- Pembuat ---------- */
+.xl-l-maker {
+  max-width: none;
+  padding: 56px 0 64px;
+}
+@media (min-width: 900px) {
+  .xl-l-maker {
+    padding: 80px 0 90px;
+  }
+}
+.xl-l-mk {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 36px;
+  padding: 36px 26px;
+  border-radius: 28px;
+  background: var(--l-forest);
+  color: #fff;
+}
+.xl-l-mk::before {
+  content: '';
+  position: absolute;
+  right: -120px;
+  top: -140px;
+  width: 460px;
+  height: 460px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(46, 160, 99, 0.45), transparent 65%);
+  pointer-events: none;
+}
+.xl-l-mk > * {
+  position: relative;
+}
+@media (min-width: 900px) {
+  .xl-l-mk {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 72px;
+    padding: 68px 64px 60px;
+  }
+}
+.xl-l-eyebrow {
+  margin: 0 0 16px;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--l-lime);
+}
+.xl-l-mk h2 {
+  color: #fff;
+  font-size: clamp(2rem, 1.4rem + 2vw, 3.25rem);
+  max-width: 14ch;
+  margin-bottom: 22px;
+}
+.xl-l-mk .xl-l-statement {
+  color: #d3e5da;
+  font-size: 1.375rem;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  max-width: 20em;
+  margin: 0 0 32px;
+}
+.xl-l-mark-dark {
+  background: none;
+  color: var(--l-lime);
+  font-weight: 700;
+  padding: 0;
+}
+.xl-l-who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.xl-l-who > span {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--l-lime);
+  color: var(--l-forest);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+.xl-l-who strong {
+  display: block;
+  font-size: 1.125rem;
+}
+.xl-l-who small {
+  color: #a9c4b5;
+  font-size: 0.9rem;
+}
+.xl-l-mk .btn-lime {
+  background: var(--l-lime);
+  border-color: var(--l-lime);
+  color: var(--l-forest);
+  font-weight: 700;
+  padding: 0.7rem 1.4rem;
+}
+.xl-l-mk-link {
+  color: #fff;
+  font-weight: 650;
+  text-decoration: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.45);
+  padding-bottom: 2px;
+}
+.xl-l-mk-link:hover {
+  border-bottom-color: #fff;
+}
+.xl-l-mk .xl-l-facts {
+  margin: 0;
+  align-self: center;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.xl-l-mk .xl-l-facts > div {
+  padding: 22px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+.xl-l-mk .xl-l-facts > div:last-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.xl-l-mk .xl-l-facts dt {
+  font-family: var(--xl-font, inherit);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--l-lime);
+  margin-bottom: 6px;
+}
+.xl-l-mk .xl-l-facts dd {
+  margin: 0;
+  color: #e6f0ea;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+@media (min-width: 900px) {
+  .xl-l-mk .xl-l-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .xl-l-cmp {
+    min-width: 0;
+    table-layout: fixed;
+  }
+  .xl-l-cmp th,
+  .xl-l-cmp td {
+    padding: 12px 10px;
+    font-size: 0.88rem;
+  }
+  .xl-l-cmp thead th:first-child {
+    width: 36%;
+  }
+  .xl-l-cmp-name {
+    font-size: 1.1rem;
+  }
+  .xl-l-cmp .xl-l-price {
+    font-size: 0.95rem;
+  }
+  .xl-l-cmp tfoot .btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
