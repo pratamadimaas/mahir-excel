@@ -28,7 +28,7 @@ export function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  if (user) return <Navigate to="/kemajuan" replace />;
+  if (user) return <Navigate to="/" replace />;
   // Tunggu konfigurasi server dulu agar form tidak berganti di tengah pengetikan.
   if (!cfg) {
     return (
@@ -52,7 +52,7 @@ export function LoginPage() {
     setBusy(true);
     try {
       await login(email.trim(), password);
-      nav('/kemajuan');
+      nav('/');
     } catch (err) {
       setFormError(errorMessage(err));
     } finally {
@@ -150,7 +150,7 @@ export function ForgotPasswordPage() {
   useDocumentTitle(t('forgot.title'));
   const { user } = useAuth();
   const cfg = useAuthConfig();
-  if (user) return <Navigate to="/kemajuan" replace />;
+  if (user) return <Navigate to="/" replace />;
   return (
     <div className="xl-page xl-page-narrow py-5">
       <h1>{t('forgot.title')}</h1>
@@ -182,7 +182,7 @@ export function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  if (user) return <Navigate to="/kemajuan" replace />;
+  if (user) return <Navigate to="/" replace />;
 
   const submit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
@@ -197,7 +197,7 @@ export function RegisterPage() {
     setBusy(true);
     try {
       await register(email.trim(), password, name.trim());
-      nav('/kemajuan');
+      nav('/');
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) setErrors({ email: err.message });
       else setFormError(errorMessage(err));

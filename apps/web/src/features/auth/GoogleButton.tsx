@@ -61,7 +61,7 @@ export function GoogleButton({ clientId, mode = 'signin' }: { clientId: string; 
             }
             setError(null);
             googleLogin(res.credential)
-              .then(() => nav('/kemajuan'))
+              .then(() => nav('/'))
               .catch(() => setError(t('auth.googleError')));
           },
         });

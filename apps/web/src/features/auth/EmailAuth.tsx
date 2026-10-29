@@ -96,7 +96,7 @@ export function EmailCodeForm({ purpose }: { purpose: 'login' | 'reset' }) {
         ...(purpose === 'reset' ? { newPassword } : {}),
         ...(purpose === 'login' && displayName.trim() ? { displayName: displayName.trim() } : {}),
       });
-      nav('/kemajuan');
+      nav('/');
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : errorMessage(err));
     } finally {

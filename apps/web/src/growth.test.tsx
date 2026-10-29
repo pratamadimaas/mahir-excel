@@ -55,7 +55,7 @@ describe('login dengan Google', () => {
     expect(screen.queryByTestId('google-signin')).not.toBeInTheDocument();
   });
 
-  it('token dikirim ke server dan pengguna masuk ke halaman Kemajuan', async () => {
+  it('token dikirim ke server dan pengguna masuk ke beranda', async () => {
     const g = stubGoogle();
     const fetchMock = mockApi({
       ...base,
@@ -66,7 +66,7 @@ describe('login dengan Google', () => {
     renderApp('/masuk');
     await waitFor(() => expect(g.initialize).toHaveBeenCalled());
     g.initialize.mock.calls.at(-1)![0].callback({ credential: 'token-dari-google' });
-    expect(await screen.findByRole('heading', { name: 'Kemajuan belajarmu' }, { timeout: 10000 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Cara memakai Mahir Excel' }, { timeout: 10000 })).toBeInTheDocument();
     const call = fetchMock.mock.calls.find((c) => String(c[0]).endsWith('/auth/google'))!;
     expect(JSON.parse((call[1] as RequestInit).body as string)).toEqual({ credential: 'token-dari-google' });
   });

@@ -66,7 +66,7 @@ describe('login: kata sandi dan kode email', () => {
     await userEvent.type(screen.getByLabelText('Kode 6 angka'), '123abc456');
     expect(screen.getByLabelText('Kode 6 angka')).toHaveValue('123456'); // hanya angka, maksimal 6
     await userEvent.click(screen.getByRole('button', { name: 'Masuk' }));
-    expect(await screen.findByRole('heading', { name: 'Kemajuan belajarmu' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Cara memakai Mahir Excel' })).toBeInTheDocument();
     expect(bodyOf(fetchMock, '/auth/email/verify')).toEqual({ email: 'budi@example.com', purpose: 'login', code: '123456' });
   });
 
@@ -130,7 +130,7 @@ describe('lupa kata sandi', () => {
     await userEvent.clear(screen.getByLabelText('Kata sandi baru'));
     await userEvent.type(screen.getByLabelText('Kata sandi baru'), 'sandi-baru-456');
     await userEvent.click(screen.getByRole('button', { name: 'Atur ulang dan masuk' }));
-    await screen.findByRole('heading', { name: 'Kemajuan belajarmu' });
+    await screen.findByRole('heading', { name: 'Cara memakai Mahir Excel' });
     expect(bodyOf(fetchMock, '/auth/email/verify')).toEqual({
       email: 'budi@example.com',
       purpose: 'reset',
