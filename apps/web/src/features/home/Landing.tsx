@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Sheet, formatValue, isError } from '@excellab/spreadsheet-engine';
-import { Check, X } from 'lucide-react';
+import { paths } from '@excellab/shared';
+import { ArrowRight, Award, Briefcase, Building2, Calculator, Check, ChevronDown, ClipboardCheck, Compass, PencilLine, Sprout, Store, Users, X, type LucideIcon } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Keycaps } from '../../components/learning/Bits';
 import { MiniSheet } from '../../components/spreadsheet/MiniSheet';
@@ -261,6 +262,7 @@ function Demo({ exercises }: { exercises: number | null }) {
 }
 
 /* ---------- Untuk siapa ---------- */
+const AUDIENCE_ICONS: LucideIcon[] = [Sprout, Building2, Award];
 function Audience() {
   return (
     <section className="xl-l-section xl-l-split2" aria-labelledby="l-siapa">
@@ -269,17 +271,22 @@ function Audience() {
         <p className="xl-l-lead mb-0">
           Belum yakin dengan levelmu? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link>: terdapat 16 soal, tanpa perlu daftar. Hasilnya akan tampil level excelmu: Pemula, Menengah, atau Mahir. Daftar akun kalau mau hasilnya tersimpan.
         </p>
-        <p className="xl-l-lead mb-0">
-          Belajar Excel sesuai passionmu. Pilih <Link to="/jalur">bidang</Link> yang paling dekat denganmu: admin, admin HRD, jualan, atau keuangan.
-        </p>
       </div>
       <dl className="xl-l-limits">
-        {AUDIENCE.map((a) => (
-          <div key={a.title}>
-            <dt>{a.title}</dt>
-            <dd>{a.text}</dd>
-          </div>
-        ))}
+        {AUDIENCE.map((a, i) => {
+          const Icon = AUDIENCE_ICONS[i] ?? Sprout;
+          return (
+            <div key={a.title} className="xl-l-aud">
+              <span className="xl-l-ic" aria-hidden="true">
+                <Icon className="xl-icon" />
+              </span>
+              <div>
+                <dt>{a.title}</dt>
+                <dd>{a.text}</dd>
+              </div>
+            </div>
+          );
+        })}
       </dl>
     </section>
   );
@@ -345,41 +352,113 @@ function Certificates() {
   );
 }
 
-/* ---------- 3. Kurikulum ---------- */
+/* ---------- 3. Cara belajar, bidang, dan isi kursus ---------- */
+const LEARN_STEPS: { icon: LucideIcon; title: string; text: string }[] = [
+  { icon: ClipboardCheck, title: '1. Cek levelmu', text: 'Uji kemampuan Excel-mu, terdapat 16 soal.' },
+  { icon: Compass, title: '2. Pilih bidang', text: 'Pelajaran disusun sesuai yang kamu minati.' },
+  { icon: PencilLine, title: '3. Baca, lalu latihan', text: 'Baca kemudian jawab soal latihannya, sistem akan memeriksa jawabanmu.' },
+];
+
+const PATH_ICONS: Record<string, LucideIcon> = {
+  'perkantoran-admin': Briefcase,
+  'admin-hrd': Users,
+  'jualan-usaha': Store,
+  'keuangan-dasar': Calculator,
+};
+
 function Curriculum({ overview }: { overview: Overview | null }) {
+  const modules = overview?.modules ?? [];
   return (
-    <section id="belajar" className="xl-l-section xl-l-split" aria-labelledby="l-modul">
-      <div className="xl-l-sticky">
-        <h2 id="l-modul">
-          Dari sel pertama sampai <mark className="xl-l-mark">Intermediate</mark>.
-        </h2>
-        <p className="xl-l-lead">
-          {overview
-            ? `${overview.counts.lessons} pelajaran dan ${overview.counts.exercises} latihan, disusun berurutan. Delapan modul inti ditutup dengan proyek kecil, dan satu modul tambahan menyiapkanmu untuk tes kerja admin.`
-            : 'Pelajaran dan latihan disusun berurutan. Delapan modul inti ditutup dengan proyek kecil, dan satu modul tambahan menyiapkanmu untuk tes kerja admin.'}
-        </p>
-        <p className="mb-0">
-          Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link>: sampai 16 soal, tanpa perlu daftar.
-        </p>
-      </div>
-      <ol className="xl-path" aria-label="Daftar modul">
-        {(overview?.modules ?? []).map((m, i) => (
-          <li key={m.slug}>
-            <span className="xl-path-no" aria-hidden="true">
-              {i + 1}
-            </span>
-            <div className="xl-path-body">
-              <strong>{m.title}</strong>
-              <span className="xl-muted xl-small">{m.summary}</span>
-              {MODULE_OUTCOMES[m.slug] && <span className="xl-small xl-l-outcome">Hasilnya: {MODULE_OUTCOMES[m.slug]}</span>}
-              <span className="xl-small xl-l-count">
-                {m.lessons} pelajaran, {m.exercises} latihan
+    <section id="belajar" className="xl-l-section" aria-labelledby="l-modul">
+      <div className="xl-l-learn">
+        <div>
+          <h2 id="l-modul">
+            Cara belajar di <mark className="xl-l-mark">Mahir Excel</mark>
+          </h2>
+          <p className="xl-l-lead">
+            {overview ? `${overview.counts.lessons} pelajaran dan ${overview.counts.exercises} latihan, disusun berurutan.` : 'Pelajaran dan latihan disusun berurutan.'}{' '}
+            Pilih bidang yang kamu minati, lalu belajar sambil langsung praktek.
+          </p>
+          <Link to="/daftar" className="btn btn-light btn-lg">
+            Daftar gratis
+          </Link>
+          <p className="xl-l-learn-note">
+            Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link> dulu.
+          </p>
+        </div>
+        <ol className="xl-l-steps" aria-label="Tiga langkah belajar">
+          {LEARN_STEPS.map((s) => (
+            <li key={s.title}>
+              <span className="xl-l-ic xl-l-ic-solid" aria-hidden="true">
+                <s.icon className="xl-icon" />
               </span>
-            </div>
-          </li>
-        ))}
-        {!overview && <li className="xl-muted">Memuat daftar modul…</li>}
-      </ol>
+              <div>
+                <strong>{s.title}</strong>
+                <span>{s.text}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <h3 className="xl-l-beds-title">Pilih bidangmu</h3>
+      <ul className="xl-l-beds">
+        {paths.map((p) => {
+          const Icon = PATH_ICONS[p.slug] ?? Briefcase;
+          return (
+            <li key={p.slug}>
+              <Link to={`/jalur/${p.slug}`} className="xl-l-bed">
+                <span className="xl-l-ic xl-l-ic-light" aria-hidden="true">
+                  <Icon className="xl-icon" />
+                </span>
+                <strong>{p.title}</strong>
+                <span className="xl-l-bed-tag">{p.tagline}</span>
+                <ul>
+                  {p.outcomes.slice(0, 2).map((o) => (
+                    <li key={o}>
+                      <Check className="xl-icon" aria-hidden="true" />
+                      {o}
+                    </li>
+                  ))}
+                </ul>
+                <span className="xl-l-bed-go">
+                  Lihat bidang <ArrowRight className="xl-icon" aria-hidden="true" />
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+
+      <details className="xl-l-fold">
+        <summary>
+          <span>
+            <strong>Isi lengkap{modules.length ? `: ${modules.length} modul` : ''}</strong> dari Mengenal Excel sampai Persiapan Tes Kerja Admin
+          </span>
+          <span className="xl-l-fold-act">
+            Lihat semua modul <ChevronDown className="xl-icon" aria-hidden="true" />
+          </span>
+        </summary>
+        <p className="xl-l-fold-note">Delapan modul inti ditutup dengan proyek kecil, dan satu modul tambahan menyiapkanmu untuk tes kerja admin.</p>
+        <ol className="xl-path" aria-label="Daftar modul">
+          {modules.map((m, i) => (
+            <li key={m.slug}>
+              <span className="xl-path-no" aria-hidden="true">
+                {i + 1}
+              </span>
+              <div className="xl-path-body">
+                <strong>{m.title}</strong>
+                <span className="xl-muted xl-small">{m.summary}</span>
+                {MODULE_OUTCOMES[m.slug] && <span className="xl-small xl-l-outcome">Hasilnya: {MODULE_OUTCOMES[m.slug]}</span>}
+                <span className="xl-small xl-l-count">
+                  {m.lessons} pelajaran, {m.exercises} latihan
+                </span>
+              </div>
+            </li>
+          ))}
+          {!overview && <li className="xl-muted">Memuat daftar modul…</li>}
+        </ol>
+      </details>
     </section>
   );
 }

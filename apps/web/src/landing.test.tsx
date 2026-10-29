@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { vi } from 'vitest';
-import { exercises, modules, validateSubmission } from '@excellab/shared';
+import { exercises, modules, paths, validateSubmission } from '@excellab/shared';
 import { Sheet, formatValue, indexToCol, isError } from '@excellab/spreadsheet-engine';
 import { EMPTY_PROGRESS, MODULES, STUDENT, mockApi, renderApp } from './testutil';
 import { AUDIENCE, ERROR_CASES, FEEDBACK_STEPS, MODULE_OUTCOMES, TRY_EXPECTED, TRY_TABLE, type Row } from './features/home/landingData';
@@ -72,7 +72,7 @@ describe('beranda pengunjung', () => {
     for (const name of [
       /Coba sebelum daftar/,
       /Coba satu rumus sekarang/,
-      /Dari sel pertama sampai Intermediate/,
+      /Cara belajar di Mahir Excel/,
       /Baca satu pelajaran dulu/,
       /Selain pelajaran/,
       /Bukti belajar yang bisa diperiksa/,
@@ -94,7 +94,7 @@ describe('beranda pengunjung', () => {
   it('angka tidak dikarang bila server gagal: halaman tetap tampil tanpa jumlah', async () => {
     mockApi({ ...anon, 'GET /public/overview': () => ({ status: 500, body: { error: { code: 'INTERNAL_ERROR', message: 'x' } } }) });
     renderApp('/');
-    expect(await screen.findByRole('heading', { name: /Dari sel pertama sampai Intermediate/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Cara belajar di Mahir Excel/ })).toBeInTheDocument();
     expect(screen.queryByText(/pelajaran dan .* latihan, disusun/)).not.toBeInTheDocument();
     expect(screen.getByText(/Fungsinya terbatas/)).toBeInTheDocument();
   });
@@ -220,7 +220,7 @@ describe('susunan beranda yang baru', () => {
     mockApi(anon);
     renderApp('/');
     await screen.findByRole('heading', { name: /Mahir Excel untuk siapa/ });
-    const order = [/Mahir Excel untuk siapa/, /Dari sel pertama sampai Intermediate/, /Baca satu pelajaran dulu/, /Coba sebelum daftar/, /Selain pelajaran/, /Bukti belajar/, /Yang sebaiknya kamu tahu/, /Belajarnya gratis/];
+    const order = [/Mahir Excel untuk siapa/, /Cara belajar di Mahir Excel/, /Baca satu pelajaran dulu/, /Coba sebelum daftar/, /Selain pelajaran/, /Bukti belajar/, /Yang sebaiknya kamu tahu/, /Belajarnya gratis/];
     const all = [...document.querySelectorAll('main h2')].map((h) => h.textContent ?? '');
     const positions = order.map((re) => all.findIndex((t) => re.test(t)));
     for (const p of positions) expect(p).toBeGreaterThanOrEqual(0);
@@ -243,6 +243,26 @@ describe('susunan beranda yang baru', () => {
     expect(document.getElementById('belajar')).not.toBeNull();
     expect(document.getElementById('harga')).not.toBeNull();
     expect(document.getElementById('faq')).not.toBeNull();
+  });
+
+  it('cara belajar: tiga langkah, empat kartu bidang yang menuju halamannya, dan daftar modul yang dilipat', async () => {
+    mockApi(anon);
+    renderApp('/');
+    const section = (await screen.findByRole('heading', { name: /Cara belajar di Mahir Excel/ })).closest('section')!;
+    const steps = within(within(section).getByRole('list', { name: 'Tiga langkah belajar' })).getAllByRole('listitem');
+    expect(steps.map((s) => s.querySelector('strong')?.textContent)).toEqual(['1. Cek levelmu', '2. Pilih bidang', '3. Baca, lalu latihan']);
+    expect(within(section).getByText('Uji kemampuan Excel-mu, terdapat 16 soal.')).toBeInTheDocument();
+
+    const beds = paths.map((p) => within(section).getByRole('link', { name: new RegExp(p.title) }));
+    expect(beds.map((a) => a.getAttribute('href'))).toEqual(paths.map((p) => `/jalur/${p.slug}`));
+    expect(paths.map((p) => p.slug)).toEqual(['perkantoran-admin', 'admin-hrd', 'jualan-usaha', 'keuangan-dasar']);
+    expect(within(section).getByRole('link', { name: 'Daftar gratis' })).toHaveAttribute('href', '/daftar');
+
+    const fold = section.querySelector('details')!;
+    expect(fold).not.toHaveAttribute('open');
+    expect(within(fold).getByText(/Isi lengkap: 2 modul/)).toBeInTheDocument();
+    await userEvent.click(within(fold).getByText(/Lihat semua modul/));
+    expect(fold).toHaveAttribute('open');
   });
 
   it('tiga demo menjadi satu bagian bertab, dan tab bisa dipindah dengan panah', async () => {
@@ -322,7 +342,7 @@ describe('profil pembuat dan angka di beranda', () => {
   it('angka tidak muncul bila server gagal (tidak ada angka karangan)', async () => {
     mockApi({ ...anon, 'GET /public/overview': () => ({ status: 500, body: { error: { code: 'INTERNAL_ERROR', message: 'x' } } }) });
     renderApp('/');
-    await screen.findByRole('heading', { name: /Dari sel pertama sampai Intermediate/ });
+    await screen.findByRole('heading', { name: /Cara belajar di Mahir Excel/ });
     expect(screen.queryByText('fungsi rumus', { selector: 'dt' })).not.toBeInTheDocument();
   });
 
