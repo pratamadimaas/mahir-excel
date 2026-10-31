@@ -80,6 +80,10 @@ const featureName = (key: string): string => {
   const [kind, slug = ''] = key.split(':');
   const nice = slug.replace(/-/g, ' ');
   if (kind === 'template') return `Unduh template: ${nice}`;
+  if (kind === 'dataset') return `Unduh data latihan: ${nice}`;
+  if (kind === 'dataset-check') return `Cek data latihan: ${nice}`;
+  if (kind === 'dataset-format') return `Format unduhan data latihan: ${slug}`;
+  if (kind === 'worksheet-check') return `Cek worksheet: ${nice}`;
   if (kind === 'cheatsheet') return `Unduh contekan PDF: ${nice}`;
   if (key === 'laporan-kemajuan') return 'Laporan kemajuan dibuka';
   return key;
@@ -159,6 +163,121 @@ function DailyTable({ usage }: { usage: Usage }) {
   );
 }
 
+interface DatasetStats {
+  days: number;
+  datasetTotal: number;
+  downloads: number;
+  distinctDownloaded: number;
+  checks: number;
+  worksheetChecks: number;
+  formats: Record<string, number>;
+  byField: { field: string; downloads: number }[];
+  top: { slug: string; title: string; field: string | null; downloads: number; checks: number }[];
+  note: string;
+}
+
+interface ActivityStats {
+  signups: { d1: number; d7: number; d30: number };
+  active: { d1: number; d7: number; d30: number };
+  total: number;
+  note: string;
+}
+
+const FIELD_NAME: Record<string, string> = { admin: 'Admin', hrd: 'HRD', jualan: 'Jualan', keuangan: 'Keuangan' };
+
+function ActivitySection() {
+  const a = useAsync((s) => api.get<ActivityStats>('/admin/stats/activity', s), []);
+  if (a.loading) return <Loading label="Memuat pendaftar dan pengguna aktif…" />;
+  if (a.error || !a.data) return <ErrorState message={a.error ?? 'Data tidak tersedia.'} onRetry={a.reload} />;
+  const { signups, active, total, note } = a.data;
+  return (
+    <>
+      <h2 className="h5 mt-4">Pendaftar baru dan pengguna aktif</h2>
+      <dl className="xl-stats">
+        <Stat label="Pendaftar baru, 24 jam" value={signups.d1} />
+        <Stat label="Pendaftar baru, 7 hari" value={signups.d7} />
+        <Stat label="Pendaftar baru, 30 hari" value={signups.d30} hint={`dari ${nf.format(total)} akun`} />
+        <Stat label="Aktif, 24 jam" value={active.d1} />
+        <Stat label="Aktif, 7 hari" value={active.d7} hint={total ? `${Math.round((active.d7 / total) * 100)}% dari semua akun` : undefined} />
+        <Stat label="Aktif, 30 hari" value={active.d30} hint={total ? `${Math.round((active.d30 / total) * 100)}% dari semua akun` : undefined} />
+      </dl>
+      <p className="xl-small xl-muted">{note}</p>
+    </>
+  );
+}
+
+function DatasetSection() {
+  const d = useAsync((s) => api.get<DatasetStats>('/admin/stats/datasets', s), []);
+  if (d.loading) return <Loading label="Memuat statistik Data Latihan…" />;
+  if (d.error || !d.data) return <ErrorState message={d.error ?? 'Data tidak tersedia.'} onRetry={d.reload} />;
+  const s = d.data;
+  return (
+    <>
+      <h2 className="h5 mt-4">Data Latihan ({s.days} hari)</h2>
+      <dl className="xl-stats">
+        <Stat label="Unduhan" value={s.downloads} hint={`${nf.format(s.distinctDownloaded)} dari ${nf.format(s.datasetTotal)} file pernah diunduh`} />
+        <Stat label="Unduhan .xlsx" value={s.formats.xlsx ?? 0} />
+        <Stat label="Unduhan .csv" value={s.formats.csv ?? 0} />
+        <Stat label="Pemeriksaan Data Latihan" value={s.checks} hint="akun Premium" />
+        <Stat label="Pemeriksaan worksheet" value={s.worksheetChecks} hint="akun Premium" />
+      </dl>
+      {s.top.length === 0 ? (
+        <EmptyState title="Belum ada unduhan tercatat">Unduhan tercatat dari akun yang sudah login.</EmptyState>
+      ) : (
+        <div className="row g-4">
+          <div className="col-12 col-lg-8">
+            <div className="xl-table-wrap">
+              <table className="xl-table">
+                <caption className="visually-hidden">Data Latihan paling banyak diunduh</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">File</th>
+                    <th scope="col">Bidang</th>
+                    <th scope="col">Unduhan</th>
+                    <th scope="col">Dicek</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {s.top.map((x) => (
+                    <tr key={x.slug}>
+                      <td>{x.title}</td>
+                      <td>{x.field ? FIELD_NAME[x.field] ?? x.field : '-'}</td>
+                      <td>{nf.format(x.downloads)}</td>
+                      <td>{nf.format(x.checks)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="col-12 col-lg-4">
+            <div className="xl-table-wrap">
+              <table className="xl-table">
+                <caption className="visually-hidden">Unduhan per bidang</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Bidang</th>
+                    <th scope="col">Unduhan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {s.byField.map((x) => (
+                    <tr key={x.field}>
+                      <td>{FIELD_NAME[x.field] ?? x.field}</td>
+                      <td>{nf.format(x.downloads)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+      <p className="xl-small xl-muted mt-2">{s.note}</p>
+    </>
+  );
+}
+
 interface HardExercises {
   hard: { slug: string; title: string; attempts: number; correct: number; rate: number }[];
   note: string;
@@ -206,7 +325,10 @@ export function AdminDashboard() {
         <Stat label="Pelajaran diselesaikan (akun)" value={stats.lessonCompletions} />
       </dl>
 
-      <h2 className="h5">Aktivitas harian</h2>
+      <ActivitySection />
+      <DatasetSection />
+
+      <h2 className="h5 mt-4">Aktivitas harian</h2>
       <DailyTable usage={usage} />
       <p className="xl-small xl-muted mt-2">{usage.note}</p>
       <p>

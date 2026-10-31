@@ -25,7 +25,7 @@ export interface DatasetSpec {
   field: Field;
   /** Satu kalimat tentang isi data. */
   blurb: string;
-  /** "Yang bikin repot": jebakan yang sengaja diselipkan. */
+  /** "Kondisi data": masalah yang sengaja diselipkan di data. */
   mess: string;
   build: (r: Rng) => Built;
 }

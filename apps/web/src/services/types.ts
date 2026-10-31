@@ -88,6 +88,12 @@ export interface DatasetSummary {
   tasks: string[];
 }
 
+export interface DatasetPreview {
+  headers: string[];
+  rows: string[][];
+  total: number;
+}
+
 export interface CheckItem {
   label: string;
   verdict: CheckVerdict;

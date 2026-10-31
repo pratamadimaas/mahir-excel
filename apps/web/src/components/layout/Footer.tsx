@@ -74,9 +74,6 @@ export function Footer() {
                   <Link to="/sprint">{t('footer.sprint')}</Link>
                 </li>
                 <li>
-                  <Link to="/data-latihan">{t('footer.datasets')}</Link>
-                </li>
-                <li>
                   <Link to="/jalur">{t('nav.paths')}</Link>
                 </li>
               </ul>

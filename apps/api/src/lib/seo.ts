@@ -42,7 +42,7 @@ const PUBLIC_PAGES: Record<string, Known> = {
   '/data-latihan': {
     title: 'Data latihan Excel gratis: 50 file data dummy',
     description:
-      '50 file data dummy untuk latihan Excel: absensi, stok, penjualan, kas, piutang, dan lainnya. Dibuat berantakan seperti data kantor sungguhan, gratis diunduh dalam .xlsx dan .csv.',
+      '50 file data dummy untuk latihan Excel: absensi, stok, penjualan, kas, piutang, dan lainnya. Dibuat berantakan seperti data kantor sungguhan. Gratis, unduh dalam .xlsx dan .csv setelah daftar.',
   },
   '/premium': {
     title: 'Gratis atau Premium',

@@ -28,6 +28,7 @@ const SECTIONS = new Set([
   'bagikan',
   'sertifikat',
   'sprint',
+  'data-latihan',
 ]);
 const DETAIL_TABLE: Record<string, string> = { belajar: 'lessons', latihan: 'exercises', worksheet: 'worksheet_resources' };
 

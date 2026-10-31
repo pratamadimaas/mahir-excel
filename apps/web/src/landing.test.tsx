@@ -314,9 +314,9 @@ describe('susunan beranda yang baru', () => {
     renderApp('/');
     await screen.findByRole('heading', { name: /Coba dulu tanpa daftar/ });
     const footer = document.querySelector('footer')!;
-    for (const name of ['Uji Kemampuan Excel', 'Sprint 60 detik', 'Data Latihan', 'Bidang', 'Tentang', 'Privasi dan data', 'Syarat dan ketentuan'])
+    for (const name of ['Uji Kemampuan Excel', 'Sprint 60 detik', 'Bidang', 'Tentang', 'Privasi dan data', 'Syarat dan ketentuan'])
       expect(within(footer).getByRole('link', { name })).toBeInTheDocument();
-    for (const name of ['Akademi Excel', 'Latihan', 'Tantangan harian', 'Kemajuan', 'Worksheet .xlsx', 'Template Excel', 'Wizard rumus', 'Shortcut Excel'])
+    for (const name of ['Data Latihan', 'Akademi Excel', 'Latihan', 'Tantangan harian', 'Kemajuan', 'Worksheet .xlsx', 'Template Excel', 'Wizard rumus', 'Shortcut Excel'])
       expect(within(footer).queryByRole('link', { name })).not.toBeInTheDocument();
   });
 

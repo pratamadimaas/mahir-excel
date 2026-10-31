@@ -44,6 +44,27 @@ const dashboard = {
   'GET /admin/stats/usage': USAGE,
   'GET /admin/stats/hard': { hard: [], note: '' },
   'GET /admin/stats/placement': { total: 0, averageScore: null, withAccount: 0, byStartModule: [], recent: [] },
+  'GET /admin/stats/activity': {
+    signups: { d1: 1, d7: 6, d30: 21 },
+    active: { d1: 3, d7: 10, d30: 25 },
+    total: 100,
+    note: 'Aktif berarti akun yang mengerjakan latihan.',
+  },
+  'GET /admin/stats/datasets': {
+    days: 30,
+    datasetTotal: 50,
+    downloads: 37,
+    distinctDownloaded: 9,
+    checks: 4,
+    worksheetChecks: 2,
+    formats: { xlsx: 30, csv: 7 },
+    byField: [
+      { field: 'keuangan', downloads: 20 },
+      { field: 'hrd', downloads: 17 },
+    ],
+    top: [{ slug: 'kas-kecil', title: 'Kas Kecil', field: 'keuangan', downloads: 20, checks: 3 }],
+    note: 'Catatan data latihan.',
+  },
 };
 
 describe('ringkasan admin: sumber, fitur, 404, dan Perintis', () => {
@@ -58,6 +79,23 @@ describe('ringkasan admin: sumber, fitur, 404, dan Perintis', () => {
     expect(screen.getByText('Unduh contekan PDF: logika')).toBeInTheDocument();
     expect(screen.getByText('Laporan kemajuan dibuka')).toBeInTheDocument();
     expect(screen.getByText('/ads.txt')).toBeInTheDocument();
+  });
+
+  it('menampilkan pendaftar baru, pengguna aktif, dan statistik Data Latihan', async () => {
+    mockApi({ ...dashboard, 'GET /program/status': { enabled: false, open: false, quota: 100, taken: 0, remaining: 100, minExercises: 5 } });
+    renderApp('/admin');
+    expect((await screen.findByText('Pendaftar baru, 30 hari')).parentElement).toHaveTextContent('21');
+    expect(screen.getByText('Pendaftar baru, 30 hari').parentElement).toHaveTextContent('dari 100 akun');
+    expect(screen.getByText('Aktif, 7 hari').parentElement).toHaveTextContent('10% dari semua akun');
+
+    const heading = await screen.findByRole('heading', { name: /Data Latihan \(30 hari\)/ });
+    expect(heading).toBeInTheDocument();
+    expect(screen.getByText('Unduhan', { selector: 'dt' }).parentElement).toHaveTextContent('37');
+    expect(screen.getByText('Unduhan', { selector: 'dt' }).parentElement).toHaveTextContent('9 dari 50 file pernah diunduh');
+    expect(screen.getByText('Unduhan .csv').parentElement).toHaveTextContent('7');
+    const table = screen.getByRole('table', { name: 'Data Latihan paling banyak diunduh' });
+    expect(within(table).getByText('Kas Kecil')).toBeInTheDocument();
+    expect(within(table).getByText('Keuangan')).toBeInTheDocument();
   });
 
   it('menampilkan total sejak awal berdampingan dengan angka 7 hari', async () => {

@@ -478,7 +478,7 @@ function DataLatihan({ total }: { total: number }) {
             {total} file data latihan <mark className="xl-l-mark">dengan contoh kasus seperti di kantor.</mark>
           </h2>
           <p className="xl-l-lead">
-            Setiap file berisi data dengan masalah yang sering ditemukan di pekerjaan kantor, seperti spasi berlebih, tanggal yang tersimpan sebagai teks, dan nomor ganda. Unduh gratis, kerjakan di Excel, lalu periksa hasilnya.
+            Setiap file berisi data dengan masalah yang sering ditemukan di pekerjaan kantor, seperti spasi berlebih, tanggal yang tersimpan sebagai teks, dan nomor ganda. Daftar gratis, unduh filenya, kerjakan di Excel, lalu periksa hasilnya.
           </p>
           <p className="xl-l-dl-note">100 baris atau lebih per file. Format .xlsx dan .csv. Semua data fiktif.</p>
           <Link to="/data-latihan" className="btn btn-primary">

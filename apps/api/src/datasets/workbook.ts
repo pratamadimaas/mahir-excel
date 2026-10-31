@@ -41,6 +41,22 @@ export function buildCsv(data: Built): string {
   return `${BOM}${lines.join('\r\n')}\r\n`;
 }
 
+/** Teks sel seperti yang tampil di Excel, untuk pratinjau di katalog. */
+function previewCell(v: Cell, fmt: Fmt): string {
+  if (v === null) return '';
+  if (v instanceof Date) return csvCell(v, fmt);
+  return String(v);
+}
+
+/** Judul kolom dan baris pertama saja, supaya pengunjung bisa melihat isi sebelum mendaftar. */
+export function buildPreview(data: Built, limit = 10): { headers: string[]; rows: string[][]; total: number } {
+  return {
+    headers: data.headers,
+    rows: data.rows.slice(0, limit).map((row) => row.map((v, i) => previewCell(v, data.fmt?.[i]))),
+    total: data.rows.length,
+  };
+}
+
 export function buildDatasetWorkbook(spec: DatasetSpec, data: Built): ExcelJS.Workbook {
   const wb = new ExcelJS.Workbook();
   wb.creator = 'Mahir Excel';
@@ -54,7 +70,7 @@ export function buildDatasetWorkbook(spec: DatasetSpec, data: Built): ExcelJS.Wo
     ['', false],
     [spec.blurb, false],
     ['', false],
-    ['Yang bikin repot', true],
+    ['Kondisi data', true],
     [spec.mess, false],
     ['', false],
     ['Cara mengerjakan', true],

@@ -54,22 +54,43 @@ describe('rute data latihan', () => {
     expect(res.body.data.every((d: { tasks: string[] }) => d.tasks.length === 3)).toBe(true);
   });
 
-  it('unduh xlsx dan csv tanpa login; slug asing ditolak', async () => {
-    const x = await request(app).get('/api/datasets/kas-kecil/download').buffer(true).parse(binary);
+  it('pratinjau terbuka untuk umum: 10 baris pertama dengan tanggal yang terbaca', async () => {
+    const res = await request(app).get('/api/datasets/kas-kecil/preview');
+    expect(res.status).toBe(200);
+    const built = getDataset('kas-kecil')!.data;
+    expect(res.body.data.headers).toEqual(built.headers);
+    expect(res.body.data.rows).toHaveLength(10);
+    expect(res.body.data.total).toBe(built.rows.length);
+    expect(res.body.data.rows.flat().every((c: unknown) => typeof c === 'string')).toBe(true);
+    expect(res.body.data.rows.flat().join(' ')).not.toMatch(/T\d\d:\d\d:\d\d/);
+    expect((await request(app).get('/api/datasets/tidak-ada/preview')).status).toBe(404);
+  });
+
+  it('unduh wajib login (gratis cukup); tanpa login ditolak 401', async () => {
+    for (const url of ['/api/datasets/kas-kecil/download', '/api/datasets/kas-kecil/download?format=csv']) {
+      const res = await request(app).get(url);
+      expect(res.status).toBe(401);
+      expect(res.body.error.code).toBe('UNAUTHENTICATED');
+    }
+  });
+
+  it('unduh xlsx dan csv oleh akun gratis; slug asing ditolak', async () => {
+    const x = await request(app).get('/api/datasets/kas-kecil/download').set('x-user', 'free').buffer(true).parse(binary);
     expect(x.status).toBe(200);
     expect(x.headers['content-disposition']).toContain('mahir-excel-kas-kecil.xlsx');
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(x.body as unknown as ExcelJS.Buffer);
     expect(wb.getWorksheet('Data')!.rowCount).toBe(getDataset('kas-kecil')!.data.rows.length + 1);
 
-    const c = await request(app).get('/api/datasets/kas-kecil/download?format=csv');
+    const c = await request(app).get('/api/datasets/kas-kecil/download?format=csv').set('x-user', 'free');
     expect(c.status).toBe(200);
     expect(c.headers['content-type']).toContain('text/csv');
     expect(c.text.split('\r\n').length).toBeGreaterThan(100);
 
-    expect((await request(app).get('/api/datasets/tidak-ada/download')).status).toBe(404);
-    expect((await request(app).get('/api/datasets/Bukan_Slug!/download')).status).toBe(400);
-    expect((await request(app).get('/api/datasets/kas-kecil/download?format=pdf')).status).toBe(400);
+    const g = (u: string) => request(app).get(u).set('x-user', 'free');
+    expect((await g('/api/datasets/tidak-ada/download')).status).toBe(404);
+    expect((await g('/api/datasets/Bukan_Slug!/download')).status).toBe(400);
+    expect((await g('/api/datasets/kas-kecil/download?format=pdf')).status).toBe(400);
   });
 
   const correct = () => getDataset('kas-kecil')!.data.tasks.map((t) => ({ value: t.expected, formula: true }));

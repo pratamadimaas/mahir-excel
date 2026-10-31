@@ -13,6 +13,7 @@ import {
   type PlacementLevel,
 } from '@excellab/shared';
 import type { Ctx } from '../app';
+import { datasetCatalog } from '../datasets';
 import { row, rows, run, type Db } from '../db/pool';
 import { AppError, notFound, parse } from '../middleware/errors';
 import {
@@ -573,6 +574,85 @@ export function adminRoutes({ db, config, auth }: Ctx): Router {
         notFound: notFound.map((n) => ({ path: n.item, hits: Number(n.total) })),
         anonymousExercises: anonTop.map((a) => ({ slug: a.item, attempts: Number(a.attempts), correct: Number(a.correct) })),
         note: 'Pengunjung unik dihitung per hari tanpa cookie (hash harian acak). Jumlah 7 hari dan jumlah total adalah penjumlahan pengunjung harian, bukan pengunjung unik sepanjang periode. Pengunjung dengan Do Not Track tidak dihitung.',
+      },
+    });
+  });
+
+  // Data Latihan 30 hari terakhir (WIB): unduhan per file, per bidang, per format, dan pemeriksaan. Hanya penghitung harian, tanpa data pribadi.
+  r.get('/stats/datasets', async (_req, res) => {
+    const from = jakartaDate(new Date(Date.now() - 29 * 86_400_000));
+    const found = await rows<{ item: string; total: number }>(
+      db,
+      `SELECT item, SUM(total) AS total FROM daily_stats
+       WHERE metric = 'feature' AND day >= ?
+         AND (item LIKE 'dataset:%' OR item LIKE 'dataset-check:%' OR item LIKE 'dataset-format:%' OR item LIKE 'worksheet-check:%')
+       GROUP BY item`,
+      [from],
+    );
+    const downloads = new Map<string, number>();
+    const checks = new Map<string, number>();
+    const formats: Record<string, number> = { xlsx: 0, csv: 0 };
+    let worksheetChecks = 0;
+    for (const f of found) {
+      const n = Number(f.total);
+      const [kind = '', rest = ''] = f.item.split(':');
+      if (kind === 'dataset') downloads.set(rest, n);
+      else if (kind === 'dataset-check') checks.set(rest, n);
+      else if (kind === 'dataset-format') formats[rest] = (formats[rest] ?? 0) + n;
+      else if (kind === 'worksheet-check') worksheetChecks += n;
+    }
+    const catalog = datasetCatalog();
+    const byField = new Map<string, number>();
+    const top = [...downloads.entries()]
+      .map(([slug, count]) => {
+        const c = catalog.find((d) => d.slug === slug);
+        if (c) byField.set(c.field, (byField.get(c.field) ?? 0) + count);
+        return { slug, title: c?.title ?? slug, field: c?.field ?? null, downloads: count, checks: checks.get(slug) ?? 0 };
+      })
+      .sort((a, b) => b.downloads - a.downloads)
+      .slice(0, 10);
+    const sumOf = (m: Map<string, number>): number => [...m.values()].reduce((s, n) => s + n, 0);
+    res.json({
+      data: {
+        days: 30,
+        datasetTotal: catalog.length,
+        downloads: sumOf(downloads),
+        distinctDownloaded: downloads.size,
+        checks: sumOf(checks),
+        worksheetChecks,
+        formats,
+        byField: [...byField.entries()].map(([field, count]) => ({ field, downloads: count })).sort((a, b) => b.downloads - a.downloads),
+        top,
+        note: 'Dihitung dari penghitung harian 30 hari terakhir. Unduhan dihitung per permintaan, bukan per orang. Pemeriksaan hanya bisa dilakukan akun Premium.',
+      },
+    });
+  });
+
+  // Pendaftar baru dan pengguna aktif (akun yang mencoba latihan dalam 1, 7, dan 30 hari terakhir).
+  r.get('/stats/activity', async (_req, res) => {
+    const one = async (sql: string): Promise<number> => Number((await row<{ n: number }>(db, sql))?.n ?? 0);
+    const signups = (d: number): Promise<number> =>
+      one(`SELECT COUNT(*) AS n FROM users WHERE role = 'user' AND created_at >= (UTC_TIMESTAMP() - INTERVAL ${d} DAY)`);
+    const active = (d: number): Promise<number> =>
+      one(
+        `SELECT COUNT(DISTINCT a.user_id) AS n FROM exercise_attempts a JOIN users u ON u.id = a.user_id
+         WHERE u.role = 'user' AND a.created_at >= (UTC_TIMESTAMP() - INTERVAL ${d} DAY)`,
+      );
+    const [s1, s7, s30, a1, a7, a30, total] = await Promise.all([
+      signups(1),
+      signups(7),
+      signups(30),
+      active(1),
+      active(7),
+      active(30),
+      one("SELECT COUNT(*) AS n FROM users WHERE role = 'user'"),
+    ]);
+    res.json({
+      data: {
+        signups: { d1: s1, d7: s7, d30: s30 },
+        active: { d1: a1, d7: a7, d30: a30 },
+        total,
+        note: 'Aktif berarti akun yang mengerjakan latihan pada periode itu. Membaca pelajaran saja belum dihitung.',
       },
     });
   });

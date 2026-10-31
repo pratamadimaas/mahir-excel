@@ -6,11 +6,49 @@ import { useAuth } from '../../app/AuthContext';
 import { useAsync } from '../../hooks/useAsync';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { api } from '../../services/api';
-import type { DatasetSummary } from '../../services/types';
+import type { DatasetPreview, DatasetSummary } from '../../services/types';
 import { CheckPanel, checkDatasetFile } from './CheckPanel';
 
 export const FIELD_LABEL: Record<DatasetSummary['field'], string> = { admin: 'Admin', hrd: 'HRD', jualan: 'Jualan', keuangan: 'Keuangan' };
 type Tab = 'katalog' | 'cek';
+export const PAGE_SIZE = 12;
+
+function PreviewTable({ slug }: { slug: string }) {
+  const p = useAsync((s) => api.get<DatasetPreview>(`/datasets/${slug}/preview`, s), [slug]);
+  if (p.loading) return <Loading label="Memuat pratinjau…" lines={3} />;
+  if (p.error) return <ErrorState message={p.error} onRetry={p.reload} />;
+  if (!p.data) return null;
+  return (
+    <>
+      <div className="xl-table-wrap">
+        <table className="xl-table xl-small">
+          <caption className="visually-hidden">Pratinjau {p.data.rows.length} baris pertama</caption>
+          <thead>
+            <tr>
+              {p.data.headers.map((h) => (
+                <th key={h} scope="col">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {p.data.rows.map((row, i) => (
+              <tr key={i}>
+                {row.map((c, j) => (
+                  <td key={j}>{c}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="xl-small xl-muted mb-0">
+        {p.data.rows.length} dari {p.data.total} baris.
+      </p>
+    </>
+  );
+}
 
 const STORE = 'xl-datasets-downloaded';
 function loadDownloaded(): Set<string> {
@@ -35,6 +73,7 @@ export function DatasetsPage() {
   const tab: Tab = params.get('tab') === 'cek' ? 'cek' : 'katalog';
   const q = params.get('q') ?? '';
   const field = params.get('bidang') ?? '';
+  const wantedPage = Math.max(1, Number.parseInt(params.get('hal') ?? '1', 10) || 1);
   const [onlyDone, setOnlyDone] = useState(false);
   const [done, setDone] = useState<Set<string>>(() => loadDownloaded());
   const data = useAsync((s) => api.get<DatasetSummary[]>('/datasets', s), []);
@@ -43,6 +82,7 @@ export function DatasetsPage() {
     const next = new URLSearchParams(params);
     if (v) next.set(k, v);
     else next.delete(k);
+    if (k !== 'hal') next.delete('hal');
     setParams(next, { replace: true });
   };
 
@@ -64,6 +104,14 @@ export function DatasetsPage() {
     });
   }, [data.data, q, field, onlyDone, done]);
 
+  const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const page = Math.min(wantedPage, pages);
+  const shown = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const goPage = (n: number): void => {
+    setParam('hal', n > 1 ? String(n) : '');
+    document.getElementById('dl-list')?.scrollIntoView?.({ block: 'start' });
+  };
+
   const titleOf = (slug: string): string | undefined => data.data?.find((d) => d.slug === slug)?.title;
 
   return (
@@ -72,7 +120,7 @@ export function DatasetsPage() {
         <p className="xl-eyebrow">Bahan latihan</p>
         <h1>Data Latihan</h1>
         <p>
-          File berisi data dummy dengan beberapa masalah, seperti spasi berlebih, tanggal yang tersimpan sebagai teks, dan nomor ganda. Unduh gratis, kerjakan di Excel, lalu periksa hasilnya.
+          File berisi data dummy dengan beberapa masalah, seperti spasi berlebih, tanggal yang tersimpan sebagai teks, dan nomor ganda. Daftar gratis untuk mengunduh, lalu kerjakan di Excel dan periksa hasilnya.
         </p>
       </header>
 
@@ -115,6 +163,15 @@ export function DatasetsPage() {
               Semua data yang digunakan bersifat fiktif dan tidak berasal dari orang atau perusahaan sungguhan. Setiap file memiliki sheet Data dan sheet Jawaban yang berisi tiga tugas. Tugas tersebut merupakan panduan. Kamu tetap bisa mengolah data sesuai kebutuhanmu.
             </div>
           </div>
+
+          {!user && (
+            <div className="xl-status info mb-3">
+              <Lock className="xl-icon" aria-hidden="true" />
+              <div>
+                Katalog dan pratinjau 10 baris pertama bisa dilihat tanpa akun. Untuk mengunduh file, <Link to="/daftar">daftar gratis</Link> atau <Link to="/masuk">masuk</Link> dulu.
+              </div>
+            </div>
+          )}
 
           <form className="xl-filters mt-3" onSubmit={(e) => e.preventDefault()} role="search" aria-label="Cari data latihan">
             <div className="xl-filter-grow">
@@ -164,8 +221,10 @@ export function DatasetsPage() {
 
           {data.data && (
             <>
-              <p className="xl-muted xl-small" role="status">
-                Menampilkan {rows.length} dari {data.data.length} file
+              <p className="xl-muted xl-small" id="dl-list" role="status">
+                {pages > 1
+                  ? `Menampilkan ${(page - 1) * PAGE_SIZE + 1} sampai ${(page - 1) * PAGE_SIZE + shown.length} dari ${rows.length} file`
+                  : `Menampilkan ${rows.length} dari ${data.data.length} file`}
               </p>
               {rows.length === 0 ? (
                 <EmptyState title="Data tidak ditemukan">Coba kata kunci lain atau hapus filter.</EmptyState>
@@ -183,13 +242,13 @@ export function DatasetsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {rows.map((d) => (
+                      {shown.map((d) => (
                         <tr key={d.slug}>
                           <td>
                             <strong>{d.title}</strong>
                             <div className="xl-small xl-muted">{d.blurb}</div>
                             <div className="xl-small">
-                              <b className="xl-dataset-mess">Yang bikin repot:</b> {d.mess}
+                              <b className="xl-dataset-mess">Kondisi data:</b> {d.mess}
                             </div>
                             <details className="xl-small mt-1">
                               <summary>Tugas yang disarankan</summary>
@@ -199,8 +258,17 @@ export function DatasetsPage() {
                                 ))}
                               </ol>
                             </details>
+                            <details className="xl-small mt-1">
+                              <summary>Lihat 10 baris pertama</summary>
+                              <PreviewTable slug={d.slug} />
+                            </details>
                           </td>
                           <td className="text-nowrap">
+                            {!user ? (
+                              <Link className="btn btn-primary btn-sm" to="/daftar" aria-label={`Daftar untuk mengunduh ${d.title}`}>
+                                <Lock className="xl-icon" aria-hidden="true" /> Daftar untuk mengunduh
+                              </Link>
+                            ) : (
                             <div className="d-flex gap-2">
                               <a
                                 className="btn btn-primary btn-sm"
@@ -221,6 +289,7 @@ export function DatasetsPage() {
                                 .csv
                               </a>
                             </div>
+                            )}
                             <div className="xl-small xl-muted mt-1">
                               {d.rows} baris · {d.cols} kolom
                             </div>
@@ -233,6 +302,19 @@ export function DatasetsPage() {
                     </tbody>
                   </table>
                 </div>
+              )}
+              {pages > 1 && (
+                <nav className="d-flex align-items-center justify-content-between gap-2 mt-3" aria-label="Halaman daftar data latihan">
+                  <button type="button" className="btn btn-outline-secondary btn-sm" disabled={page <= 1} onClick={() => goPage(page - 1)}>
+                    Sebelumnya
+                  </button>
+                  <span className="xl-small" aria-live="polite">
+                    Halaman {page} dari {pages}
+                  </span>
+                  <button type="button" className="btn btn-outline-secondary btn-sm" disabled={page >= pages} onClick={() => goPage(page + 1)}>
+                    Berikutnya
+                  </button>
+                </nav>
               )}
               <p className="xl-small xl-muted mt-3">
                 Setelah selesai, buka tab <Link to="/data-latihan?tab=cek">Cek hasil</Link> untuk memeriksa jawabanmu.

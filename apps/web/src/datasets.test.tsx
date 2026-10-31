@@ -106,11 +106,40 @@ describe('membaca berkas jawaban', () => {
 });
 
 describe('halaman Data Latihan', () => {
-  it('terbuka tanpa login: katalog, tautan unduh xlsx dan csv, dan penyaring bidang', async () => {
+  it('pengunjung melihat katalog, tetapi unduh meminta daftar atau masuk', async () => {
     mockApi(anon);
     renderApp('/data-latihan');
     expect(await screen.findByRole('heading', { level: 1, name: 'Data Latihan' })).toBeInTheDocument();
     expect(await screen.findByText('Menampilkan 3 dari 3 file')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^Unduh Kas Kecil/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Daftar untuk mengunduh Kas Kecil' })).toHaveAttribute('href', '/daftar');
+    expect(screen.getByText(/pratinjau 10 baris pertama bisa dilihat tanpa akun/)).toBeInTheDocument();
+    expect(screen.getAllByText('Kondisi data:')).toHaveLength(3);
+    expect(screen.queryByText(/Yang bikin repot/)).not.toBeInTheDocument();
+  });
+
+  it('pratinjau 10 baris pertama bisa dibuka tanpa login', async () => {
+    mockApi({
+      ...anon,
+      'GET /datasets/kas-kecil/preview': {
+        headers: ['Tanggal', 'Uraian'],
+        rows: [['01/01/2026', 'Parkir']],
+        total: 140,
+      },
+    });
+    renderApp('/data-latihan');
+    const row = (await screen.findByText('Kas Kecil')).closest('tr')!;
+    await userEvent.click(within(row).getByText('Lihat 10 baris pertama'));
+    expect(await within(row).findByText('Parkir')).toBeInTheDocument();
+    expect(within(row).getByText('1 dari 140 baris.')).toBeInTheDocument();
+  });
+
+  it('akun yang login mendapat tautan unduh xlsx dan csv, dan penyaring bidang tetap jalan', async () => {
+    mockApi(free);
+    renderApp('/data-latihan');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Data Latihan' })).toBeInTheDocument();
+    expect(await screen.findByText('Menampilkan 3 dari 3 file')).toBeInTheDocument();
+    expect(screen.queryByText(/pratinjau 10 baris pertama bisa dilihat tanpa akun/)).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Unduh Kas Kecil (.xlsx)' })).toHaveAttribute('href', '/api/datasets/kas-kecil/download');
     expect(screen.getByRole('link', { name: 'Unduh Kas Kecil (.csv)' })).toHaveAttribute(
       'href',
@@ -122,6 +151,42 @@ describe('halaman Data Latihan', () => {
     expect(await screen.findByText('Menampilkan 1 dari 3 file')).toBeInTheDocument();
     expect(screen.getByText('Absensi Karyawan Satu Bulan')).toBeInTheDocument();
     expect(screen.queryByText('Kas Kecil')).not.toBeInTheDocument();
+  });
+
+  it('daftar dibagi 12 file per halaman, halaman ada di alamat, dan filter kembali ke halaman 1', async () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({
+      ...CATALOG[i % 3]!,
+      slug: `data-${i + 1}`,
+      title: `Data nomor ${String(i + 1).padStart(2, '0')}`,
+    }));
+    mockApi({ ...free, 'GET /datasets': many });
+    renderApp('/data-latihan');
+    expect(await screen.findByText('Menampilkan 1 sampai 12 dari 30 file')).toBeInTheDocument();
+    expect(screen.getByText('Data nomor 12')).toBeInTheDocument();
+    expect(screen.queryByText('Data nomor 13')).not.toBeInTheDocument();
+    expect(screen.getByText('Halaman 1 dari 3')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sebelumnya' })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Berikutnya' }));
+    expect(await screen.findByText('Menampilkan 13 sampai 24 dari 30 file')).toBeInTheDocument();
+    expect(screen.getByText('Data nomor 13')).toBeInTheDocument();
+    expect(screen.queryByText('Data nomor 01')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Berikutnya' }));
+    expect(await screen.findByText('Menampilkan 25 sampai 30 dari 30 file')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Berikutnya' })).toBeDisabled();
+
+    await userEvent.selectOptions(screen.getByLabelText('Bidang'), 'hrd');
+    expect(await screen.findByText('Menampilkan 10 dari 30 file')).toBeInTheDocument();
+    expect(screen.queryByText(/Halaman \d+ dari/)).not.toBeInTheDocument();
+  });
+
+  it('nomor halaman yang melebihi jumlah halaman dirapikan ke halaman terakhir', async () => {
+    const many = Array.from({ length: 14 }, (_, i) => ({ ...CATALOG[0]!, slug: `d-${i}`, title: `Berkas ${i + 1}` }));
+    mockApi({ ...free, 'GET /datasets': many });
+    renderApp('/data-latihan?hal=99');
+    expect(await screen.findByText('Menampilkan 13 sampai 14 dari 14 file')).toBeInTheDocument();
+    expect(screen.getByText('Halaman 2 dari 2')).toBeInTheDocument();
   });
 
   it('pencarian memeriksa judul dan uraian; hasil kosong ditampilkan dengan jelas', async () => {

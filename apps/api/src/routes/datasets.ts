@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { jakartaDate } from '@excellab/shared';
 import type { Ctx } from '../app';
 import { datasetCatalog, getDataset, gradeValue, type Verdict } from '../datasets';
-import { buildCsv, buildDatasetWorkbook } from '../datasets/workbook';
+import { buildCsv, buildDatasetWorkbook, buildPreview } from '../datasets/workbook';
 import { AppError, notFound, parse } from '../middleware/errors';
 import { worksheetKey } from '../worksheets/builders';
 import { bump } from './track';
@@ -26,7 +26,7 @@ const premiumOnly = (req: { user?: { premium: boolean } }): void => {
 
 /**
  * Data latihan dibuat saat diunduh (tanpa berkas di server), seperti template.
- * Katalog dan unduhan terbuka untuk umum; pemeriksaan jawaban khusus Premium.
+ * Katalog dan pratinjau terbuka untuk umum; unduhan butuh akun (gratis); pemeriksaan jawaban khusus Premium.
  * Berkas dibaca di browser, server hanya menerima nilai sel jawaban (kecil), jadi bebannya ringan.
  */
 export function datasetRoutes({ db, auth }: Ctx): Router {
@@ -36,12 +36,20 @@ export function datasetRoutes({ db, auth }: Ctx): Router {
     res.json({ data: datasetCatalog() });
   });
 
-  r.get('/datasets/:slug/download', async (req, res) => {
+  r.get('/datasets/:slug/preview', (req, res) => {
+    const slug = parse(slugParam, req.params.slug);
+    const found = getDataset(slug);
+    if (!found) throw notFound('Data latihan');
+    res.json({ data: buildPreview(found.data) });
+  });
+
+  r.get('/datasets/:slug/download', auth.requireAuth, async (req, res) => {
     const slug = parse(slugParam, req.params.slug);
     const format = parse(formatQuery, req.query.format);
     const found = getDataset(slug);
     if (!found) throw notFound('Data latihan');
     bump(db, jakartaDate(), 'feature', `dataset:${slug}`).catch(() => undefined);
+    bump(db, jakartaDate(), 'feature', `dataset-format:${format}`).catch(() => undefined);
     if (format === 'csv') {
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader('Content-Disposition', `attachment; filename="mahir-excel-${slug}.csv"`);

@@ -25,7 +25,7 @@ const CARDS = [
   { to: '/belajar', name: 'Belajar', text: 'Baca pelajaran, lalu kerjakan latihan di bagian bawahnya.' },
   { to: '/jalur', name: 'Bidang', text: 'Pelajaran disusun untuk admin, admin HRD, jualan, atau keuangan.' },
   { to: '/latihan', name: 'Latihan', text: 'Ketik rumus di lembar kerja, atau unduh, isi di Excel, lalu unggah. Dicek langsung.' },
-  { to: '/data-latihan', name: 'Data Latihan', text: '50 file data dummy untuk dikerjakan di Excel. Unduh gratis, hasilnya bisa diperiksa.' },
+  { to: '/data-latihan', name: 'Data Latihan', text: '50 file data dummy untuk dikerjakan di Excel. Gratis setelah daftar, hasilnya bisa diperiksa.' },
   { to: '/worksheet', name: 'Worksheet', text: 'Berkas .xlsx untuk latihan tambahan. Semuanya gratis diunduh.' },
   { to: '/template', name: 'Template', text: 'Template Excel siap pakai untuk kerjaan.' },
   { to: '/sprint', name: 'Sprint', text: 'Soal berwaktu 60 detik.' },
