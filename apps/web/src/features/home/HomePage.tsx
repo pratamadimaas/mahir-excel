@@ -216,7 +216,7 @@ export function HomePage() {
         <div className="xl-page">
           <div className="xl-hero-grid">
             <div className="xl-hero-copy">
-              {user && <p className="xl-eyebrow">{t('hero.eyebrow')}</p>}
+              <p className="xl-eyebrow">{user ? t('hero.eyebrow') : t('hero.vEyebrow')}</p>
               <h1 id="hero-title" className="xl-hero-title">
                 {user ? (
                   t('hero.title')
@@ -249,7 +249,18 @@ export function HomePage() {
                   </>
                 )}
               </div>
-              {!user && <p className="xl-hero-note">{t('hero.vNote')}</p>}
+              {!user && (
+                <>
+                  <ul className="xl-hero-facts">
+                    {t('hero.vFacts')
+                      .split('|')
+                      .map((f) => (
+                        <li key={f}>{f}</li>
+                      ))}
+                  </ul>
+                  <p className="xl-hero-note">{t('hero.vNote')}</p>
+                </>
+              )}
               {user && (
                 <div className="xl-hero-mini">
                   <MiniSheet table={HERO_TABLE} label="Contoh lembar kerja mini" initial="B4" />

@@ -131,7 +131,7 @@ export const FEEDBACK_STEPS: FeedbackStep[] = [
     formula: '=SUM(B2:B5)',
     ok: false,
     message:
-      'Sel B7 menghasilkan 720.000. Namun, hasil tersebut belum sesuai dengan instruksi soal. Periksa rentang sel, operator, dan sel yang mungkin terlewat.',
+      'Sel B7 menghasilkan 720.000, tapi belum sesuai dengan instruksi soal. Periksa rentang sel, operator, dan sel yang mungkin terlewat.',
   },
   {
     formula: '=1020000',

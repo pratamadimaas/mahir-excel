@@ -45,7 +45,7 @@ describe('ganti bahasa', () => {
     expect(document.documentElement.lang).toBe('id');
 
     await userEvent.click(screen.getByRole('button', { name: 'Ganti bahasa ke English' }));
-    expect(await screen.findByRole('heading', { level: 1, name: 'Excel practice that is graded instantly.' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Excel practice that is graded instantly' })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('en');
     expect(localStorage.getItem('excellab.lang')).toBe('en');
 
@@ -78,7 +78,7 @@ describe('ganti bahasa', () => {
     localStorage.setItem('excellab.lang', 'en');
     mockApi(base);
     const home = renderApp('/');
-    await screen.findByRole('heading', { level: 1, name: 'Excel practice that is graded instantly.' });
+    await screen.findByRole('heading', { level: 1, name: 'Excel practice that is graded instantly' });
     expect(screen.queryByRole('note')).not.toBeInTheDocument();
     home.unmount();
     renderApp('/belajar');
