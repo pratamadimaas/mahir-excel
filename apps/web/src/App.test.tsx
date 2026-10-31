@@ -41,7 +41,7 @@ describe('navigasi dan routing', () => {
     expect(screen.getByRole('link', { name: 'Mulai belajar' })).toHaveAttribute('href', '/belajar');
     expect(screen.getByRole('link', { name: 'Coba latihan' })).toHaveAttribute('href', '/latihan');
     const nav = screen.getByRole('navigation', { name: 'Navigasi utama' });
-    for (const label of ['Belajar', 'Latihan', 'Shortcut', 'Worksheet'])
+    for (const label of ['Belajar', 'Latihan', 'Data Latihan', 'Worksheet'])
       expect(within(nav).getByRole('link', { name: label })).toBeInTheDocument();
   });
 

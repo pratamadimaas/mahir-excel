@@ -20,6 +20,7 @@ import { ShortcutsPage } from './features/shortcuts/ShortcutsPage';
 import { AboutPage, NotFoundPage, PrivacyPage, TermsPage } from './features/StaticPages';
 import { WorksheetDetailPage, WorksheetsPage } from './features/worksheets/WorksheetPages';
 import { TemplatePage } from './features/templates/TemplatePage';
+import { DatasetsPage } from './features/datasets/DatasetsPage';
 import { ReportPage } from './features/progress/ReportPage';
 import { WizardPage } from './features/wizard/WizardPage';
 import { PathDetailPage, PathsPage } from './features/paths/PathPages';
@@ -84,6 +85,7 @@ export function AppRoutes() {
         <Route path="jalur" element={<PathsPage />} />
         <Route path="jalur/:slug" element={<PathDetailPage />} />
         <Route path="template" element={<TemplatePage />} />
+        <Route path="data-latihan" element={<DatasetsPage />} />
         <Route path="premium" element={<PremiumPage />} />
         <Route path="program" element={<ProgramPage />} />
         <Route path="sprint" element={<SprintPage />} />

@@ -574,18 +574,16 @@ describe('unduhan worksheet', () => {
     expect((await free.agent.get('/api/worksheets/anggaran-bulanan/download?answer=1')).status).toBe(200);
   });
 
-  it('hanya 3 worksheet pertama yang gratis; sisanya khusus Premium', async () => {
+  it('semua worksheet gratis diunduh; hanya kunci jawabannya khusus Premium', async () => {
     const free = await registerUser(env.app);
     const list = await free.agent.get('/api/worksheets');
     const flags = Object.fromEntries((list.body.data as { slug: string; premiumOnly: boolean }[]).map((w) => [w.slug, w.premiumOnly]));
-    expect(Object.values(flags).filter((p) => !p)).toHaveLength(3);
-    expect(flags['stok-barang']).toBe(false);
-    expect(flags['absensi-karyawan']).toBe(true);
-    const denied = await free.agent.get('/api/worksheets/absensi-karyawan/download');
+    expect(Object.values(flags).every((p) => !p)).toBe(true);
+    expect(Object.keys(flags)).toHaveLength(11);
+    expect((await free.agent.get('/api/worksheets/absensi-karyawan/download')).status).toBe(200);
+    const denied = await free.agent.get('/api/worksheets/absensi-karyawan/download?answer=1');
     expect(denied.status).toBe(402);
     expect(denied.body.error.code).toBe('PREMIUM_REQUIRED');
-    await grantPremium(env, free.userId);
-    expect((await free.agent.get('/api/worksheets/absensi-karyawan/download')).status).toBe(200);
   });
 
   it('semua tautan unduhan mengarah ke file .xlsx yang valid', async () => {

@@ -32,7 +32,7 @@ export function Layout() {
   const { pathname, hash } = useLocation();
   const { t, lang } = useI18n();
   // Isi pelajaran/latihan hanya berbahasa Indonesia; beri tahu pengguna English di area itu.
-  const contentArea = /^\/(belajar|latihan|shortcut|worksheet|tantangan|tes-penempatan|kemajuan)/.test(pathname);
+  const contentArea = /^\/(belajar|latihan|shortcut|data-latihan|worksheet|tantangan|tes-penempatan|kemajuan)/.test(pathname);
   useEffect(() => {
     // Tautan seperti /#harga menggulir ke bagian itu; selain itu kembali ke atas.
     // Bagian bisa baru tampil setelah sesi diperiksa, jadi dicoba lagi beberapa kali.

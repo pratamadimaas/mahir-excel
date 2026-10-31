@@ -31,6 +31,8 @@ import {
   type WorksheetRow,
 } from '../lib/mappers';
 import { touchLearningDay } from '../lib/progress';
+import { DATASET_COUNT } from '../datasets';
+import { worksheetKey } from '../worksheets/builders';
 import { recordReview } from '../lib/review';
 
 const previewCache = new Map<string, { mtime: number; rows: string[][]; sheet: string }>();
@@ -116,6 +118,7 @@ export function contentRoutes({ db, config, auth }: Ctx): Router {
           shortcuts: await count('shortcuts'),
           worksheets: await count('worksheet_resources'),
           functions: FUNCTION_COUNT,
+          datasets: DATASET_COUNT,
         },
         modules,
       },
@@ -535,7 +538,8 @@ export function contentRoutes({ db, config, auth }: Ctx): Router {
     if (!w) throw notFound('Worksheet');
     const view = worksheetView(w);
     const preview = view.available ? await readPreview(path.resolve(config.worksheetDir, w.file_name)) : null;
-    res.json({ data: { ...view, preview } });
+    const answerCells = (worksheetKey(w.slug) ?? []).map((k) => ({ sheet: k.sheet, ref: k.ref }));
+    res.json({ data: { ...view, preview, answerCells } });
   });
 
   r.get('/worksheets/:slug/download', async (req, res) => {

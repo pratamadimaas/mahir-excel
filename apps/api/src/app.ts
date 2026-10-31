@@ -24,6 +24,7 @@ import { sprintRoutes } from './routes/sprint';
 import { trackRoutes } from './routes/track';
 import { contentRoutes } from './routes/content';
 import { templateRoutes } from './routes/templates';
+import { datasetRoutes } from './routes/datasets';
 import { cheatsheetRoutes } from './routes/cheatsheets';
 import { applySeo, seoFor } from './lib/seo';
 import { pathRoutes } from './routes/paths';
@@ -112,6 +113,7 @@ export function createApp(
   app.use('/api', programRoutes(ctx));
   app.use('/api/admin', adminRoutes(ctx));
   app.use('/api', templateRoutes(ctx));
+  app.use('/api', datasetRoutes(ctx));
   app.use('/api', pathRoutes(ctx));
   app.use('/api', cheatsheetRoutes(ctx));
   app.use('/api', contentRoutes(ctx));

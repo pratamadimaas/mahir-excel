@@ -37,7 +37,7 @@ export function Header() {
         { to: '/belajar', label: t('nav.learn') },
         { to: '/jalur', label: t('nav.paths') },
         { to: '/latihan', label: t('nav.practice') },
-        { to: '/shortcut', label: t('nav.shortcuts') },
+        { to: '/data-latihan', label: t('nav.datasets') },
         { to: '/worksheet', label: t('nav.worksheets') },
         { to: '/template', label: t('nav.templates') },
         { to: '/sprint', label: t('nav.sprint') },
@@ -47,6 +47,7 @@ export function Header() {
     : [
         { to: '/jalur', label: t('nav.paths') },
         { to: '/#belajar', label: t('nav.learn'), hash: true },
+        { to: '/data-latihan', label: t('nav.datasets') },
         { to: '/#harga', label: t('nav.pricing'), hash: true },
         { to: '/#faq', label: t('nav.faq'), hash: true },
       ];

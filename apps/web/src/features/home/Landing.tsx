@@ -2,17 +2,18 @@ import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type Rea
 import { Link } from 'react-router';
 import { Sheet, formatValue, isError } from '@excellab/spreadsheet-engine';
 import { paths } from '@excellab/shared';
-import { ArrowRight, Check, ChevronDown, Clock3, FileSpreadsheet, Keyboard, ListFilter, Minus, RotateCcw, SquareCheckBig, X } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Clock3, Database, FileSpreadsheet, ListFilter, Minus, RotateCcw, SquareCheckBig, X } from 'lucide-react';
 import { Keycaps } from '../../components/learning/Bits';
 import { MiniSheet } from '../../components/spreadsheet/MiniSheet';
 import { useAsync } from '../../hooks/useAsync';
 import { api } from '../../services/api';
+import type { DatasetSummary } from '../../services/types';
 import { useAuthConfig } from '../auth/EmailAuth';
 import { Leaderboard } from '../sprint/Leaderboard';
 import { AUDIENCE, ERROR_CASES, FEEDBACK_STEPS, MODULE_OUTCOMES, TRY_EXPECTED, TRY_TABLE, faqs, type ErrorCase, type Row } from './landingData';
 
 interface Overview {
-  counts: { modules: number; lessons: number; exercises: number; shortcuts: number; worksheets: number; functions: number };
+  counts: { modules: number; lessons: number; exercises: number; shortcuts: number; worksheets: number; functions: number; datasets?: number };
   modules: { slug: string; title: string; summary: string; lessons: number; exercises: number }[];
 }
 
@@ -25,6 +26,8 @@ interface SampleLesson {
 }
 
 const nf = new Intl.NumberFormat('id-ID');
+/** Dipakai selama jumlah data latihan dari server belum dimuat. */
+const DATASET_TOTAL = 50;
 
 
 function ErrorLab() {
@@ -438,14 +441,13 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
         </article>
         <article>
           <span className="xl-l-ic" aria-hidden="true">
-            <Keyboard className="xl-icon" />
+            <Database className="xl-icon" />
           </span>
-          <h3>{counts ? `${counts.shortcuts} shortcut` : 'Pustaka shortcut'}</h3>
-          <p>Untuk Windows dan Mac, bisa dicari, dilengkapi mode kuis.</p>
-          <div className="xl-l-keys">
-            <Keycaps combo="Ctrl + Shift + L" />
-            <Keycaps combo="Alt + =" />
-            <Keycaps combo="F4" />
+          <h3>{counts?.datasets ?? DATASET_TOTAL} file data latihan</h3>
+          <p>Data dummy yang berantakan seperti di kantor, 100 baris atau lebih. Gratis diunduh, hasilnya bisa diperiksa (Premium).</p>
+          <div className="xl-l-foot">
+            <span className="xl-l-file">transaksi-toko.xlsx</span>
+            <span className="xl-l-tag">Gratis</span>
           </div>
         </article>
         <article>
@@ -468,10 +470,10 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
             <FileSpreadsheet className="xl-icon" />
           </span>
           <h3>{counts ? `${counts.worksheets} worksheet` : 'Worksheet'} .xlsx</h3>
-          <p>Unduh, lalu kerjakan di Excel. Kunci jawaban tersedia untuk anggota Premium.</p>
+          <p>Unduh, lalu kerjakan di Excel. Kunci jawaban dan pemeriksaan hasil untuk anggota Premium.</p>
           <div className="xl-l-foot">
             <span className="xl-l-file">rekap-penjualan.xlsx</span>
-            <span className="xl-l-tag">3 pertama gratis</span>
+            <span className="xl-l-tag">Semua gratis</span>
           </div>
         </article>
         <article>
@@ -555,6 +557,150 @@ function SampleLessons() {
   );
 }
 
+/* ---------- Data latihan ---------- */
+const DL_SHOWCASE = [
+  'transaksi-toko-kelontong',
+  'absensi-karyawan-bulanan',
+  'data-karyawan',
+  'kas-harian-warung',
+  'piutang-pelanggan',
+  'stok-gudang',
+  'pesanan-marketplace',
+  'surat-masuk-keluar',
+  'hasil-tes-pelamar',
+  'pengeluaran-operasional-kantor',
+];
+const DL_FIELDS: [string, string][] = [
+  ['Admin', 'Surat masuk dan keluar, stok gudang, inventaris, buku tamu'],
+  ['HRD', 'Absensi, data karyawan, hasil tes pelamar, cuti, gaji'],
+  ['Jualan', 'Transaksi toko, pesanan marketplace, kafe, retur'],
+  ['Keuangan', 'Kas harian, piutang, hutang, mutasi rekening'],
+];
+const DL_ROWS: { cells: string[]; flag?: Record<number, 'bad' | 'dup'> }[] = [
+  { cells: ['01/10/2026', 'TK-0401', 'Indomie Goreng', '12', '3.100'] },
+  { cells: ['01/10/2026', 'TK-0402', 'Minyak Goreng 1 L', '2', '18.500'] },
+  { cells: ['02/10/2026', 'TK-0404', ' indomie goreng', '5', '3.100'], flag: { 2: 'bad' } },
+  { cells: ['02/10/2026', 'TK-0405', 'Telur Ayam 1 kg', '1', '28500'], flag: { 4: 'bad' } },
+  { cells: ['2026-10-02', 'TK-0406', 'Beras 5 kg', '1', '69.000'], flag: { 0: 'bad' } },
+  { cells: ['03/10/2026', 'TK-0407', 'Kopi Sachet', '20', '1.500'], flag: { 1: 'dup' } },
+  { cells: ['03/10/2026', 'TK-0407', 'Kopi Sachet', '20', '1.500'], flag: { 1: 'dup' } },
+];
+const FIELD_NAME: Record<DatasetSummary['field'], string> = { admin: 'Admin', hrd: 'HRD', jualan: 'Jualan', keuangan: 'Keuangan' };
+
+function DataLatihan({ total }: { total: number }) {
+  const list = useAsync((s) => api.get<DatasetSummary[]>('/datasets', s), []);
+  const tiles = DL_SHOWCASE.map((slug) => list.data?.find((d) => d.slug === slug)).filter((d): d is DatasetSummary => Boolean(d));
+  return (
+    <section id="data-latihan" className="xl-l-section xl-l-dl" aria-labelledby="l-data">
+      <div className="xl-l-dl-top">
+        <div>
+          <p className="xl-l-eyebrow">
+            Data latihan <span className="xl-l-new">Baru</span>
+          </p>
+          <h2 id="l-data">
+            {total} file data yang <mark className="xl-l-mark">terasa nyata.</mark>
+          </h2>
+          <p className="xl-l-lead">
+            Dibuat berantakan seperti data kantor sungguhan: spasi nyasar, tanggal yang bukan tanggal, nomor ganda. Unduh gratis, kerjakan di
+            Excel, lalu periksa hasilmu.
+          </p>
+          <dl className="xl-l-dl-fields">
+            {DL_FIELDS.map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="xl-l-dl-note">100 baris atau lebih per file. Format .xlsx dan .csv. Semua data fiktif.</p>
+          <Link to="/data-latihan" className="btn btn-primary">
+            Lihat semua file
+          </Link>
+        </div>
+        <figure className="xl-l-dl-win" aria-label="Contoh isi data latihan Transaksi Toko Kelontong">
+          <div className="xl-l-dl-bar" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            <span>transaksi-toko-kelontong.xlsx</span>
+          </div>
+          <div className="xl-l-dl-scroll">
+            <table className="xl-l-dl-x">
+              <thead>
+                <tr>
+                  {['Tanggal', 'No Nota', 'Produk', 'Jumlah', 'Harga (Rp)'].map((h) => (
+                    <th key={h} scope="col">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {DL_ROWS.map((r, i) => (
+                  <tr key={i}>
+                    {r.cells.map((c, j) => (
+                      <td key={j} className={r.flag?.[j] ? `xl-l-dl-${r.flag[j]}` : j >= 3 ? 'r' : undefined}>
+                        {c.startsWith(' ') ? `\u00a0${c.trim()}` : c}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <figcaption className="xl-l-dl-key">
+            <span>Kuning: tidak seragam, atau berupa teks bukan angka dan tanggal asli</span>
+            <span>Merah: nota yang tercatat dua kali</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      {tiles.length > 0 && (
+        <ul className="xl-l-dl-tiles" aria-label="Contoh data latihan">
+          {tiles.map((d) => (
+            <li key={d.slug}>
+              <span className={`xl-tag xl-field-${d.field}`}>{FIELD_NAME[d.field]}</span>
+              <strong>{d.title}</strong>
+              <span className="xl-muted xl-small">{d.rows} baris</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="xl-l-dl-check">
+        <div>
+          <span className="xl-l-new">Premium</span>
+          <h3>Sudah dikerjakan? Unggah, sistem memeriksa.</h3>
+          <p>Dicek per tugas. Kalau ada yang salah, kamu diberi petunjuk di bagian mana. Berlaku juga untuk semua worksheet.</p>
+        </div>
+        <ul className="xl-l-dl-verdicts" aria-label="Contoh hasil pemeriksaan">
+          <li className="ok">
+            <Check className="xl-icon" aria-hidden="true" />
+            <div>
+              <strong>Omzet per hari</strong>
+              <span>Sesuai</span>
+            </div>
+          </li>
+          <li className="bad">
+            <X className="xl-icon" aria-hidden="true" />
+            <div>
+              <strong>Jumlah nota unik</strong>
+              <span>Jawabanmu 243, seharusnya 240. Ada nota yang tercatat dua kali.</span>
+            </div>
+          </li>
+          <li className="idle">
+            <Minus className="xl-icon" aria-hidden="true" />
+            <div>
+              <strong>Produk terlaris</strong>
+              <span>Belum diisi</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- 8. Gratis dan Premium ---------- */
 function Plans({ counts }: { counts: Overview['counts'] | null }) {
   const cfg = useAuthConfig();
@@ -567,7 +713,9 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
     ['Uji Kemampuan Excel, jadwal ulang, Sprint 60 detik, dan pustaka shortcut', yes, yes],
     ['Progres, poin, dan streak tersimpan di akun', yes, yes],
     ['Tombol “Lihat solusi”', '1 solusi setiap 7 hari', 'Tanpa batas'],
-    ['Worksheet .xlsx', counts ? `3 dari ${counts.worksheets}` : '3 worksheet pertama', 'Semua, beserta kunci jawaban'],
+    [counts ? `${counts.worksheets} worksheet .xlsx dan ${counts.datasets ?? DATASET_TOTAL} file data latihan` : 'Worksheet dan data latihan (.xlsx, .csv)', yes, yes],
+    ['Periksa berkas hasil kerjamu: unggah, sistem menilai per tugas', no, yes],
+    ['Kunci jawaban worksheet', no, yes],
     ['Template', '2', '2, ditambah 4 lanjutan'],
     ['Penelusur rumus, wizard rumus, laporan kemajuan, dan contekan PDF', no, yes],
     ['Sertifikat PDF yang bisa dicek lewat kode', no, yes],
@@ -576,7 +724,7 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
     <section id="harga" className="xl-l-section" aria-labelledby="l-paket">
       <h2 id="l-paket">Belajar gratis. Premium untuk solusi dan alat tambahan.</h2>
       <p className="xl-l-lead">
-        Semua pelajaran dan latihan bisa dikerjakan tanpa biaya. Premium menambah solusi tanpa batas, worksheet lanjutan, dan alat bantu.
+        Semua pelajaran, latihan, worksheet, dan data latihan bisa dikerjakan tanpa biaya. Premium menambah pemeriksaan berkas, solusi tanpa batas, dan alat bantu.
       </p>
       <div className="xl-l-cmp-wrap">
         <table className="xl-l-cmp">
@@ -753,6 +901,9 @@ export function Landing() {
       </Band>
       <Band tone="white">
         <Toolbox counts={data?.counts ?? null} />
+      </Band>
+      <Band tone="butter">
+        <DataLatihan total={data?.counts.datasets ?? DATASET_TOTAL} />
       </Band>
       <Band tone="sage">
         <Plans counts={data?.counts ?? null} />

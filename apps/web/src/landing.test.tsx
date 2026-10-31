@@ -84,7 +84,7 @@ describe('beranda pengunjung', () => {
       expect(await screen.findByRole('heading', { name })).toBeInTheDocument();
 
     expect(await screen.findByText(/30 pelajaran dan 54 latihan/)).toBeInTheDocument();
-    expect(screen.getByText('53 shortcut')).toBeInTheDocument();
+    expect(screen.getByText('50 file data latihan')).toBeInTheDocument();
     expect(screen.getByText(/dengan 33 fungsi/)).toBeInTheDocument();
     expect(screen.getByText('Rp 29.000 untuk 12 bulan')).toBeInTheDocument();
     // Tidak ada em-dash atau en-dash di teks halaman.
@@ -193,7 +193,7 @@ describe('beranda pengunjung', () => {
     expect(details).not.toHaveAttribute('open');
     await userEvent.click(summary);
     expect(details).toHaveAttribute('open');
-    expect(within(details).getByText(/Premium menambah solusi langsung tanpa batas di latihan/)).toBeInTheDocument();
+    expect(within(details).getByText(/Premium menambah pemeriksaan berkas yang kamu unggah/)).toBeInTheDocument();
   });
 
   it('pengguna yang sudah masuk tidak melihat beranda pengunjung', async () => {
@@ -324,6 +324,7 @@ describe('susunan beranda yang baru', () => {
     expect(within(nav).getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
       ['Bidang', '/jalur'],
       ['Belajar', '/#belajar'],
+      ['Data Latihan', '/data-latihan'],
       ['Harga', '/#harga'],
       ['FAQ', '/#faq'],
     ]);
@@ -347,7 +348,8 @@ describe('profil pembuat dan angka di beranda', () => {
     renderApp('/');
     const table = await screen.findByRole('table', { name: 'Perbandingan paket Gratis dan Premium' });
     expect(within(table).getByRole('rowheader', { name: 'Semua pelajaran (30) dan latihan (54)' })).toBeInTheDocument();
-    expect(within(table).getByText('3 dari 10')).toBeInTheDocument();
+    expect(within(table).getByRole('rowheader', { name: '10 worksheet .xlsx dan 50 file data latihan' })).toBeInTheDocument();
+    expect(within(table).getByRole('rowheader', { name: 'Periksa berkas hasil kerjamu: unggah, sistem menilai per tugas' })).toBeInTheDocument();
     expect(within(table).getByText('Rp 29.000 untuk 12 bulan')).toBeInTheDocument();
     expect(within(table).getByRole('link', { name: 'Daftar gratis' })).toHaveAttribute('href', '/daftar');
     expect(within(table).getByRole('link', { name: 'Lihat Premium' })).toHaveAttribute('href', '/premium');
@@ -358,7 +360,7 @@ describe('profil pembuat dan angka di beranda', () => {
     renderApp('/');
     const table = await screen.findByRole('table', { name: 'Perbandingan paket Gratis dan Premium' });
     expect(within(table).getByRole('rowheader', { name: 'Semua pelajaran dan latihan' })).toBeInTheDocument();
-    expect(within(table).getByText('3 worksheet pertama')).toBeInTheDocument();
+    expect(within(table).getByRole('rowheader', { name: 'Worksheet dan data latihan (.xlsx, .csv)' })).toBeInTheDocument();
   });
 
   it('bagian "Dibuat oleh siapa dan kenapa" memuat alasan, cara materi dijaga, dan tidak menyebut instansi mana pun', async () => {

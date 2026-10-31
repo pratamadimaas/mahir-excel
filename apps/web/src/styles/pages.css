@@ -1095,3 +1095,73 @@
 .xl-start-show {
   margin: 0 0 16px;
 }
+
+/* Data latihan dan pemeriksaan berkas */
+.xl-dataset-mess {
+  color: #8a5a00;
+}
+.xl-field-admin {
+  background: #efe8f8;
+  color: #5b3a8f;
+}
+.xl-field-hrd {
+  background: #e6ecfb;
+  color: #2c4a99;
+}
+.xl-field-jualan {
+  background: #fdeedd;
+  color: #9a5410;
+}
+.xl-field-keuangan {
+  background: #e2f0e8;
+  color: #185c37;
+}
+.xl-check-lock {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border: 1px dashed var(--xl-border);
+  border-radius: var(--xl-radius);
+  background: var(--xl-bg-subtle);
+}
+.xl-check-form {
+  margin: 12px 0 16px;
+  max-width: 560px;
+}
+.xl-check-result {
+  margin-top: 20px;
+}
+.xl-check-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.xl-check-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--xl-border);
+  border-radius: var(--xl-radius);
+}
+.xl-check-item .xl-icon {
+  flex: none;
+  margin-top: 3px;
+}
+.xl-check-item.ok {
+  background: var(--xl-green-pale);
+  border-color: #bfe0cc;
+}
+.xl-check-item.bad {
+  background: var(--xl-error-bg);
+  border-color: #f1c3bd;
+}
+.xl-check-item.idle {
+  background: var(--xl-bg-subtle);
+}
+.xl-check-hint {
+  margin-top: 4px;
+  color: #7a1a12;
+}

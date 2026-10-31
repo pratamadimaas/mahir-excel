@@ -170,7 +170,7 @@ export interface Faq {
 export const faqs = (functions: number | null): Faq[] => [
   {
     q: 'Benar-benar gratis?',
-    a: 'Untuk belajar, ya. Semua pelajaran, latihan, shortcut, bidang, 2 template, dan 3 worksheet pertama gratis. Premium menambah solusi langsung tanpa batas di latihan, 4 template dan 8 worksheet lanjutan beserta kunci jawabannya, penelusur rumus, wizard rumus lengkap, laporan kemajuan, contekan PDF, dan sertifikat PDF.',
+    a: 'Untuk belajar, ya. Semua pelajaran, latihan, shortcut, bidang, 50 file data latihan, semua worksheet, dan 2 template gratis. Premium menambah pemeriksaan berkas yang kamu unggah (worksheet dan data latihan), solusi langsung tanpa batas di latihan, kunci jawaban worksheet, 4 template lanjutan, penelusur rumus, wizard rumus lengkap, laporan kemajuan, contekan PDF, dan sertifikat PDF.',
   },
   {
     q: 'Kenapa harus daftar dulu?',

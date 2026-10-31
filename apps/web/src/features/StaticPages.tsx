@@ -83,7 +83,7 @@ export function AboutPage() {
           otomatis.
         </li>
         <li>{c ? `${c.shortcuts} shortcut` : 'Pustaka shortcut'} untuk Windows dan Mac, plus mode kuis.</li>
-        <li>{c ? `${c.worksheets} worksheet` : 'Worksheet'} .xlsx siap unduh. 3 worksheet pertama gratis; sisanya dan kunci jawaban untuk anggota Premium.</li>
+        <li>{c ? `${c.worksheets} worksheet` : 'Worksheet'} .xlsx dan 50 file data latihan siap unduh, semuanya gratis. Kunci jawaban dan pemeriksaan hasil untuk anggota Premium.</li>
         <li>
           Progres, poin, streak, ulang terjadwal, uji kemampuan Excel, bagikan progres, dan sertifikat penyelesaian (Premium), tersimpan di
           akunmu. Akun gratis dan diperlukan untuk membuka materi belajar.

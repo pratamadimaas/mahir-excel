@@ -648,3 +648,36 @@ export async function writeWorkbooks(dir: string): Promise<string[]> {
   }
   return written;
 }
+
+export interface KeyCell {
+  sheet: string;
+  ref: string;
+  expected: string | number | boolean | null;
+  /** Sel kunci berisi rumus, jadi jawaban peserta juga harus berupa rumus. */
+  formula: boolean;
+}
+
+const keyCache = new Map<string, KeyCell[]>();
+
+/** Sel jawaban beserta nilai yang benar, dihitung dari rencana kunci. Dipakai untuk memeriksa berkas yang diunggah. */
+export function worksheetKey(slug: string): KeyCell[] | null {
+  const planFn = plans[slug];
+  if (!planFn) return null;
+  let out = keyCache.get(slug);
+  if (!out) {
+    out = [];
+    for (const spec of planFn().key) {
+      const values = engineValues(spec);
+      for (const ref of spec.answers ?? []) {
+        const c = spec.cells[ref];
+        if (c === undefined) continue;
+        const isFormula = typeof c === 'object';
+        const v = isFormula ? (c.r !== undefined ? c.r : values[ref]) : c;
+        if (typeof v === 'string' && v.startsWith('#ERR')) continue;
+        out.push({ sheet: spec.name, ref, expected: v ?? null, formula: isFormula });
+      }
+    }
+    keyCache.set(slug, out);
+  }
+  return out;
+}

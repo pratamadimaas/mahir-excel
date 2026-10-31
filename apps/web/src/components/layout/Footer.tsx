@@ -42,6 +42,9 @@ export function Footer() {
             <h3>{t('footer.resources')}</h3>
             <ul>
               <li>
+                <Link to="/data-latihan">{t('footer.datasets')}</Link>
+              </li>
+              <li>
                 <Link to="/shortcut">{t('footer.shortcuts')}</Link>
               </li>
               <li>

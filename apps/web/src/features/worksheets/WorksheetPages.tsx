@@ -7,6 +7,7 @@ import { useAsync } from '../../hooks/useAsync';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { api } from '../../services/api';
 import { formatBytes, type WorksheetView } from '../../services/types';
+import { CheckPanel, checkWorksheetFile } from '../datasets/CheckPanel';
 
 export function WorksheetsPage() {
   useDocumentTitle('Worksheet');
@@ -18,8 +19,8 @@ export function WorksheetsPage() {
         <p className="xl-eyebrow">Sumber belajar</p>
         <h1>Worksheet siap unduh</h1>
         <p>
-          File Excel (.xlsx) untuk berlatih di aplikasi Excel-mu sendiri. Setiap worksheet punya sheet Petunjuk dan Latihan; 3 worksheet
-          pertama gratis; worksheet lainnya dan semua kunci jawaban untuk anggota Premium.
+          File Excel (.xlsx) untuk berlatih di aplikasi Excel-mu sendiri. Setiap worksheet punya sheet Petunjuk dan Latihan. Semua worksheet
+          gratis diunduh; kunci jawaban dan pemeriksaan hasil untuk anggota Premium.
         </p>
       </header>
       {ws.loading && <Loading label="Memuat worksheet…" lines={5} />}
@@ -152,6 +153,15 @@ export function WorksheetDetailPage() {
               <p className="xl-muted">Pratinjau belum tersedia.</p>
             )}
           </section>
+          {(w.answerCells?.length ?? 0) > 0 && (
+            <section aria-labelledby="ws-cek">
+              <h2 id="ws-cek">Periksa hasilmu</h2>
+              <CheckPanel
+                intro="Kerjakan sheet Latihan di Excel, simpan, lalu unggah file yang sama di sini. Sistem memeriksa tiap sel jawaban dan menunjukkan mana yang belum tepat."
+                run={(file) => checkWorksheetFile(file, w.slug, w.answerCells ?? [])}
+              />
+            </section>
+          )}
         </article>
 
         <aside className="xl-lesson-aside" aria-label="Unduhan">

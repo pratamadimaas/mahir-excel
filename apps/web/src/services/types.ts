@@ -71,6 +71,49 @@ export interface WorksheetView {
   keyAvailable: boolean;
   keySize: number | null;
   preview?: { sheet: string; rows: string[][] } | null;
+  /** Sel jawaban yang diperiksa bila berkas diunggah (tanpa nilai yang benar). */
+  answerCells?: { sheet: string; ref: string }[];
+}
+
+export type CheckVerdict = 'benar' | 'salah' | 'kosong' | 'tanpa-rumus';
+
+export interface DatasetSummary {
+  slug: string;
+  title: string;
+  field: 'admin' | 'hrd' | 'jualan' | 'keuangan';
+  blurb: string;
+  mess: string;
+  rows: number;
+  cols: number;
+  tasks: string[];
+}
+
+export interface CheckItem {
+  label: string;
+  verdict: CheckVerdict;
+  hint?: string;
+  expected?: number | string;
+}
+
+export interface CheckResult {
+  title?: string;
+  total: number;
+  correct: number;
+  items: CheckItem[];
+}
+
+export interface DatasetCheckResponse {
+  slug: string;
+  total: number;
+  correct: number;
+  items: { no: number; ask: string; verdict: CheckVerdict; hint?: string; expected?: number | string }[];
+}
+
+export interface WorksheetCheckResponse {
+  slug: string;
+  total: number;
+  correct: number;
+  items: { sheet: string; ref: string; verdict: CheckVerdict; hint?: string; expected?: number | string }[];
 }
 
 export interface SubmitResult {

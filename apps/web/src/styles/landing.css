@@ -1857,3 +1857,235 @@ main:has(.xl-l-closing) + .xl-footer {
     font-size: 0.8rem;
   }
 }
+
+/* ---------- Data latihan ---------- */
+.xl-l-new {
+  display: inline-block;
+  background: var(--l-forest);
+  color: #d9f35b;
+  border-radius: 999px;
+  padding: 1px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.xl-l-dl-top {
+  display: grid;
+  grid-template-columns: 0.9fr 1.2fr;
+  gap: 56px;
+  align-items: center;
+}
+.xl-l-dl-fields {
+  margin: 0 0 14px;
+  border-top: 2px solid var(--l-forest);
+}
+.xl-l-dl-fields div {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #e3dcb8;
+}
+.xl-l-dl-fields dt {
+  font-weight: 700;
+}
+.xl-l-dl-fields dd {
+  margin: 0;
+  color: var(--xl-text-muted);
+}
+.xl-l-dl-note {
+  color: var(--xl-text-muted);
+  margin: 0 0 18px;
+}
+.xl-l-dl-win {
+  margin: 0;
+  background: #fff;
+  border: 1px solid #e8e0bd;
+  border-radius: 16px;
+  box-shadow: 0 18px 44px rgba(90, 70, 10, 0.16);
+  overflow: hidden;
+}
+.xl-l-dl-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 16px;
+  background: #f6f8f7;
+  border-bottom: 1px solid #e3e9e5;
+  font-size: 13.5px;
+  color: var(--xl-text-muted);
+}
+.xl-l-dl-bar i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #d3dad6;
+}
+.xl-l-dl-bar span {
+  margin-left: 8px;
+}
+.xl-l-dl-scroll {
+  overflow-x: auto;
+}
+.xl-l-dl-x {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14.5px;
+}
+.xl-l-dl-x th,
+.xl-l-dl-x td {
+  border-bottom: 1px solid #e9eeea;
+  border-right: 1px solid #e9eeea;
+  padding: 7px 10px;
+  white-space: nowrap;
+  text-align: left;
+}
+.xl-l-dl-x th {
+  background: #f3f6f4;
+  color: var(--xl-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.xl-l-dl-x td.r {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.xl-l-dl-x td.xl-l-dl-bad {
+  background: #fff4de;
+  box-shadow: inset 0 0 0 2px #e2a63a;
+}
+.xl-l-dl-x td.xl-l-dl-dup {
+  background: #fdecea;
+  box-shadow: inset 0 0 0 2px #d9776b;
+}
+.xl-l-dl-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding: 10px 16px;
+  background: #faf8ee;
+  font-size: 13.5px;
+  color: var(--xl-text-muted);
+}
+.xl-l-dl-tiles {
+  list-style: none;
+  padding: 0;
+  margin: 48px 0 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+.xl-l-dl-tiles li {
+  background: #fff;
+  border: 1px solid #e8e0bd;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 118px;
+}
+.xl-l-dl-tiles .xl-tag {
+  align-self: flex-start;
+}
+.xl-l-dl-tiles strong {
+  line-height: 1.25;
+}
+.xl-l-dl-tiles .xl-small {
+  margin-top: auto;
+}
+.xl-l-dl-check {
+  margin-top: 20px;
+  background: var(--l-forest);
+  color: #fff;
+  border-radius: 20px;
+  padding: 28px 32px;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 36px;
+  align-items: center;
+}
+.xl-l-dl-check .xl-l-new {
+  background: #d9f35b;
+  color: var(--l-forest);
+  margin-bottom: 10px;
+}
+.xl-l-dl-check h3 {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: #fff;
+}
+.xl-l-dl-check p {
+  margin: 0;
+  color: #c3d8cb;
+}
+.xl-l-dl-verdicts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr;
+  gap: 12px;
+}
+.xl-l-dl-verdicts li {
+  background: #fff;
+  color: #1f2a24;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.xl-l-dl-verdicts .xl-icon {
+  flex: none;
+  margin-top: 2px;
+  width: 22px;
+  height: 22px;
+  padding: 4px;
+  border-radius: 50%;
+}
+.xl-l-dl-verdicts .ok .xl-icon {
+  background: #e2f0e8;
+  color: #185c37;
+}
+.xl-l-dl-verdicts .bad .xl-icon {
+  background: #fdecea;
+  color: #c0392b;
+}
+.xl-l-dl-verdicts .idle .xl-icon {
+  background: #eef2ef;
+  color: #8a978f;
+}
+.xl-l-dl-verdicts strong {
+  display: block;
+  font-size: 15px;
+  line-height: 1.25;
+}
+.xl-l-dl-verdicts span {
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #5d6b63;
+  margin-top: 2px;
+}
+.xl-l-dl-verdicts .bad span {
+  color: #7a1a12;
+}
+@media (max-width: 991px) {
+  .xl-l-dl-top,
+  .xl-l-dl-check {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .xl-l-dl-tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .xl-l-dl-verdicts {
+    grid-template-columns: 1fr;
+  }
+}
+.xl-l-dl .xl-l-eyebrow {
+  color: #8a6a12;
+}
