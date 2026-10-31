@@ -502,7 +502,7 @@ describe('pelajaran contoh untuk pengunjung', () => {
       ],
     });
     renderApp('/');
-    expect(await screen.findByRole('heading', { name: 'Coba baca satu pelajaran' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Baca satu pelajaran dulu' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /SUM: Menjumlahkan Angka/ })).toHaveAttribute('href', '/belajar/fungsi-sum');
   });
 });

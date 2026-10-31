@@ -76,7 +76,7 @@ export const id = {
   'hero.placement': 'Ikuti uji kemampuan Excel',
   'hero.vTitleA': 'Latihan Excel yang ',
   'hero.vTitleB': 'langsung dinilai.',
-  'hero.vLead': 'Kerjakan latihan di browser, atau unduh berkasnya dan kerjakan di Excel di komputermu. Setelah diunggah, sistem langsung menilai jawabanmu dan menunjukkan sel yang perlu diperbaiki.',
+  'hero.vLead': 'Kamu bisa mengerjakan latihan langsung di browser. Jika ingin menggunakan Excel, unduh berkas soal, kerjakan di komputer, lalu unggah kembali. Sistem akan memeriksa jawaban dan menunjukkan sel yang perlu diperbaiki.',
   'hero.vPlacement': 'Cek level Excel (16 soal)',
   'hero.vNote': 'Semua pelajaran dan latihan gratis untuk dikerjakan.',
   'hero.haveAccount': 'Sudah punya akun?',

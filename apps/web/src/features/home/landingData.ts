@@ -110,12 +110,12 @@ export const MODULE_OUTCOMES: Record<string, string> = {
   'mengenal-excel': 'Memahami workbook, sel, dan rentang, lalu memasukkan data dengan format yang benar.',
   'persiapan-tes-kerja': 'Menghapus data ganda, membuat Table, memakai Paste Special dan Flash Fill, menyiapkan cetakan, dan menghitung total yang mengikuti filter.',
   'mengolah-data': 'Mengurutkan dan menyaring tabel, lalu menemukan data yang tidak konsisten.',
-  'rumus-dasar': 'Menjumlahkan dan menghitung rata-rata data dengan rumus.',
-  logika: 'Menentukan status dengan rumus, misalnya lulus atau remedial, lunas atau belum.',
+  'rumus-dasar': 'Kamu akan belajar menjumlahkan dan menghitung rata-rata data menggunakan rumus Excel.',
+  logika: 'Kamu bisa menggunakan rumus untuk menentukan status, seperti lulus atau remedial, lunas atau belum.',
   'fungsi-bersyarat': 'Meringkas data per kategori, misalnya total penjualan per cabang.',
-  'fungsi-pencarian': 'Mencari harga atau nama dari tabel acuan dengan rumus pencarian.',
+  'fungsi-pencarian': 'Cari harga atau nama dari tabel acuan menggunakan rumus pencarian.',
   'teks-tanggal': 'Merapikan nama dan kode, dan menghitung dengan tanggal seperti jatuh tempo.',
-  'rapi-dan-aman': 'Membatasi salah input, menandai data penting secara otomatis, dan membuat ringkasan.',
+  'rapi-dan-aman': 'Gunakan fitur Excel untuk membatasi kesalahan input, menandai data penting secara otomatis, dan membuat ringkasan.',
 };
 
 export const AUDIENCE: { title: string; text: string }[] = [
@@ -124,12 +124,12 @@ export const AUDIENCE: { title: string; text: string }[] = [
     text: 'Mulai dari sel, baris, dan kolom. Uji Kemampuan Excel membantumu memilih modul pertama.',
   },
   {
-    title: 'Pekerja kantor',
-    text: 'Pelajari fungsi yang sering dipakai, dari SUM dan IF sampai VLOOKUP dan XLOOKUP. Setiap latihan menjelaskan di mana rumusmu belum sesuai.',
+    title: 'Untuk pekerja kantor',
+    text: 'Pelajari fungsi yang sering digunakan, mulai dari SUM dan IF hingga VLOOKUP dan XLOOKUP. Setiap latihan memberikan penjelasan saat rumusmu belum sesuai.',
   },
   {
-    title: 'Mahasiswa dan pencari kerja',
-    text: 'Selesaikan materinya, lalu unduh sertifikat PDF (Premium). Setiap sertifikat punya kode untuk memeriksa keasliannya.',
+    title: 'Untuk mahasiswa dan pencari kerja',
+    text: 'Selesaikan materi pembelajaran dan unduh sertifikat PDF melalui fitur Premium. Keaslian sertifikat dapat diperiksa menggunakan kode verifikasi.',
   },
 ];
 
@@ -146,7 +146,7 @@ export const FEEDBACK_STEPS: FeedbackStep[] = [
     formula: '=SUM(B2:B5)',
     ok: false,
     message:
-      'Sel B7 menghasilkan 720.000, tetapi itu belum sesuai dengan yang diminta. Periksa kembali rentang sel, operator, dan apakah ada sel yang terlewat.',
+      'Sel B7 menghasilkan 720.000. Namun, hasil tersebut belum sesuai dengan instruksi soal. Periksa rentang sel, operator, dan sel yang mungkin terlewat.',
   },
   {
     formula: '=1020000',

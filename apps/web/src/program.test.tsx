@@ -132,7 +132,7 @@ describe('banner Program Perintis di beranda', () => {
   it('pengunjung di beranda tidak melihat banner program sama sekali', async () => {
     mockApi({ ...home, 'GET /program/status': { ...pub, taken: 90, remaining: 10 } });
     renderApp('/');
-    await waitFor(() => expect(screen.getByRole('heading', { name: /Belajar gratis\. Premium/ })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole('heading', { name: /Semua materi gratis\. Premium/ })).toBeInTheDocument());
     expect(screen.queryByRole('complementary', { name: 'Program Perintis' })).not.toBeInTheDocument();
   });
 
@@ -189,7 +189,7 @@ describe('banner Program Perintis di beranda', () => {
     renderApp('/');
     const nav = await screen.findByRole('navigation', { name: 'Navigasi utama' });
     expect(within(nav).queryByRole('link', { name: 'Sertifikat gratis' })).not.toBeInTheDocument();
-    await screen.findByRole('heading', { name: /Belajar gratis\. Premium/ });
+    await screen.findByRole('heading', { name: /Semua materi gratis\. Premium/ });
     expect(screen.queryByRole('link', { name: 'Lihat syarat' })).not.toBeInTheDocument();
     expect(screen.queryByRole('complementary', { name: 'Program Perintis' })).not.toBeInTheDocument();
   });

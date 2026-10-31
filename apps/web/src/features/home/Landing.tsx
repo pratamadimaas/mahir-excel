@@ -51,7 +51,7 @@ function ErrorLab() {
   return (
     <div className="xl-l-demo-body" aria-labelledby="l-salah">
       <h3 id="l-salah" className="h4">
-        <mark className="xl-l-mark">Periksa hasil rumusmu.</mark> Biasanya salah satu dari empat penyebab ini.
+        <mark className="xl-l-mark">Periksa kembali hasil rumusmu.</mark> Biasanya salah satu dari empat penyebab ini.
       </h3>
       <p className="xl-l-lead">
         Pilih satu kasus, cari sel yang bermasalah, lalu tekan Perbaiki. Hasilnya dihitung ulang oleh mesin rumus.
@@ -213,8 +213,8 @@ function TryIt({ exercises }: { exercises: number | null }) {
 /* ---------- Demo bertab: tiga contoh jadi satu bagian ---------- */
 const DEMO_TABS = [
   { id: 'rumus', label: 'Coba satu rumus', hint: 'Ketik rumus SUM dan lihat hasilnya' },
-  { id: 'aneh', label: 'Periksa hasil rumusmu', hint: 'Empat penyebab yang paling sering' },
-  { id: 'umpan', label: 'Kalau jawabanmu salah', hint: 'Lihat bagian yang perlu diperbaiki beserta petunjuknya' },
+  { id: 'aneh', label: 'Periksa kembali hasil rumusmu', hint: 'Empat penyebab yang paling sering' },
+  { id: 'umpan', label: 'Jawabanmu belum tepat', hint: 'Lihat bagian yang perlu diperbaiki beserta petunjuknya.' },
 ] as const;
 type DemoTab = (typeof DEMO_TABS)[number]['id'];
 
@@ -295,12 +295,12 @@ function HowItWorks() {
       </ol>
       <div className="xl-l-notes">
         <div>
-          <strong>Sistem memeriksa rumus dan hasil perhitungannya.</strong>
+          <strong>Sistem memeriksa rumus yang kamu gunakan beserta hasilnya.</strong>
           <span>Jika latihan meminta SUM lalu kamu mengetik 1020000 langsung, jawabannya ditolak meskipun angkanya sama.</span>
         </div>
         <div>
           <strong>Petunjuk dibuka satu per satu.</strong>
-          <span>Solusi baru terbuka setelah kamu menjawab benar atau memilih menyerah.</span>
+          <span>Solusi lengkap tersedia setelah jawabanmu benar atau kamu memilih menyerah.</span>
         </div>
       </div>
     </section>
@@ -314,7 +314,7 @@ function Audience() {
       <div className="xl-l-side">
         <h2 id="l-siapa">Mahir Excel untuk siapa?</h2>
         <p className="xl-l-lead mb-0">
-          Kamu bisa mengikuti <Link to="/tes-penempatan">Uji Kemampuan Excel</Link>: 16 soal tanpa perlu daftar. Hasilnya menunjukkan levelmu: Pemula, Menengah, atau Mahir. Daftar akun jika ingin menyimpan hasilnya.
+          Kamu bisa mengikuti <Link to="/tes-penempatan">Uji Kemampuan Excel</Link> yang terdiri dari 16 soal tanpa perlu mendaftar. Hasil tes akan menunjukkan levelmu: Pemula, Menengah, atau Mahir. Daftar akun jika ingin menyimpan hasilnya.
         </p>
       </div>
       <dl className="xl-l-aud-list">
@@ -334,7 +334,7 @@ function Curriculum({ overview }: { overview: Overview | null }) {
   const modules = overview?.modules ?? [];
   return (
     <section id="belajar" className="xl-l-section" aria-labelledby="l-modul">
-      <h2 id="l-modul">Pilih bidang sesuai pekerjaanmu</h2>
+      <h2 id="l-modul">Pilih bidang sesuai kebutuhan belajarmu</h2>
       <p className="xl-l-lead">
         {overview ? `${overview.counts.lessons} pelajaran dan ${overview.counts.exercises} latihan, disusun berurutan.` : 'Pelajaran dan latihan disusun berurutan.'}{' '}
         Belum tahu mulai dari mana? <Link to="/tes-penempatan">Ikuti Uji Kemampuan Excel</Link> terlebih dahulu.
@@ -372,7 +372,7 @@ function Curriculum({ overview }: { overview: Overview | null }) {
               <div className="xl-path-body">
                 <strong>{m.title}</strong>
                 <span className="xl-muted xl-small">{m.summary}</span>
-                {MODULE_OUTCOMES[m.slug] && <span className="xl-small xl-l-outcome">Yang kamu pelajari: {MODULE_OUTCOMES[m.slug]}</span>}
+                {MODULE_OUTCOMES[m.slug] && <span className="xl-small xl-l-outcome">{MODULE_OUTCOMES[m.slug]}</span>}
                 <span className="xl-small xl-l-count">
                   {m.lessons} pelajaran, {m.exercises} latihan
                 </span>
@@ -391,7 +391,7 @@ function FeedbackDemo() {
   return (
     <div className="xl-l-demo-body" aria-labelledby="l-umpan">
       <h3 id="l-umpan" className="h4">
-        <mark className="xl-l-mark">Kalau jawabanmu salah,</mark> sistem menunjukkan letaknya.
+        <mark className="xl-l-mark">Jawabanmu belum tepat.</mark> Sistem menunjukkan bagian yang perlu diperbaiki.
       </h3>
       <p className="xl-l-lead">
         Sistem memeriksa rumus yang kamu tulis. Berikut tiga percobaan di latihan Total pengeluaran bulanan.
@@ -410,7 +410,7 @@ function FeedbackDemo() {
         ))}
       </ol>
       <p className="xl-muted mb-0">
-        Petunjuk muncul bertahap. Solusi baru terbuka setelah kamu menjawab benar atau memilih menyerah, tanpa poin.
+        Petunjuk dibuka satu per satu. Solusi lengkap tersedia setelah jawabanmu benar atau kamu memilih menyerah, tanpa poin.
       </p>
     </div>
   );
@@ -421,9 +421,9 @@ function Toolbox({ counts }: { counts: Overview['counts'] | null }) {
   return (
     <section className="xl-l-section" aria-labelledby="l-isi">
       <h2 id="l-isi">
-        Selain pelajaran, ada <mark className="xl-l-mark">cara lain untuk berlatih.</mark>
+        Ada juga fitur yang bisa kamu gunakan <mark className="xl-l-mark">untuk pekerjaan sehari-hari.</mark>
       </h2>
-      <p className="xl-l-lead">Bisa dikerjakan kapan saja.</p>
+      <p className="xl-l-lead">Fitur yang bisa kamu gunakan saat bekerja.</p>
       <div className="xl-l-tools">
         <article>
           <span className="xl-l-ic" aria-hidden="true">
@@ -513,10 +513,10 @@ export function SprintTeaser() {
     <section className="xl-l-section xl-l-sprint" aria-labelledby="l-sprint">
       <div className="xl-l-sprint-copy">
         <h2 id="l-sprint">
-          Jawab soal Excel <mark className="xl-l-mark">dalam 60 detik</mark>.
+          Tantangan Excel <mark className="xl-l-mark">60 detik</mark>.
         </h2>
         <p className="xl-l-lead">
-          Jawab sebanyak mungkin soal dalam 60 detik. Soal muncul secara acak dan mencakup hasil rumus, nama galat, serta shortcut. Kamu tidak
+          Jawab sebanyak mungkin soal Excel dalam 60 detik. Soal muncul secara acak dan mencakup hasil rumus, nama galat, serta shortcut. Kamu tidak
           perlu membuat akun. Cukup isi nama setelah selesai.
         </p>
         <div className="d-flex flex-wrap gap-2">
@@ -538,7 +538,7 @@ function SampleLessons() {
   if (list.loading || list.error || !list.data || list.data.length === 0) return null;
   return (
     <section className="xl-l-section" aria-labelledby="l-contoh">
-      <h2 id="l-contoh">Coba baca satu pelajaran</h2>
+      <h2 id="l-contoh">Baca satu pelajaran dulu</h2>
       <p className="xl-l-lead">Lima pelajaran contoh bisa dibaca tanpa daftar. Untuk mengerjakan latihan dan menyimpan progres, masuk dulu.</p>
       <ul className="xl-lesson-list">
         {list.data.map((l) => (
@@ -598,7 +598,7 @@ function DataLatihan({ total }: { total: number }) {
             Data latihan <span className="xl-l-new">Baru</span>
           </p>
           <h2 id="l-data">
-            {total} file data latihan <mark className="xl-l-mark">dari pekerjaan admin, HRD, jualan, dan keuangan.</mark>
+            {total} file data latihan <mark className="xl-l-mark">dengan contoh kasus seperti di kantor.</mark>
           </h2>
           <p className="xl-l-lead">
             Setiap file berisi data dengan masalah yang sering ditemukan di pekerjaan kantor, seperti spasi berlebih, tanggal yang tersimpan sebagai teks, dan nomor ganda. Unduh gratis, kerjakan di Excel, lalu periksa hasilnya.
@@ -669,8 +669,8 @@ function DataLatihan({ total }: { total: number }) {
       <div className="xl-l-dl-check">
         <div>
           <span className="xl-l-new">Premium</span>
-          <h3>Setelah selesai, anggota Premium bisa mengunggah file untuk diperiksa.</h3>
-          <p>Sistem memeriksa setiap tugas. Jika ada jawaban yang belum sesuai, kamu mendapat petunjuk tentang bagian yang perlu diperbaiki. Fitur ini juga tersedia untuk semua worksheet.</p>
+          <h3>Setelah selesai, anggota Premium bisa mengunggah file Excel untuk diperiksa oleh sistem.</h3>
+          <p>Sistem memeriksa setiap tugas. Jika ada jawaban yang belum sesuai, kamu akan mendapat petunjuk tentang bagian yang perlu diperbaiki. Fitur ini juga tersedia untuk semua worksheet.</p>
         </div>
         <ul className="xl-l-dl-verdicts" aria-label="Contoh hasil pemeriksaan">
           <li className="ok">
@@ -721,9 +721,9 @@ function Plans({ counts }: { counts: Overview['counts'] | null }) {
   ];
   return (
     <section id="harga" className="xl-l-section" aria-labelledby="l-paket">
-      <h2 id="l-paket">Belajar gratis. Premium menambah pemeriksaan berkas dan solusi.</h2>
+      <h2 id="l-paket">Semua materi gratis. Premium menyediakan solusi latihan dan fitur tambahan.</h2>
       <p className="xl-l-lead">
-        Semua pelajaran, latihan, worksheet, dan data latihan gratis. Premium menambah pemeriksaan berkas, solusi tanpa batas, dan fitur tambahan.
+        Semua pelajaran, latihan, worksheet, dan data latihan bisa diakses gratis. Dengan Premium, kamu mendapat akses ke pemeriksaan berkas, solusi tanpa batas, dan fitur tambahan.
       </p>
       <div className="xl-l-cmp-wrap">
         <table className="xl-l-cmp">
@@ -797,8 +797,8 @@ function Closing() {
   return (
     <section className="xl-l-closing" aria-labelledby="l-tutup">
       <div className="xl-page">
-        <h2 id="l-tutup">Mulai dengan latihan pertama.</h2>
-        <p>Daftar gratis untuk mulai belajar, atau ikuti Uji Kemampuan Excel tanpa akun.</p>
+        <h2 id="l-tutup">Coba materi dan latihan Excel yang tersedia.</h2>
+        <p>Daftar akun gratis atau ikuti Uji Kemampuan Excel untuk mengetahui levelmu.</p>
         <div className="d-flex flex-wrap gap-2">
           <Link to="/daftar" className="btn btn-light btn-lg">
             Daftar gratis
@@ -832,7 +832,7 @@ function Maker() {
           <p className="xl-l-eyebrow">Tentang proyek ini</p>
           <h2 id="l-pembuat">Tentang pengembang Mahir Excel</h2>
           <p className="xl-l-statement">
-            Belajar Excel dalam Bahasa Indonesia. <mark className="xl-l-mark-dark">Pelajaran dan latihannya gratis.</mark>
+            Belajar Excel dalam Bahasa Indonesia. <mark className="xl-l-mark-dark">Pelajaran dan latihannya tersedia gratis.</mark>
           </p>
           <div className="xl-l-who">
             <span aria-hidden="true">C</span>
@@ -856,15 +856,15 @@ function Maker() {
           <div>
             <dt>Kenapa ada</dt>
             <dd>
-              Supaya orang Indonesia bisa belajar Excel lewat latihan langsung. Pelajaran dan latihannya gratis. Pendapatan dari Premium dipakai
-              untuk merawat situs ini.
+              Mahir Excel dibuat agar pengguna di Indonesia bisa belajar Excel melalui latihan langsung. Pelajaran dan latihannya tersedia gratis.
+              Pendapatan dari Premium digunakan untuk mendukung pengembangan dan pemeliharaan situs.
             </dd>
           </div>
           <div>
             <dt>Cara materi dijaga</dt>
             <dd>
-              Setiap pelajaran disusun sendiri. Contoh rumus dijalankan oleh mesin rumus yang dibuat untuk Mahir Excel, dan jawaban latihan
-              diuji dengan data lain supaya jawaban asal tidak lolos.
+              Setiap pelajaran disusun sendiri. Contoh rumus dijalankan melalui mesin rumus yang dikembangkan untuk Mahir Excel. Jawaban latihan
+              juga diuji menggunakan data lain untuk memastikan formula yang digunakan sesuai dengan instruksi.
             </dd>
           </div>
           <div>

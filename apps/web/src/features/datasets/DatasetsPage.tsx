@@ -72,7 +72,7 @@ export function DatasetsPage() {
         <p className="xl-eyebrow">Bahan latihan</p>
         <h1>Data Latihan</h1>
         <p>
-          Setiap file berisi data dengan masalah yang sering ditemukan di pekerjaan kantor, seperti spasi berlebih, tanggal yang tersimpan sebagai teks, dan nomor ganda. Unduh gratis, kerjakan di Excel, lalu periksa hasilnya.
+          File berisi data dummy dengan beberapa masalah, seperti spasi berlebih, tanggal yang tersimpan sebagai teks, dan nomor ganda. Unduh gratis, kerjakan di Excel, lalu periksa hasilnya.
         </p>
       </header>
 
@@ -112,7 +112,7 @@ export function DatasetsPage() {
           <div className="xl-status info my-3">
             <Info className="xl-icon" aria-hidden="true" />
             <div>
-              Semua data bersifat fiktif dan tidak berasal dari orang atau perusahaan sungguhan. Setiap file punya sheet Data dan sheet Jawaban yang berisi tiga tugas. Tugas itu hanya panduan. Kamu tetap bisa mengolah data sesuai kebutuhanmu.
+              Semua data yang digunakan bersifat fiktif dan tidak berasal dari orang atau perusahaan sungguhan. Setiap file memiliki sheet Data dan sheet Jawaban yang berisi tiga tugas. Tugas tersebut merupakan panduan. Kamu tetap bisa mengolah data sesuai kebutuhanmu.
             </div>
           </div>
 

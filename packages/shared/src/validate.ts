@@ -122,7 +122,7 @@ export function validateSubmission(ex: ExerciseDef, submitted: Record<string, st
       fail(
         rule
           ? rule.message
-          : `Sel ${t.cell} menghasilkan ${formatValue(userVal) || '(kosong)'}, tetapi itu belum sesuai dengan yang diminta. Periksa kembali rentang sel, operator, dan apakah ada sel yang terlewat.`,
+          : `Sel ${t.cell} menghasilkan ${formatValue(userVal) || '(kosong)'}. Namun, hasil tersebut belum sesuai dengan instruksi soal. Periksa rentang sel, operator, dan sel yang mungkin terlewat.`,
       );
       continue;
     }
