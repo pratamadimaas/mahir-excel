@@ -190,7 +190,7 @@ test.describe('Sprint 60 detik (tanpa akun)', () => {
       await expect(page.locator('.xl-sp-board li.me')).toContainText('Penguji E2E');
 
       await page.goto('/');
-      await expect(page.getByRole('heading', { name: /Adu cepat/ })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Jawab soal Excel dalam 60 detik/ })).toBeVisible();
       await expect(page.locator('.xl-l-sprint-board').getByText('Penguji E2E')).toBeVisible();
     } finally {
       await db.end();

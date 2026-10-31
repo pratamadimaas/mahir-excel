@@ -93,7 +93,7 @@ export const paths: PathDef[] = [
     ],
     templates: ['invoice-piutang'],
     premiumExtras: [
-      'Worksheet Gaji dan Lembur serta Absensi Karyawan (.xlsx) beserta kunci jawabannya.',
+      'Kunci jawaban worksheet Gaji dan Lembur serta Absensi Karyawan, dan pemeriksaan hasil yang kamu unggah.',
       'Solusi langsung tanpa batas di semua latihan bidang ini.',
       'Penelusur rumus untuk melihat di langkah mana sebuah rumus keliru.',
     ],

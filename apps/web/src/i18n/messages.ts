@@ -77,7 +77,7 @@ export const id = {
   'hero.vTitleA': 'Latihan Excel yang ',
   'hero.vTitleB': 'langsung dinilai.',
   'hero.vLead': 'Kerjakan latihan di browser, atau unduh berkasnya dan kerjakan di Excel di komputermu. Setelah diunggah, sistem langsung menilai jawabanmu dan menunjukkan sel yang perlu diperbaiki.',
-  'hero.vPlacement': 'Cek levelmu terlebih dahulu (16 soal)',
+  'hero.vPlacement': 'Cek level Excel (16 soal)',
   'hero.vNote': 'Semua pelajaran dan latihan gratis untuk dikerjakan.',
   'hero.haveAccount': 'Sudah punya akun?',
   'hero.miniCaption': 'Contoh nyata: klik sel mana saja untuk melihat isinya. Sel B4 berisi rumus SUM.',
@@ -93,7 +93,7 @@ export const id = {
   'home.shortcuts.lead': 'Cari, saring, dan uji dirimu dengan kuis shortcut.',
   'home.shortcuts.open': 'Buka pustaka shortcut',
   'home.worksheets.title': 'Worksheet siap unduh',
-  'home.worksheets.lead': 'File .xlsx asli untuk berlatih di Excel sendiri, lengkap dengan kunci jawaban terpisah.',
+  'home.worksheets.lead': 'File .xlsx asli untuk berlatih di Excel sendiri. Semuanya gratis; kunci jawaban untuk anggota Premium.',
   'home.worksheets.all': 'Lihat semua worksheet',
   'home.noAccount.privacy': 'Baca soal data',
 
@@ -252,7 +252,7 @@ export const en: Messages = {
   'home.shortcuts.lead': 'Search, filter, and test yourself with the shortcut quiz.',
   'home.shortcuts.open': 'Open the shortcut library',
   'home.worksheets.title': 'Ready-to-download worksheets',
-  'home.worksheets.lead': 'Real .xlsx files to practise in your own Excel, with a separate answer key.',
+  'home.worksheets.lead': 'Real .xlsx files to practise in your own Excel. All free; answer keys are for Premium members.',
   'home.worksheets.all': 'See all worksheets',
   'home.noAccount.privacy': 'Read about your data',
 

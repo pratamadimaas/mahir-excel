@@ -46,7 +46,7 @@ const PUBLIC_PAGES: Record<string, Known> = {
   },
   '/premium': {
     title: 'Gratis atau Premium',
-    description: 'Semua pelajaran dan latihan gratis. Premium menambah solusi tanpa batas, template dan worksheet lanjutan, penelusur rumus, dan sertifikat.',
+    description: 'Semua pelajaran, latihan, dan worksheet gratis. Premium menambah pemeriksaan berkas, solusi tanpa batas, template lanjutan, penelusur rumus, dan sertifikat.',
   },
   '/program': {
     title: 'Program Perintis: sertifikat gratis',

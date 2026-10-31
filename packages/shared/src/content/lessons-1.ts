@@ -6,13 +6,13 @@ export const lessonsPart1: LessonDef[] = [
     slug: 'sel-baris-kolom-rentang',
     moduleSlug: 'mengenal-excel',
     title: 'Sel, Baris, Kolom, dan Rentang',
-    summary: 'Kenali bagian-bagian lembar kerja dan cara memasukkan data dengan benar.',
+    summary: 'Mengenal bagian lembar kerja dan cara memasukkan data.',
     minutes: 10,
     sortOrder: 1,
     content: {
       objectives: [
         'Membedakan workbook, worksheet, baris, kolom, dan sel.',
-        'Menyebut alamat sel (A1, B3) dan rentang (B2:B6).',
+        'Menulis alamat sel (A1, B3) dan rentang (B2:B6).',
         'Memasukkan teks dan angka, serta paham perbedaan keduanya.',
       ],
       sections: [
@@ -20,21 +20,21 @@ export const lessonsPart1: LessonDef[] = [
           heading: 'Workbook dan worksheet',
           paragraphs: [
             'Satu file Excel disebut workbook. Di dalamnya ada satu atau lebih worksheet (lembar kerja) yang tampil sebagai tab di bagian bawah, misalnya "Sheet1".',
-            'Worksheet berupa tabel besar: kolom diberi huruf (A, B, C…), baris diberi angka (1, 2, 3…).',
+            'Worksheet berbentuk tabel. Kolom diberi huruf (A, B, C…), sedangkan baris diberi angka (1, 2, 3…).',
           ],
         },
         {
           heading: 'Sel dan alamat sel',
           paragraphs: [
-            'Pertemuan kolom dan baris disebut sel. Alamatnya ditulis kolom lalu baris: B3 berarti kolom B, baris 3. Kotak di kiri atas (Name Box) menunjukkan alamat sel yang sedang dipilih.',
-            'Sekumpulan sel yang berdekatan disebut rentang (range). B2:B6 berarti semua sel dari B2 sampai B6. A1:C3 berarti kotak 3 kolom × 3 baris.',
+            'Pertemuan kolom dan baris disebut sel. Alamat sel ditulis dengan huruf kolom lebih dulu, lalu nomor baris. B3 berarti kolom B, baris 3. Kotak di kiri atas (Name Box) menunjukkan alamat sel yang sedang dipilih.',
+            'Sekumpulan sel yang berdekatan disebut rentang (range). B2:B6 mencakup semua sel dari B2 sampai B6. A1:C3 mencakup 3 kolom × 3 baris.',
           ],
         },
         {
           heading: 'Memasukkan data',
           paragraphs: [
-            'Pilih sel, ketik isinya, lalu tekan Enter. Excel membedakan tipe data otomatis: angka (15000) rata kanan, teks (Beras) rata kiri.',
-            'Angka yang ditulis bersama huruf, misalnya "Rp 15000" atau "15 ribu", dianggap teks sehingga tidak bisa dijumlahkan. Tulis angkanya saja, lalu atur tampilan Rp lewat format sel.',
+            'Pilih sel, ketik isinya, lalu tekan Enter. Excel mengenali angka (15000) dan teks (Beras) secara otomatis. Angka biasanya rata kanan, sedangkan teks rata kiri.',
+            'Angka yang disertai huruf, seperti "Rp 15000" atau "15 ribu", dianggap teks dan tidak bisa dijumlahkan. Ketik angkanya saja, lalu atur tampilan Rp lewat format sel.',
             'Format sel (angka, mata uang, tanggal, teks) hanya mengubah tampilan. Nilai di dalam sel tetap sama. Di Excel, buka format lewat Ctrl + 1 (Windows).',
           ],
         },
@@ -49,17 +49,17 @@ export const lessonsPart1: LessonDef[] = [
         ],
         formula: 'B2:B3',
         result: 'Rentang berisi dua angka: 15000 dan 14000',
-        walkthrough: 'B2:B3 adalah rentang dua sel di kolom B. Rentang ini nanti menjadi bahan rumus seperti SUM.',
+        walkthrough: 'B2:B3 mencakup dua sel di kolom B. Rentang seperti ini bisa dipakai dalam rumus SUM.',
       },
       mistakes: [
         {
           title: 'Menulis satuan di dalam sel angka',
-          detail: '"15000 rupiah" menjadi teks. Tulis 15000 saja dan gunakan format sel untuk menampilkan Rp.',
+          detail: '"15000 rupiah" dianggap teks. Ketik 15000 saja, lalu gunakan format sel untuk menampilkan Rp.',
         },
-        { title: 'Terbalik menulis alamat', detail: 'Alamat selalu kolom dulu, baru baris: B3, bukan 3B.' },
+        { title: 'Urutan alamat sel terbalik', detail: 'Tulis kolom lebih dulu, baru baris. Contohnya B3, bukan 3B.' },
         {
-          title: 'Memakai spasi tambahan',
-          detail: 'Teks "Beras " (dengan spasi di akhir) tidak sama dengan "Beras" saat dicari atau dihitung.',
+          title: 'Spasi tambahan',
+          detail: 'Teks "Beras " (dengan spasi di akhir) berbeda dari "Beras" saat dicari atau dihitung.',
         },
       ],
       playgroundNote:
@@ -296,7 +296,7 @@ export const lessonsPart1: LessonDef[] = [
     slug: 'fungsi-sum',
     moduleSlug: 'rumus-dasar',
     title: 'SUM: Menjumlahkan Angka',
-    summary: 'Jumlahkan rentang sel dengan satu fungsi.',
+    summary: 'Menjumlahkan angka dalam rentang sel dengan SUM.',
     minutes: 8,
     sortOrder: 1,
     content: {
@@ -310,15 +310,15 @@ export const lessonsPart1: LessonDef[] = [
           heading: 'Mengapa SUM',
           paragraphs: [
             '=B2+B3+B4+B5+B6 benar tetapi panjang dan mudah terlewat. =SUM(B2:B6) lebih ringkas dan otomatis mencakup semua sel di rentang.',
-            'SUM hanya menjumlahkan angka. Teks, sel kosong, dan nilai TRUE/FALSE di dalam rentang diabaikan.',
+            'SUM hanya menjumlahkan angka. Teks, sel kosong, serta nilai TRUE/FALSE dalam rentang tidak ikut dihitung.',
           ],
         },
       ],
       syntax: {
         signature: '=SUM(angka1; [angka2]; ...)',
         params: [
-          { name: 'angka1', description: 'Wajib. Rentang, sel, atau angka pertama, misalnya B2:B6.' },
-          { name: 'angka2, ...', description: 'Opsional. Rentang atau angka tambahan, dipisahkan koma atau titik koma.' },
+          { name: 'angka1', description: 'Wajib. Rentang, sel, atau angka yang akan dijumlahkan, misalnya B2:B6.' },
+          { name: 'angka2, ...', description: 'Opsional. Rentang atau angka tambahan yang dipisahkan dengan koma atau titik koma.' },
         ],
         notes: [
           'Pemisah argumen tergantung pengaturan regional Excel: koma (,) atau titik koma (;). Playground Mahir Excel menerima keduanya.',
@@ -326,7 +326,7 @@ export const lessonsPart1: LessonDef[] = [
       },
       example: {
         title: 'Pengeluaran mingguan',
-        description: 'Menjumlahkan lima pengeluaran.',
+        description: 'Menjumlahkan tiga pengeluaran.',
         table: [
           ['Pos', 'Biaya'],
           ['Makan', 350000],
@@ -338,12 +338,12 @@ export const lessonsPart1: LessonDef[] = [
         walkthrough: 'B2:B4 mencakup tiga sel. SUM menjumlahkan 350000 + 120000 + 50000.',
       },
       mistakes: [
-        { title: 'Rentang kurang satu baris', detail: 'SUM(B2:B5) padahal data sampai B6. Setelah menulis, periksa batas awal dan akhir.' },
+        { title: 'Rentang kurang satu baris', detail: 'SUM(B2:B5) padahal data sampai B6. Periksa sel pertama dan terakhir dalam rentang.' },
         {
           title: 'Ikut menjumlahkan baris total',
-          detail: 'Bila total ada di B7 dan kamu menulis SUM(B2:B7) di B7, itu referensi melingkar.',
+          detail: 'Jika total berada di B7, jangan menulis SUM(B2:B7) di sel B7 karena akan menghasilkan referensi melingkar.',
         },
-        { title: 'Angka berbentuk teks', detail: 'Angka rata kiri sering berarti teks dan tidak ikut dijumlahkan.' },
+        { title: 'Angka tersimpan sebagai teks', detail: 'Angka yang rata kiri biasanya berupa teks, sehingga tidak ikut dijumlahkan.' },
       ],
       quiz: [
         {

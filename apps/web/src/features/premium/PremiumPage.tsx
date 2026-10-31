@@ -17,7 +17,7 @@ function contactHref(url: string, email: string | undefined): string {
 
 const COMPARISON: { label: string; note?: string; free: boolean }[] = [
   { label: 'Semua pelajaran dan latihan', free: true },
-  { label: 'Uji Kemampuan Excel dan jadwal ulang', free: true },
+  { label: 'Uji Kemampuan Excel dan ulang terjadwal', free: true },
   { label: 'Pustaka shortcut dan mode kuis', free: true },
   { label: 'Sprint 60 detik dan papan peringkat', free: true },
   { label: 'Progres, poin, dan streak tersimpan', free: true },
@@ -28,7 +28,7 @@ const COMPARISON: { label: string; note?: string; free: boolean }[] = [
   { label: '2 template siap pakai: laporan penjualan dan keuangan pribadi', free: true },
   { label: 'Wizard rumus dasar', note: 'SUM, AVERAGE, MAX, MIN, COUNT', free: true },
   { label: 'Solusi langsung tanpa batas', note: 'Tombol “Lihat solusi” kapan saja di setiap latihan', free: false },
-  { label: 'Periksa berkas hasil kerjamu', note: 'Unggah worksheet atau data latihan, sistem menilai per tugas dan memberi petunjuk', free: false },
+  { label: 'Periksa worksheet dan data latihan yang kamu unggah', note: 'Unggah worksheet atau data latihan, sistem menilai per tugas dan memberi petunjuk', free: false },
   { label: 'Kunci jawaban semua worksheet', note: 'File .xlsx untuk mencocokkan hasil kerjamu', free: false },
   { label: '4 template lanjutan', note: 'Stok barang, invoice dan piutang, anggaran pernikahan, RAB sederhana', free: false },
   { label: 'Bandingkan jawabanmu dengan solusi', note: 'Sel demi sel, selisih ditandai', free: false },
@@ -72,8 +72,8 @@ export function PremiumPage() {
         <p className="xl-eyebrow">Premium</p>
         <h1>Gratis atau Premium, apa bedanya?</h1>
         <p>
-          Semua pelajaran dan latihan gratis. Premium menambah jalan pintas dan bahan latihan: solusi langsung, worksheet lanjutan beserta
-          kunci jawabannya, dan sertifikat.
+          Semua pelajaran, latihan, dan worksheet gratis. Premium menambah pemeriksaan berkas yang kamu unggah, solusi langsung tanpa batas,
+          kunci jawaban worksheet, template lanjutan, dan sertifikat.
         </p>
       </header>
 

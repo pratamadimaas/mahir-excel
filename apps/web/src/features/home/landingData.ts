@@ -109,27 +109,27 @@ export const TRY_EXPECTED = 300000;
 export const MODULE_OUTCOMES: Record<string, string> = {
   'mengenal-excel': 'Memahami workbook, sel, dan rentang, lalu memasukkan data dengan format yang benar.',
   'persiapan-tes-kerja': 'Menghapus data ganda, membuat Table, memakai Paste Special dan Flash Fill, menyiapkan cetakan, dan menghitung total yang mengikuti filter.',
-  'mengolah-data': 'Merapikan tabel yang berantakan: urutkan, saring, dan temukan data yang tidak konsisten.',
-  'rumus-dasar': 'Menjumlahkan dan merata-ratakan data dengan rumus, bukan kalkulator.',
-  logika: 'Membuat Excel mengambil keputusan, misalnya lulus atau remedial, lunas atau belum.',
+  'mengolah-data': 'Mengurutkan dan menyaring tabel, lalu menemukan data yang tidak konsisten.',
+  'rumus-dasar': 'Menjumlahkan dan menghitung rata-rata data dengan rumus.',
+  logika: 'Menentukan status dengan rumus, misalnya lulus atau remedial, lunas atau belum.',
   'fungsi-bersyarat': 'Meringkas data per kategori, misalnya total penjualan per cabang.',
-  'fungsi-pencarian': 'Mengambil harga atau nama dari tabel acuan tanpa mengetik ulang.',
+  'fungsi-pencarian': 'Mencari harga atau nama dari tabel acuan dengan rumus pencarian.',
   'teks-tanggal': 'Merapikan nama dan kode, dan menghitung dengan tanggal seperti jatuh tempo.',
-  'rapi-dan-aman': 'Mencegah salah input, menyorot data penting otomatis, dan meringkas data.',
+  'rapi-dan-aman': 'Membatasi salah input, menandai data penting secara otomatis, dan membuat ringkasan.',
 };
 
 export const AUDIENCE: { title: string; text: string }[] = [
   {
-    title: 'Pemula yang mau belajar Excel',
-    text: 'Mulai dari sel dan kolom, dengan istilah yang sederhana. Uji Kemampuan Excel membantu menentukan titik awal.',
+    title: 'Baru mulai belajar Excel',
+    text: 'Mulai dari sel, baris, dan kolom. Uji Kemampuan Excel membantumu memilih modul pertama.',
   },
   {
-    title: 'Pekerja kantor yang mau naik level',
-    text: 'Fungsi yang dipakai sehari-hari, dari SUM dan IF sampai VLOOKUP dan XLOOKUP, dengan latihan yang menunjukkan kenapa hasilnya salah.',
+    title: 'Pekerja kantor',
+    text: 'Pelajari fungsi yang sering dipakai, dari SUM dan IF sampai VLOOKUP dan XLOOKUP. Setiap latihan menjelaskan di mana rumusmu belum sesuai.',
   },
   {
     title: 'Mahasiswa dan pencari kerja',
-    text: 'Butuh bukti belajar untuk CV? Selesaikan materinya dan unduh sertifikat PDF (Premium) yang keasliannya bisa diperiksa lewat kode.',
+    text: 'Selesaikan materinya, lalu unduh sertifikat PDF (Premium). Setiap sertifikat punya kode untuk memeriksa keasliannya.',
   },
 ];
 
@@ -174,7 +174,7 @@ export const faqs = (functions: number | null): Faq[] => [
   },
   {
     q: 'Kenapa harus daftar dulu?',
-    a: 'Supaya poin, progres, dan jadwal ulang tersimpan dan bisa dilanjutkan dari perangkat mana pun. Lima pelajaran contoh dan uji kemampuan Excel tetap bisa dibuka tanpa akun.',
+    a: 'Supaya poin, progres, dan ulang terjadwal tersimpan dan bisa dilanjutkan dari perangkat mana pun. Lima pelajaran contoh dan uji kemampuan Excel tetap bisa dibuka tanpa akun.',
   },
   {
     q: 'Perlu punya Excel di komputer?',

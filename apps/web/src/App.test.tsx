@@ -59,6 +59,7 @@ describe('navigasi dan routing', () => {
     expect(href('Belajar')).toBe('/belajar');
     expect(href('Bidang')).toBe('/jalur');
     expect(href('Latihan')).toBe('/latihan');
+    expect(href('Data Latihan')).toBe('/data-latihan');
     expect(href('Worksheet')).toBe('/worksheet');
     expect(href('Sertifikat gratis')).toBe('/program');
     expect(within(guide).getByRole('link', { name: 'Ikuti Uji Kemampuan Excel' })).toHaveAttribute('href', '/tes-penempatan');
@@ -501,7 +502,7 @@ describe('pelajaran contoh untuk pengunjung', () => {
       ],
     });
     renderApp('/');
-    expect(await screen.findByRole('heading', { name: 'Baca satu pelajaran dulu' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Coba baca satu pelajaran' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /SUM: Menjumlahkan Angka/ })).toHaveAttribute('href', '/belajar/fungsi-sum');
   });
 });

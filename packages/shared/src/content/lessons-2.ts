@@ -6,7 +6,7 @@ export const lessonsPart2: LessonDef[] = [
     slug: 'fungsi-if',
     moduleSlug: 'logika',
     title: 'IF: Mengambil Keputusan',
-    summary: 'Tampilkan hasil berbeda tergantung suatu syarat.',
+    summary: 'Menampilkan hasil berdasarkan suatu syarat.',
     minutes: 10,
     sortOrder: 1,
     content: {
@@ -19,13 +19,13 @@ export const lessonsPart2: LessonDef[] = [
         {
           heading: 'Uji logika',
           paragraphs: [
-            'Uji logika adalah pertanyaan yang jawabannya benar (TRUE) atau salah (FALSE). Contoh: B2>=70 ("apakah nilai B2 minimal 70?"). Operator pembanding: =, <>, <, >, <=, >=.',
+            'Uji logika menghasilkan TRUE (benar) atau FALSE (salah). Contoh: B2>=70 memeriksa apakah nilai di B2 minimal 70. Operator pembanding: =, <>, <, >, <=, >=.',
           ],
         },
         {
           heading: 'Struktur IF',
           paragraphs: [
-            'IF memeriksa uji logika. Jika benar, ia menampilkan argumen kedua; jika salah, argumen ketiga. Teks harus diapit tanda kutip ganda, sedangkan angka dan referensi sel tidak.',
+            'IF memeriksa uji logika. Jika hasilnya benar, IF menampilkan argumen kedua. Jika salah, IF menampilkan argumen ketiga. Teks harus diapit tanda kutip ganda, sedangkan angka dan referensi sel tidak.',
           ],
         },
       ],
@@ -33,13 +33,13 @@ export const lessonsPart2: LessonDef[] = [
         signature: '=IF(uji_logika; nilai_jika_benar; [nilai_jika_salah])',
         params: [
           { name: 'uji_logika', description: 'Kondisi yang dicek, misalnya B2>=70.' },
-          { name: 'nilai_jika_benar', description: 'Hasil bila kondisi terpenuhi.' },
-          { name: 'nilai_jika_salah', description: 'Opsional. Hasil bila tidak terpenuhi. Jika dikosongkan, hasilnya FALSE.' },
+          { name: 'nilai_jika_benar', description: 'Hasil yang ditampilkan jika kondisi terpenuhi.' },
+          { name: 'nilai_jika_salah', description: 'Opsional. Hasil yang ditampilkan jika kondisi tidak terpenuhi. Jika dikosongkan, hasilnya FALSE.' },
         ],
       },
       example: {
         title: 'Status kelulusan',
-        description: 'KKM 70: nilai 70 ke atas Lulus, selain itu Remedial.',
+        description: 'KKM 70. Nilai minimal 70 mendapat status Lulus, sedangkan nilai di bawah 70 mendapat status Remedial.',
         table: [
           ['Siswa', 'Nilai', 'Status'],
           ['Ani', 82, '=IF(B2>=70;"Lulus";"Remedial")'],
@@ -50,9 +50,9 @@ export const lessonsPart2: LessonDef[] = [
         walkthrough: '82 >= 70 benar sehingga Ani "Lulus". 65 >= 70 salah sehingga Beni "Remedial".',
       },
       mistakes: [
-        { title: 'Teks tanpa tanda kutip', detail: 'Lulus tanpa kutip dianggap nama, bukan teks, dan menghasilkan #NAME?.' },
-        { title: 'Memakai > padahal batasnya termasuk', detail: 'Nilai tepat 70 harus lulus, jadi pakai >= bukan >.' },
-        { title: 'Mengetik angka batas di setiap rumus', detail: 'Lebih baik simpan KKM di satu sel dan kunci dengan $.' },
+        { title: 'Teks tanpa tanda kutip', detail: 'Lulus tanpa kutip dianggap sebagai nama, bukan teks, sehingga menghasilkan #NAME?.' },
+        { title: 'Memakai > padahal batasnya termasuk', detail: 'Nilai 70 juga harus lulus, jadi gunakan >=, bukan >.' },
+        { title: 'Mengetik angka batas berulang kali', detail: 'Simpan KKM di satu sel, lalu kunci referensinya dengan $.' },
       ],
       quiz: [
         {
@@ -193,22 +193,22 @@ export const lessonsPart2: LessonDef[] = [
     slug: 'countif-countifs',
     moduleSlug: 'fungsi-bersyarat',
     title: 'COUNTIF dan COUNTIFS',
-    summary: 'Hitung banyaknya data yang memenuhi satu atau beberapa syarat.',
+    summary: 'Menghitung data yang memenuhi satu atau beberapa syarat.',
     minutes: 12,
     sortOrder: 1,
     content: {
       objectives: [
         'Menghitung data dengan satu syarat memakai COUNTIF.',
         'Menghitung dengan beberapa syarat memakai COUNTIFS.',
-        'Menulis kriteria teks dan perbandingan seperti ">50".',
+        'Menulis kriteria teks dan perbandingan, misalnya ">50".',
       ],
       sections: [
         {
           heading: 'Hitung dengan syarat',
           paragraphs: [
-            'COUNTIF menghitung sel di sebuah rentang yang cocok dengan satu kriteria. Kriteria teks diapit kutip: "Lunas". Kriteria perbandingan juga berupa teks: ">50", "<=20", "<>Lunas".',
-            'COUNTIFS menerima banyak pasangan (rentang; kriteria), dan hanya menghitung baris yang memenuhi semuanya (logika DAN). Semua rentang harus berukuran sama.',
-            'Pencocokan teks tidak membedakan huruf besar-kecil: "lunas" sama dengan "Lunas". Karakter * dan ? bisa dipakai sebagai wildcard.',
+            'COUNTIF menghitung sel yang memenuhi satu kriteria. Kriteria teks ditulis dalam tanda kutip, misalnya "Lunas". Kriteria perbandingan juga ditulis dalam tanda kutip: ">50", "<=20", "<>Lunas".',
+            'COUNTIFS menerima beberapa pasangan (rentang; kriteria). Fungsi ini hanya menghitung baris yang memenuhi semua kriteria (logika DAN). Ukuran semua rentang harus sama.',
+            'Pencocokan teks tidak membedakan huruf besar dan kecil. "lunas" sama dengan "Lunas". Karakter * dan ? juga bisa dipakai sebagai wildcard.',
           ],
         },
       ],
@@ -216,13 +216,13 @@ export const lessonsPart2: LessonDef[] = [
         signature: '=COUNTIF(rentang; kriteria)   =COUNTIFS(rentang1; kriteria1; [rentang2; kriteria2]; ...)',
         params: [
           { name: 'rentang', description: 'Sel yang akan diperiksa, misalnya C2:C8.' },
-          { name: 'kriteria', description: 'Syarat: angka, teks, atau perbandingan seperti ">50".' },
+          { name: 'kriteria', description: 'Syarat yang digunakan, berupa angka, teks, atau perbandingan seperti ">50".' },
         ],
         notes: ['Pada COUNTIFS, jumlah argumen selalu genap (pasangan rentang-kriteria).'],
       },
       example: {
         title: 'Status pembayaran',
-        description: 'Berapa transaksi yang Lunas?',
+        description: 'Hitung jumlah transaksi berstatus Lunas.',
         table: [
           ['Pelanggan', 'Total', 'Status'],
           ['Ani', 50000, 'Lunas'],
@@ -234,9 +234,9 @@ export const lessonsPart2: LessonDef[] = [
         walkthrough: 'Dua dari tiga sel di C2:C4 berisi "Lunas".',
       },
       mistakes: [
-        { title: 'Kriteria teks tanpa kutip', detail: 'Lunas tanpa kutip menghasilkan #NAME?.' },
-        { title: 'Rentang tidak sama ukuran di COUNTIFS', detail: 'C2:C8 dan B2:B7 menghasilkan #VALUE!.' },
-        { title: 'Salah menulis operator', detail: 'Tulis ">50" dengan kutip. Tanpa kutip, rumus tidak valid.' },
+        { title: 'Kriteria teks tanpa kutip', detail: 'Lunas tanpa tanda kutip akan menghasilkan #NAME?.' },
+        { title: 'Ukuran rentang berbeda di COUNTIFS', detail: 'C2:C8 dan B2:B7 tidak sama panjang, sehingga menghasilkan #VALUE!.' },
+        { title: 'Salah menulis operator', detail: 'Tulis ">50" dengan tanda kutip. Tanpa tanda kutip, rumus tidak valid.' },
       ],
       quiz: [
         {

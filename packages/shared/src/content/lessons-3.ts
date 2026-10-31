@@ -84,7 +84,7 @@ export const lessonsPart3: LessonDef[] = [
     slug: 'vlookup-dasar',
     moduleSlug: 'fungsi-pencarian',
     title: 'VLOOKUP: Mengambil Data dari Tabel Acuan',
-    summary: 'Cari kode di tabel harga dan ambil nama atau harganya otomatis.',
+    summary: 'Mencari kode di tabel acuan untuk mengambil nama atau harga barang.',
     minutes: 14,
     sortOrder: 1,
     content: {
@@ -97,37 +97,37 @@ export const lessonsPart3: LessonDef[] = [
         {
           heading: 'Tabel acuan',
           paragraphs: [
-            'Banyak pekerjaan Excel berupa menyalin data dari tabel lain: kode barang menjadi nama dan harga, nilai menjadi grade. Alih-alih mengetik ulang, VLOOKUP mencari nilai di kolom paling kiri tabel acuan lalu mengambil isi kolom lain di baris yang sama.',
-            'Syarat penting: nilai yang dicari harus berada di kolom pertama tabel acuan.',
+            'Dalam pekerjaan Excel, kamu mungkin perlu mencari nama atau harga berdasarkan kode barang, atau grade berdasarkan nilai. VLOOKUP mencari nilai di kolom paling kiri tabel acuan, lalu mengambil data dari kolom lain pada baris yang sama.',
+            'Nilai yang dicari harus berada di kolom pertama tabel acuan.',
           ],
         },
         {
           heading: 'Persis atau perkiraan',
           paragraphs: [
-            'Argumen terakhir menentukan cara mencocokkan. FALSE (atau 0) berarti harus persis sama, dan jika tidak ada hasilnya #N/A. TRUE (atau dikosongkan) berarti perkiraan: dicari nilai terbesar yang tidak melebihi nilai yang dicari. Mode perkiraan hanya benar bila kolom pertama diurutkan naik, dan cocok untuk tabel batas seperti grade atau tarif bertingkat.',
+            'Argumen terakhir menentukan jenis pencocokan. FALSE (atau 0) mencari nilai yang persis sama. Jika tidak ditemukan, hasilnya #N/A. TRUE (atau dikosongkan) mencari nilai terbesar yang tidak melebihi nilai yang dicari. Untuk mode ini, kolom pertama harus diurutkan dari kecil ke besar. Mode perkiraan cocok untuk tabel batas seperti grade atau tarif bertingkat.',
             'Hampir selalu pakai FALSE untuk kode atau nama. Lupa mengisinya adalah sumber salah hasil yang paling sering.',
           ],
         },
         {
           heading: 'Kunci tabel dengan $',
           paragraphs: [
-            'Tabel acuan tidak boleh ikut bergeser saat rumus disalin ke bawah, jadi tulis $F$2:$H$6. Alamat nilai yang dicari (A2) tetap relatif.',
+            'Saat rumus disalin ke bawah, tabel acuan harus tetap di posisi yang sama. Gunakan $F$2:$H$6 untuk menguncinya. Alamat nilai yang dicari (A2) tetap relatif.',
           ],
         },
       ],
       syntax: {
         signature: '=VLOOKUP(nilai_dicari; tabel; nomor_kolom; [jenis_cocok])',
         params: [
-          { name: 'nilai_dicari', description: 'Kunci yang dicari, biasanya referensi sel seperti A2.' },
-          { name: 'tabel', description: 'Tabel acuan, kolom pertama berisi kunci. Kunci dengan $.' },
-          { name: 'nomor_kolom', description: 'Kolom ke berapa (dihitung dari kolom pertama tabel) yang diambil.' },
-          { name: 'jenis_cocok', description: 'FALSE untuk persis. TRUE atau kosong untuk perkiraan pada data terurut naik.' },
+          { name: 'nilai_dicari', description: 'Nilai yang dicari, biasanya berupa referensi sel seperti A2.' },
+          { name: 'tabel', description: 'Tabel acuan dengan kolom pertama berisi nilai yang dicari. Kunci alamat tabel dengan $.' },
+          { name: 'nomor_kolom', description: 'Nomor kolom yang datanya akan diambil, dihitung dari kolom pertama tabel.' },
+          { name: 'jenis_cocok', description: 'FALSE untuk pencocokan persis. TRUE atau kosong untuk pencocokan perkiraan pada data yang diurutkan naik.' },
         ],
         notes: ['Jika kunci tidak ditemukan hasilnya #N/A. Bungkus dengan IFERROR atau IFNA untuk pesan yang ramah.'],
       },
       example: {
         title: 'Harga dari kode barang',
-        description: 'Tabel acuan di F1:H3. Kode di kolom A diganti dengan harganya.',
+        description: 'Tabel acuan berada di E1:G3. Harga barang diambil berdasarkan kode di kolom A.',
         table: [
           ['Kode', 'Jumlah', 'Harga', '', 'Kode', 'Nama', 'Harga'],
           ['GLA', 10, '=VLOOKUP(A2,$E$2:$G$3,3,FALSE)', '', 'BRS', 'Beras', 68000],
@@ -135,22 +135,22 @@ export const lessonsPart3: LessonDef[] = [
         ],
         formula: '=VLOOKUP(A2,$E$2:$G$3,3,FALSE)',
         result: '16000',
-        walkthrough: 'GLA dicari di kolom pertama E2:E3, ditemukan di baris kedua, lalu diambil kolom ke-3 (Harga): 16000.',
+        walkthrough: 'GLA dicari di kolom pertama E2:E3 dan ditemukan di baris kedua. Dari baris itu diambil kolom ke-3 (Harga): 16000.',
       },
       mistakes: [
         {
           title: 'Lupa FALSE',
-          detail: 'Tanpa FALSE, Excel memakai pencocokan perkiraan dan bisa mengembalikan baris yang salah tanpa pesan galat.',
+          detail: 'Tanpa FALSE, Excel memakai pencocokan perkiraan. Hasilnya bisa salah meskipun tidak muncul pesan galat.',
         },
         {
           title: 'Tabel tidak dikunci',
-          detail: 'Setelah disalin ke bawah, rentang tabel bergeser dan beberapa baris menjadi #N/A. Gunakan $.',
+          detail: 'Rentang tabel ikut bergeser saat rumus disalin ke bawah dan bisa menyebabkan hasil #N/A. Kunci rentangnya dengan $.',
         },
         {
-          title: 'Kunci tidak di kolom pertama',
-          detail: 'VLOOKUP hanya mencari di kolom paling kiri tabel. Untuk mencari ke kiri gunakan XLOOKUP atau INDEX-MATCH.',
+          title: 'Kunci tidak berada di kolom pertama',
+          detail: 'VLOOKUP hanya mencari di kolom paling kiri tabel. Untuk mengambil data dari sebelah kiri, gunakan XLOOKUP atau INDEX-MATCH.',
         },
-        { title: 'Angka vs teks', detail: 'Angka 5 dan teks "5" dianggap berbeda. Seragamkan tipe data kunci.' },
+        { title: 'Angka dan teks', detail: 'Angka 5 berbeda dari teks "5". Pastikan tipe data pada kolom kunci seragam.' },
       ],
       playgroundNote:
         'Playground mendukung pencocokan persis dan perkiraan dengan wildcard * dan ? pada teks. Perilaku pada data yang tidak terurut untuk pencocokan perkiraan sama seperti Excel: tidak terjamin.',
