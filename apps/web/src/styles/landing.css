@@ -724,6 +724,9 @@ main:has(.xl-l-closing) + .xl-footer {
   scroll-margin-top: calc(var(--xl-header-h, 60px) + 16px);
 }
 .xl-hero-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   align-self: center;
   color: #fff;
   font-weight: 600;
@@ -1973,7 +1976,7 @@ main:has(.xl-l-closing) + .xl-footer {
   padding: 0;
   margin: 48px 0 0;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
 }
 .xl-l-dl-tiles li {
@@ -2088,4 +2091,9 @@ main:has(.xl-l-closing) + .xl-footer {
 }
 .xl-l-dl .xl-l-eyebrow {
   color: #8a6a12;
+}
+.xl-l-dl-premium {
+  margin: 20px 0 0;
+  color: var(--xl-text-muted);
+  max-width: 52em;
 }

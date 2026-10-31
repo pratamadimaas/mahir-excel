@@ -45,8 +45,7 @@ export function Header() {
         ...(user.premium ? [] : [{ to: '/premium', label: t('nav.premium') }]),
       ]
     : [
-        { to: '/jalur', label: t('nav.paths') },
-        { to: '/#belajar', label: t('nav.learn'), hash: true },
+        { to: '/#belajar', label: t('nav.paths'), hash: true },
         { to: '/data-latihan', label: t('nav.datasets') },
         { to: '/#harga', label: t('nav.pricing'), hash: true },
         { to: '/#faq', label: t('nav.faq'), hash: true },
@@ -111,7 +110,7 @@ export function Header() {
                 <span className="d-none d-xl-inline xl-muted">{t('nav.search')}</span>
               </button>
             )}
-            {langButton}
+            {user ? langButton : <span className="d-none d-sm-inline-flex">{langButton}</span>}
             {user && nextLesson && (
               <Link to={`/belajar/${nextLesson.slug}`} className="btn btn-primary btn-sm d-none d-xxl-inline-flex text-nowrap">
                 {t('nav.continue')}
@@ -141,7 +140,7 @@ export function Header() {
                 <Link to="/masuk" className="xl-icon-btn d-none d-sm-inline-flex">
                   {t('nav.login')}
                 </Link>
-                <Link to="/daftar" className="xl-cta d-none d-sm-inline-flex">
+                <Link to="/daftar" className="xl-cta d-inline-flex">
                   {t('nav.register')}
                 </Link>
               </>
@@ -195,6 +194,7 @@ export function Header() {
                   <NavLink to="/daftar">{t('nav.register')}</NavLink>
                 </>
               )}
+              <div className="d-sm-none">{langButton}</div>
             </nav>
           </div>
         </div>

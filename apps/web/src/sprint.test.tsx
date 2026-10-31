@@ -253,7 +253,7 @@ describe('halaman Sprint', () => {
 });
 
 describe('Sprint di beranda dan admin', () => {
-  it('beranda pengunjung memuat sel Sprint di kotak alat dengan tautan main', async () => {
+  it('beranda pengunjung menautkan Sprint dari footer, tanpa papan peringkat', async () => {
     mockApi({
       ...anon,
       'GET /auth/config': { emailEnabled: false, googleClientId: null, premium: { priceLabel: '', contactUrl: null } },
@@ -261,9 +261,9 @@ describe('Sprint di beranda dan admin', () => {
       'GET /public/lessons': [],
     });
     renderApp('/');
-    const h = await screen.findByRole('heading', { name: 'Sprint 60 detik' });
-    const cell = h.closest('article')!;
-    expect(within(cell).getByRole('link', { name: 'Main sekarang' })).toHaveAttribute('href', '/sprint');
+    await screen.findByRole('heading', { name: /Coba dulu tanpa daftar/ });
+    const footer = document.querySelector('footer')!;
+    expect(within(footer).getByRole('link', { name: 'Sprint 60 detik' })).toHaveAttribute('href', '/sprint');
     // Papan peringkat tidak dipajang di beranda pengunjung supaya halaman tidak terlihat kosong.
     expect(screen.queryByText('Belum ada skor')).not.toBeInTheDocument();
   });

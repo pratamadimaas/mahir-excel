@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { useAuth } from '../../app/AuthContext';
 import { useI18n } from '../../i18n/I18n';
 import { Wordmark } from './Header';
 
@@ -6,6 +7,7 @@ const CONTACT = (import.meta.env.VITE_CONTACT_URL as string | undefined)?.trim()
 
 export function Footer() {
   const { t } = useI18n();
+  const { user } = useAuth();
   return (
     <footer className="xl-footer">
       <div className="xl-page">
@@ -15,49 +17,71 @@ export function Footer() {
             <p className="mt-2 mb-2">{t('footer.tagline')}</p>
             <p className="xl-small mb-0">{t('footer.disclaimer')}</p>
           </div>
-          <div className="col-6 col-md-2">
-            <h3>{t('footer.learn')}</h3>
-            <ul>
-              <li>
-                <Link to="/belajar">{t('footer.academy')}</Link>
-              </li>
-              <li>
-                <Link to="/latihan">{t('footer.practice')}</Link>
-              </li>
-              <li>
-                <Link to="/tantangan">{t('footer.challenge')}</Link>
-              </li>
-              <li>
-                <Link to="/kemajuan">{t('footer.progress')}</Link>
-              </li>
-              <li>
-                <Link to="/tes-penempatan">{t('footer.placement')}</Link>
-              </li>
-              <li>
-                <Link to="/sprint">{t('footer.sprint')}</Link>
-              </li>
-            </ul>
-          </div>
-          <div className="col-6 col-md-2">
-            <h3>{t('footer.resources')}</h3>
-            <ul>
-              <li>
-                <Link to="/data-latihan">{t('footer.datasets')}</Link>
-              </li>
-              <li>
-                <Link to="/shortcut">{t('footer.shortcuts')}</Link>
-              </li>
-              <li>
-                <Link to="/worksheet">{t('footer.worksheets')}</Link>
-              </li>
-              <li>
-                <Link to="/template">{t('footer.templates')}</Link>
-              </li>
-              <li>
-                <Link to="/wizard">{t('footer.wizard')}</Link>
-              </li>
-            </ul>
-          </div>
+          {user ? (
+            <>
+              <div className="col-6 col-md-2">
+                <h3>{t('footer.learn')}</h3>
+                <ul>
+                  <li>
+                    <Link to="/belajar">{t('footer.academy')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/latihan">{t('footer.practice')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/tantangan">{t('footer.challenge')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/kemajuan">{t('footer.progress')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/tes-penempatan">{t('footer.placement')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/sprint">{t('footer.sprint')}</Link>
+                  </li>
+                </ul>
+              </div>
+              <div className="col-6 col-md-2">
+                <h3>{t('footer.resources')}</h3>
+                <ul>
+                  <li>
+                    <Link to="/data-latihan">{t('footer.datasets')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/shortcut">{t('footer.shortcuts')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/worksheet">{t('footer.worksheets')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/template">{t('footer.templates')}</Link>
+                  </li>
+                  <li>
+                    <Link to="/wizard">{t('footer.wizard')}</Link>
+                  </li>
+                </ul>
+              </div>
+            </>
+          ) : (
+            <div className="col-6 col-md-4">
+              <h3>{t('footer.tryTitle')}</h3>
+              <ul>
+                <li>
+                  <Link to="/tes-penempatan">{t('footer.placement')}</Link>
+                </li>
+                <li>
+                  <Link to="/sprint">{t('footer.sprint')}</Link>
+                </li>
+                <li>
+                  <Link to="/data-latihan">{t('footer.datasets')}</Link>
+                </li>
+                <li>
+                  <Link to="/jalur">{t('nav.paths')}</Link>
+                </li>
+              </ul>
+            </div>
+          )}
           <div className="col-12 col-md-3">
             <h3>{t('footer.info')}</h3>
             <ul>

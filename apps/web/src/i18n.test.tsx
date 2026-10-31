@@ -51,7 +51,7 @@ describe('ganti bahasa', () => {
 
     const nav = screen.getByRole('navigation', { name: 'Main navigation' });
     // Navbar pengunjung menautkan ke bagian beranda dan ikut berganti bahasa.
-    expect(within(nav).getByRole('link', { name: 'Learn' })).toHaveAttribute('href', '/#belajar');
+    expect(within(nav).getByRole('link', { name: 'Paths' })).toHaveAttribute('href', '/#belajar');
     expect(within(nav).getByRole('link', { name: 'Pricing' })).toHaveAttribute('href', '/#harga');
     expect(within(nav).getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/#faq');
     expect(within(nav).queryByRole('link', { name: 'Placement test' })).not.toBeInTheDocument();

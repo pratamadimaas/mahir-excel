@@ -118,21 +118,6 @@ export const MODULE_OUTCOMES: Record<string, string> = {
   'rapi-dan-aman': 'Gunakan fitur Excel untuk membatasi kesalahan input, menandai data penting secara otomatis, dan membuat ringkasan.',
 };
 
-export const AUDIENCE: { title: string; text: string }[] = [
-  {
-    title: 'Baru mulai belajar Excel',
-    text: 'Mulai dari sel, baris, dan kolom. Uji Kemampuan Excel membantumu memilih modul pertama.',
-  },
-  {
-    title: 'Untuk pekerja kantor',
-    text: 'Pelajari fungsi yang sering digunakan, mulai dari SUM dan IF hingga VLOOKUP dan XLOOKUP. Setiap latihan memberikan penjelasan saat rumusmu belum sesuai.',
-  },
-  {
-    title: 'Untuk mahasiswa dan pencari kerja',
-    text: 'Selesaikan materi pembelajaran dan unduh sertifikat PDF melalui fitur Premium. Keaslian sertifikat dapat diperiksa menggunakan kode verifikasi.',
-  },
-];
-
 /** Tiga percobaan nyata di latihan "Total pengeluaran bulanan" (pesan persis dari validator, dicek tes). */
 export interface FeedbackStep {
   formula: string;
@@ -179,6 +164,10 @@ export const faqs = (functions: number | null): Faq[] => [
   {
     q: 'Perlu punya Excel di komputer?',
     a: 'Tidak untuk pelajaran dan latihan, karena semuanya berjalan di browser. Worksheet berformat .xlsx dibuka di Excel atau aplikasi spreadsheet lain yang bisa membuka berkas itu.',
+  },
+  {
+    q: 'Bagaimana kebenaran materi dan jawaban latihan dijaga?',
+    a: 'Setiap pelajaran disusun sendiri. Contoh rumus dijalankan melalui mesin rumus yang dikembangkan untuk Mahir Excel. Jawaban latihan juga diuji menggunakan data lain untuk memastikan formula yang digunakan sesuai dengan instruksi.',
   },
   {
     q: 'Apakah sama persis dengan Excel?',
